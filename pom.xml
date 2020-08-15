@@ -11,7 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>com.rodolfo.ulcer.segmentation.MainApp</mainClass>
+        <mainClass>com.rodolfo.ulcer.segmentation.Main</mainClass>
     </properties>
 
     <organization>
@@ -78,6 +78,13 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.9.8</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.12</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -125,7 +132,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.rodolfo.ulcer.segmentation.MainApp</mainClass>
+                    <mainClass>com.rodolfo.ulcer.segmentation.Main</mainClass>
                 </configuration>
             </plugin>
             

@@ -1,24 +1,48 @@
 package com.rodolfo.ulcer.segmentation;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import java.io.IOException;
 
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class MainApp extends Application {
 
+    public static Stage mainStage;
+    private static BorderPane mainPane;
+
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
+        mainStage = stage;
         
-        Scene scene = new Scene(root);
+        mainStage.setTitle("Ulcer Segmentation");
+        mainStage.setResizable(false);
+        mainStage.centerOnScreen();
+        
+        mainStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            
+            public void handle(WindowEvent event) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
+
+        showScene();
+    }
+
+    public void showScene() throws IOException {
+        
+        mainPane = FXMLLoader.load(getClass().getResource("/views/Scene.fxml"));
+        
+        Scene scene = new Scene (mainPane);
         scene.getStylesheets().add("/styles/Styles.css");
-        
-        stage.setTitle("JavaFX and Maven");
-        stage.setScene(scene);
-        stage.show();
+        mainStage.setScene(scene);
+        mainStage.show();
     }
 
     /**
