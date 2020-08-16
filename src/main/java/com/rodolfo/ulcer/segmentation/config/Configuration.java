@@ -18,10 +18,14 @@ public class Configuration {
     private Integer resampleHeight;
     private Integer resampleWidth;
 
+    private Integer specularReflectionElemntSize;
+    private float specularReflectionThreshold;
+
     private String userDirectory;
     private String extension;
     private String imageName;
     private String labeledImageName;
+    private String imageWithoutReflectionsName;
     private String superpixelsLabelImageName;
     private String svmClassificationImageName;
     private String grabcutSegmentationBinaryImageName;

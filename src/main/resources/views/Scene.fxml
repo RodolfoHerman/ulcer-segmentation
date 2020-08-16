@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -51,6 +52,12 @@
                      </toggleGroup></RadioButton>
                   <RadioButton id="texts" fx:id="methodLSC" mnemonicParsing="false" text="LSC" toggleGroup="$methods" />
                   <RadioButton id="texts" fx:id="methodSLIC" mnemonicParsing="false" text="SLIC" toggleGroup="$methods" />
+                  <Separator prefWidth="200.0" />
+                  <CheckBox fx:id="srRemoval" mnemonicParsing="false" selected="true" text="SR Removal">
+                     <tooltip>
+                        <Tooltip text="SR - Specular Reflection" />
+                     </tooltip>
+                  </CheckBox>
                </children>
                <padding>
                   <Insets bottom="5.0" top="5.0" />

@@ -13,6 +13,7 @@ public class Image {
     
     private Mat image;
     private Mat labeledImage;
+    private Mat imageWithoutReflection;
     private Directory directory;
 
     public Image() {}

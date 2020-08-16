@@ -18,6 +18,7 @@ public class Directory {
     // Path images
     private File dirPath;
     private File imagePath;
+    private File imageWithoutReflectionsPath;
     private File labeledImagePath;
     private File superpixelsLabesPath;
     private File svmClassificatioPath;
@@ -35,6 +36,7 @@ public class Directory {
 
         this.imagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getExtension()));
         this.labeledImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getLabeledImageName()).concat(configuration.getExtension()));
+        this.imageWithoutReflectionsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getImageWithoutReflectionsName()).concat(configuration.getExtension()));
         this.superpixelsLabesPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getSuperpixelsLabelImageName()).concat(configuration.getExtension()));
         this.svmClassificatioPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getSvmClassificationImageName()).concat(configuration.getExtension()));
         this.grabCutSegmentationBinaryPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageName()).concat(configuration.getGrabcutSegmentationBinaryImageName()).concat(configuration.getExtension()));

@@ -25,6 +25,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
@@ -41,6 +42,9 @@ public class SceneController implements Initializable {
 
     @FXML
     private RadioButton methodLSC;
+
+    @FXML
+    private CheckBox srRemoval;
     
     @FXML
     private RadioButton operationSegmentation;
@@ -98,9 +102,12 @@ public class SceneController implements Initializable {
             this.configuration.setInpaintingNeighbor(Integer.valueOf(properties.getProperty("opencv.inpainting.neighbor")));
             this.configuration.setResampleHeight(Integer.valueOf(properties.getProperty("image.resample.height")));
             this.configuration.setResampleWidth(Integer.valueOf(properties.getProperty("image.resample.width")));
+            this.configuration.setSpecularReflectionElemntSize(Integer.valueOf(properties.getProperty("specular.reflection.element.size")));
+            this.configuration.setSpecularReflectionThreshold(Float.valueOf(properties.getProperty("specular.reflection.threshold")));
             this.configuration.setExtension(properties.getProperty("image.extension"));
             this.configuration.setImageName(properties.getProperty("image.name"));
             this.configuration.setLabeledImageName(properties.getProperty("image.labeled.name"));
+            this.configuration.setImageWithoutReflectionsName(properties.getProperty("image.without.reflections.name"));
             this.configuration.setSuperpixelsLabelImageName(properties.getProperty("image.superpixels.label.name"));
             this.configuration.setSvmClassificationImageName(properties.getProperty("image.svm.classification.name"));
             this.configuration.setGrabcutSegmentationBinaryImageName(properties.getProperty("image.grabcut.segmentation.binary.name"));
@@ -169,6 +176,11 @@ public class SceneController implements Initializable {
         return
             this.operationFeature.isSelected() ? OperationEnum.FEATURE_EXTRACTION :
             OperationEnum.SEGMENTATION;
+    }
+
+    private boolean isSRRemoval() {
+
+        return this.srRemoval.isSelected();
     }
 
     private List<String> validateParameters() {
