@@ -97,13 +97,11 @@ public class OpenCV {
 
     public static Mat findAndFillContoursCV_8UC1(Mat src) {
 
-        Mat dst = src.clone();
-
-        src.convertTo(dst, opencv_core.CV_8UC1);
+        Mat dst = new Mat(src.size(), opencv_core.CV_8UC1, Scalar.BLACK);
 
         MatVector contornos = new MatVector();
 
-        opencv_imgproc.findContours(dst, contornos, new Mat(), opencv_imgproc.RETR_TREE, opencv_imgproc.CHAIN_APPROX_SIMPLE);
+        opencv_imgproc.findContours(src, contornos, new Mat(), opencv_imgproc.RETR_TREE, opencv_imgproc.CHAIN_APPROX_SIMPLE);
         opencv_imgproc.fillPoly(dst, contornos, Scalar.WHITE);
 
         return dst;

@@ -8,6 +8,8 @@ import com.rodolfo.ulcer.segmentation.preprocessing.light_removal.LightMaskDetec
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
@@ -20,6 +22,8 @@ public class SpecularReflectionDetection implements LightMaskDetection {
     private final int elementSize;
     private final float threshold;
 
+    private static final Logger log = LoggerFactory.getLogger(SpecularReflectionDetection.class);
+
     public SpecularReflectionDetection(int elementSize, float threshold) {
 
         this.elementSize = elementSize;
@@ -28,6 +32,8 @@ public class SpecularReflectionDetection implements LightMaskDetection {
     
     @Override
     public Mat lightMask(Mat src) {
+
+        log.info("Criação da máscara que detecta a reflexão especular");
         
         return this.thresholdMask(this.stdFilter(this.featureImage(src)));
     }

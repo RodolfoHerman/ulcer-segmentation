@@ -5,13 +5,9 @@ import java.io.File;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 public class Directory {
 
