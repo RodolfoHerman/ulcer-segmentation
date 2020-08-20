@@ -2,6 +2,11 @@ package com.rodolfo.ulcer.segmentation.opencv;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+
+import com.rodolfo.ulcer.segmentation.models.Point;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
@@ -10,6 +15,7 @@ import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
+import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 public class OpenCV {
     
@@ -27,6 +33,23 @@ public class OpenCV {
         opencv_imgproc.cvtColor(src, dst, opencv_imgproc.COLOR_BGR2Lab);
 
         return dst;
+    }
+
+    public static Mat matImage2LUV(Mat src) {
+
+        Mat dst = new Mat();
+        opencv_imgproc.cvtColor(src, dst, opencv_imgproc.COLOR_BGR2Luv);
+
+        return dst;
+    }
+
+    public static Mat getMatChannel(Mat src, int channel) {
+
+        MatVector matVector = new MatVector();
+
+        opencv_core.split(src, matVector);
+
+        return matVector.get(channel).clone();
     }
 
     public static List<Double> neighborhoodFloatMat_8(int row, int col, FloatRawIndexer index) {
@@ -54,6 +77,20 @@ public class OpenCV {
             pixel7.doubleValue(),
             pixel8.doubleValue()
         );
+    }
+
+    public static int[] getMinMaxIntensityFromSuperpixel(Mat src, List<Point> points) {
+
+        UByteRawIndexer index = src.createIndexer();
+
+        IntStream intStream = points.stream().mapToInt(point -> index.get(point.getRow(), point.getCol()));
+
+        index.release();
+
+        int min = intStream.min().orElse(0);
+        int max = intStream.max().orElse(255);
+
+        return new int[]{min, max};
     }
 
     public static float[] getMinMaxIntensityFloatMat(Mat src) {
