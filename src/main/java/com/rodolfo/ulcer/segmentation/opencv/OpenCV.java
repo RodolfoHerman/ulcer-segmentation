@@ -2,8 +2,6 @@ package com.rodolfo.ulcer.segmentation.opencv;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import com.rodolfo.ulcer.segmentation.models.Point;
@@ -11,6 +9,7 @@ import com.rodolfo.ulcer.segmentation.models.Point;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.MatVector;
+import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacpp.opencv_imgproc;
@@ -142,5 +141,111 @@ public class OpenCV {
         opencv_imgproc.fillPoly(dst, contornos, Scalar.WHITE);
 
         return dst;
+    }
+
+
+    public static Mat createImageWithZeroPadding(Mat src) {
+
+        double log = Math.max(Math.log10(src.rows())/Math.log10(2), Math.log10(src.cols())/Math.log10(2));
+        
+        if(log <= 2) {
+
+            int dimension = (int)Math.pow(2, 2);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 3) {
+
+            int dimension = (int)Math.pow(2, 3);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 4) {
+
+            int dimension = (int)Math.pow(2, 4);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 5) {
+
+            int dimension = (int)Math.pow(2, 5);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 6) {
+
+            int dimension = (int)Math.pow(2, 6);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 7) {
+
+            int dimension = (int)Math.pow(2, 7);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 8) {
+
+            int dimension = (int)Math.pow(2, 8);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 9) {
+
+            int dimension = (int)Math.pow(2, 9);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 10) {
+
+            int dimension = (int)Math.pow(2, 10);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 11) {
+
+            int dimension = (int)Math.pow(2, 11);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 12) {
+
+            int dimension = (int)Math.pow(2, 12);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 13) {
+
+            int dimension = (int)Math.pow(2, 13);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        if(log <= 14) {
+
+            int dimension = (int)Math.pow(2, 14);
+            return OpenCV.createImageWithAndWithoutZeroPadding(src, dimension, dimension);
+        }
+
+        return src;
+    }
+
+    public static Mat createImageWithAndWithoutZeroPadding(Mat src, int rows, int cols) {
+
+        Mat newMat = Mat.zeros(rows, cols, src.type()).asMat();
+        OpenCV.pasteImageOnBackground(newMat, src, 0, src.rows(), 0, src.cols());
+
+        return newMat;
+    }
+
+    public static void pasteImageOnBackground(Mat src, Mat croppedImage, int rowIni, int rowEnd, int colIni, int colEnd) {
+
+        croppedImage.copyTo(src.rowRange(rowIni, rowEnd).colRange(colIni, colEnd));
+    }
+
+    public static Mat croppMat(Mat src, int rowIni, int colIni, int height, int width) {
+
+        Rect rect = new Rect(colIni, rowIni, width, height);
+
+        return src.apply(rect);
     }
 }

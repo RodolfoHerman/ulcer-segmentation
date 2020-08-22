@@ -14,6 +14,9 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Data;
+
+@Data
 public class HaralickGlcm implements Process {
     
     private static final Logger log = LoggerFactory.getLogger(HaralickGlcm.class);
