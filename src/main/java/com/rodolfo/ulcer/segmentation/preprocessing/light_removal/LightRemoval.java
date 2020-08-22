@@ -7,7 +7,8 @@ public interface LightRemoval {
     /**
      * Reliza a remoção do reflexo de luz (Specular Reflection)
      * @param image
+     * @param kernelFilterSize
      */
-    void lightRemoval(Image image);
+    void lightRemoval(Image image, int kernelFilterSize);
 
 }

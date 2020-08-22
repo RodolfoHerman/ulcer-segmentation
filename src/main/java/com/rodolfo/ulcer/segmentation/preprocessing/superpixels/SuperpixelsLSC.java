@@ -29,8 +29,13 @@ public class SuperpixelsLSC extends Superpixels {
         );
 
         lsc.iterate(this.getIterations());
+        lsc.enforceLabelConnectivity(this.getAmount() - 1);
         lsc.getLabels(this.getLabels());
         lsc.getLabelContourMask(this.getContour());
+        this.setSuperpixelsAmount(lsc.getNumberOfSuperpixels());
+        lsc.deallocate();
+        
+        this.makeContourImage();
     }
-    
+
 }

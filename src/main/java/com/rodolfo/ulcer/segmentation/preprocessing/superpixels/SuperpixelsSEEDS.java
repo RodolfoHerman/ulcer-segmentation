@@ -24,17 +24,21 @@ public class SuperpixelsSEEDS extends Superpixels {
         
         Mat imgLAB = OpenCV.matImage2LAB(this.getImage());
 
-        final int rows = imgLAB.rows();
-        final int cols = imgLAB.rows();
-        final int channels = imgLAB.channels();
+        final int width = imgLAB.arrayWidth();
+        final int height = imgLAB.arrayHeight();
+        final int channels = this.getImage().channels();
 
         SuperpixelSEEDS seeds = opencv_ximgproc.createSuperpixelSEEDS(
-            cols, rows, channels, this.getAmount(), this.getCompactenssI()
+            width, height, channels, this.getAmount(), this.getCompactenssI()
         );
 
         seeds.iterate(imgLAB, this.getIterations());
         seeds.getLabels(this.getLabels());
         seeds.getLabelContourMask(this.getContour());
+        this.setSuperpixelsAmount(seeds.getNumberOfSuperpixels());
+        seeds.deallocate();
+
+        this.makeContourImage();
     }
-    
+
 }

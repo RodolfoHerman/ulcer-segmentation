@@ -40,7 +40,7 @@ public class Util {
                 Directory directory = new Directory();
                 directory.updatePaths(temp, configuration);
 
-                return (new Image(directory));
+                return (new Image(directory, configuration.getResampleWidth(), configuration.getResampleHeight()));
             }
 
             return null;

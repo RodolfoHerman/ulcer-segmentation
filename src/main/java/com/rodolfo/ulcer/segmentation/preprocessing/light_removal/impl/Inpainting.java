@@ -3,6 +3,7 @@ package com.rodolfo.ulcer.segmentation.preprocessing.light_removal.impl;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.preprocessing.light_removal.LightRemoval;
 
+import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_photo;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.slf4j.Logger;
@@ -24,13 +25,14 @@ public class Inpainting implements LightRemoval {
     }
 
     @Override
-    public void lightRemoval(Image image) {
+    public void lightRemoval(Image image, int kernelFilterSize) {
         
         log.info("Reconstrução das regiões de reflexo com o método Inpainting");
 
         Mat dst = new Mat();
 
         opencv_photo.inpaint(image.getImage(), inpaintingMask, dst, this.inpaintingNeighbor, this.inpaintingMethod);
+        opencv_imgproc.medianBlur(dst, dst, kernelFilterSize);
 
         image.setImageWithoutReflection(dst);
     }

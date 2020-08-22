@@ -17,6 +17,8 @@ public class Configuration {
     private Integer specularReflectionElemntSize;
     private float specularReflectionThreshold;
 
+    private Integer waveletLevel;
+
     private String userDirectory;
     private String extension;
     private String imageName;

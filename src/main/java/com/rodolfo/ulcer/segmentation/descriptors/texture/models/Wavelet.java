@@ -48,17 +48,14 @@ public class Wavelet implements Process {
 
     @Override
     public void process() {
-        
-        log.info("Aplicação da DWT de nível : {}", this.cycles);
 
         this.applyDiscretWaveletTransform();
 
-        int divIni = this.divImage(this.ds.rows());
-        int divEnd = divIni * 2;
+        int div = this.divImage(this.ds.rows());
 
-        Mat tempLh = OpenCV.croppMat(this.ds, divIni, 0, divEnd, divIni);
-        Mat tempHh = OpenCV.croppMat(this.ds, divIni, divIni, divEnd, divEnd);
-        Mat tempHl = OpenCV.croppMat(this.ds, 0, divIni, divIni, divEnd);
+        Mat tempLh = OpenCV.resize(OpenCV.croppMat(this.ds, div, div, div, div), this.ds.rows(), this.ds.cols());
+        Mat tempHh = OpenCV.resize(OpenCV.croppMat(this.ds, div, div, div, div), this.ds.rows(), this.ds.cols());
+        Mat tempHl = OpenCV.resize(OpenCV.croppMat(this.ds, 0, div, div, div), this.ds.rows(), this.ds.cols());
 
         Float minIntensityLh = Math.abs(OpenCV.getMinMaxIntensityFloatMat(tempLh)[0]);
         Float minIntensityHh = Math.abs(OpenCV.getMinMaxIntensityFloatMat(tempHh)[0]);
@@ -78,6 +75,8 @@ public class Wavelet implements Process {
     }
 
     private void applyDiscretWaveletTransform() {
+
+        log.info("Aplicação da DWT de nível : {}", this.cycles);
 
         this.ds = OpenCV.createImageWithZeroPadding(this.img);
 
@@ -155,7 +154,9 @@ public class Wavelet implements Process {
         }
     }
 
-    private void applyInverseDiscretWaveletTransform() {
+    public void applyInverseDiscretWaveletTransform() {
+
+        log.info("Aplicação da DWT inversa de nível : {}", this.cycles);
 
         if(this.ds != null) {
 
@@ -227,7 +228,7 @@ public class Wavelet implements Process {
             indiceDs.release();
             indiceTemp.release();
 
-            this.ds = OpenCV.createImageWithAndWithoutZeroPadding(this.ds, this.img.rows(), this.img.cols());
+            this.ds = OpenCV.croppMat(this.ds, 0, 0, this.size.height(), this.size.width());
         }
     }
     

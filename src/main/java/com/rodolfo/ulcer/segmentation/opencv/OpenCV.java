@@ -4,9 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import com.rodolfo.ulcer.segmentation.models.Point;
 
 import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Rect;
@@ -38,6 +43,14 @@ public class OpenCV {
 
         Mat dst = new Mat();
         opencv_imgproc.cvtColor(src, dst, opencv_imgproc.COLOR_BGR2Luv);
+
+        return dst;
+    }
+
+    public static Mat matImage2GRAY(Mat src) {
+
+        Mat dst = new Mat();
+        opencv_imgproc.cvtColor(src, dst, opencv_imgproc.COLOR_BGR2GRAY);
 
         return dst;
     }
@@ -126,6 +139,16 @@ public class OpenCV {
         Mat dst = new Mat();
 
         Mat kernel = opencv_imgproc.getStructuringElement(opencv_imgproc.MORPH_ELLIPSE, new Size(elementSize, elementSize));
+        opencv_imgproc.dilate(src, dst, kernel);
+
+        return dst;
+    }
+
+    public static Mat dilateByCross(Mat src, int elementSize) {
+        
+        Mat dst = new Mat();
+
+        Mat kernel = opencv_imgproc.getStructuringElement(opencv_imgproc.MORPH_CROSS, new Size(elementSize, elementSize));
         opencv_imgproc.dilate(src, dst, kernel);
 
         return dst;
@@ -248,4 +271,23 @@ public class OpenCV {
 
         return src.apply(rect);
     }
+
+    public static Mat resize(Mat src, int width, int height) {
+
+        Size size = new Size(width, height);
+        Mat dst = new Mat();
+
+        opencv_imgproc.resize(src, dst, size, 0, 0, opencv_imgproc.INTER_CUBIC);
+
+        return dst;
+    }
+
+    public static void showImageGUI(Mat src) {
+
+        byte[] bytes = new byte[(int)src.elemSize() * src.cols() * src.rows()];
+        opencv_imgcodecs.imencode(".jpg", src, bytes);
+
+        JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(bytes)));
+    }
+
 }

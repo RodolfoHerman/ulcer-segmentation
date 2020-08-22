@@ -29,8 +29,13 @@ public class SuperpixelsSLIC extends Superpixels {
         );
 
         slic.iterate(this.getIterations());
+        slic.enforceLabelConnectivity(this.getAmount() - 1);
         slic.getLabels(this.getLabels());
         slic.getLabelContourMask(this.getContour());
+        this.setSuperpixelsAmount(slic.getNumberOfSuperpixels());
+        slic.deallocate();
+
+        this.makeContourImage();
     }
-    
+
 }
