@@ -12,9 +12,9 @@ public class SuperpixelsSEEDS extends Superpixels {
 
     private static final Logger log = LoggerFactory.getLogger(SuperpixelsSEEDS.class);
 
-    public SuperpixelsSEEDS(Mat image, Integer iterations, Integer amount, Integer compactness) {
+    public SuperpixelsSEEDS(Mat image, Integer imageEdge, Integer iterations, Integer amount, Integer compactness) {
         
-        super(image, iterations, amount, compactness);
+        super(image, imageEdge, iterations, amount, compactness);
     }
 
     @Override
@@ -39,6 +39,7 @@ public class SuperpixelsSEEDS extends Superpixels {
         seeds.deallocate();
 
         this.makeContourImage();
+        this.makeSuperpixelsSegmentation();
     }
 
 }

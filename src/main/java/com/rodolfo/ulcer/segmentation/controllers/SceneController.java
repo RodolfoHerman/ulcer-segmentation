@@ -106,6 +106,7 @@ public class SceneController implements Initializable {
             this.configuration.setSpecularReflectionElemntSize(Integer.valueOf(properties.getProperty("specular.reflection.element.size")));
             this.configuration.setSpecularReflectionThreshold(Float.valueOf(properties.getProperty("specular.reflection.threshold")));
             this.configuration.setWaveletLevel(Integer.valueOf(properties.getProperty("wavelet.level")));
+            this.configuration.setImageEdgePixelDistance(Integer.valueOf(properties.getProperty("image.edge.pixel.distance")));
             this.configuration.setExtension(properties.getProperty("image.extension"));
             this.configuration.setImageName(properties.getProperty("image.name"));
             this.configuration.setLabeledImageName(properties.getProperty("image.labeled.name"));

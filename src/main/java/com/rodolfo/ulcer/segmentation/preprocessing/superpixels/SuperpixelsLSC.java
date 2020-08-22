@@ -12,9 +12,9 @@ public class SuperpixelsLSC extends Superpixels {
 
     private static final Logger log = LoggerFactory.getLogger(SuperpixelsLSC.class);
 
-    public SuperpixelsLSC(Mat image, Integer iterations, Integer amount, Float compactness) {
+    public SuperpixelsLSC(Mat image, Integer imageEdge, Integer iterations, Integer amount, Float compactness) {
 
-        super(image, iterations, amount, compactness);
+        super(image, imageEdge, iterations, amount, compactness);
     }
 
     @Override
@@ -36,6 +36,7 @@ public class SuperpixelsLSC extends Superpixels {
         lsc.deallocate();
         
         this.makeContourImage();
+        this.makeSuperpixelsSegmentation();
     }
 
 }

@@ -123,9 +123,9 @@ public class Test {
         LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
         lRemoval.lightRemoval(image, conf.getKernelFilterSize());
 
-        Superpixels lsc = new SuperpixelsLSC(image.getImageWithoutReflection(), 400, 20, 0.060f);
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), 400, 20, 20);
-        Superpixels seeds = new SuperpixelsSEEDS(image.getImageWithoutReflection(), 400, 300, 3);
+        Superpixels lsc = new SuperpixelsLSC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 0.060f);
+        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
+        Superpixels seeds = new SuperpixelsSEEDS(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 300, 3);
 
         lsc.createSuperpixels();
         slic.createSuperpixels();

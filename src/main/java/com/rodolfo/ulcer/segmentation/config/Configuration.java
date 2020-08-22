@@ -19,6 +19,8 @@ public class Configuration {
 
     private Integer waveletLevel;
 
+    private Integer imageEdgePixelDistance;
+
     private String userDirectory;
     private String extension;
     private String imageName;

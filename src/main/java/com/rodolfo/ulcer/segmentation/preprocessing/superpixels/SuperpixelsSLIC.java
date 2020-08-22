@@ -12,9 +12,9 @@ public class SuperpixelsSLIC extends Superpixels {
 
     private static final Logger log = LoggerFactory.getLogger(SuperpixelsSLIC.class);
 
-    public SuperpixelsSLIC(Mat image, Integer iterations, Integer amount, Integer compactness) {
+    public SuperpixelsSLIC(Mat image, Integer imageEdge, Integer iterations, Integer amount, Integer compactness) {
         
-        super(image, iterations, amount, compactness);
+        super(image, imageEdge, iterations, amount, compactness);
     }
 
     @Override
@@ -36,6 +36,7 @@ public class SuperpixelsSLIC extends Superpixels {
         slic.deallocate();
 
         this.makeContourImage();
+        this.makeSuperpixelsSegmentation();
     }
 
 }
