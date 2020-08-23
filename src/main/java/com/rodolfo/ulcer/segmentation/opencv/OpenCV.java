@@ -2,7 +2,6 @@ package com.rodolfo.ulcer.segmentation.opencv;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -11,12 +10,12 @@ import javax.swing.JOptionPane;
 import com.rodolfo.ulcer.segmentation.models.Point;
 
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
+import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;

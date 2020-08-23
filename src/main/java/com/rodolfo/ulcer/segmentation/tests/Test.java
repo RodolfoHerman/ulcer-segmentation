@@ -4,8 +4,10 @@ import java.io.File;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.HaralickDescriptors;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.LBPHDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.WaveletDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.HaralickGlcm;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.models.LBPH;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.Wavelet;
 import com.rodolfo.ulcer.segmentation.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
@@ -37,6 +39,7 @@ public class Test {
     private static final int APPLY_DWT = 4;
     private static final int HARALICK = 5;
     private static final int WAVELET = 6;
+    private static final int LBPH = 7;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -94,6 +97,12 @@ public class Test {
             case WAVELET:
                 
                 Test.waveletDescriptors();
+
+            break;
+
+            case LBPH:
+                
+                Test.LBPHDescriptors();
 
             break;
         
@@ -226,4 +235,29 @@ public class Test {
         System.out.println("Entropia: " + wDescriptors.entropy());
     }
 
+    private static void LBPHDescriptors() {
+        
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+
+        Mat mask = lDetection.lightMask(image.getImage());
+
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
+
+        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
+
+        slic.createSuperpixels();
+
+        Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
+
+        LBPH lbph = new LBPH(gray, slic.getSuperpixelsSegmentation().get(0));
+        lbph.process();
+
+        LBPHDescriptors lDescriptors = new LBPHDescriptors(lbph.getValues());
+
+        System.out.println("Média: " + lDescriptors.mean());
+        System.out.println("Variância: " + lDescriptors.variance());
+        System.out.println("Entropia: " + lDescriptors.entropy());
+        System.out.println("Energia: " + lDescriptors.energy());
+    }
 }

@@ -60,12 +60,12 @@ public class WaveletDescriptors {
 
     public Double energy() {
 
-        return HistogramStatistic.energy(wThistogram);
+        return HistogramStatistic.energy(this.wThistogram);
     }
 
     public Double entropy() {
 
-        return HistogramStatistic.entropy(wTNormhistogram);
+        return HistogramStatistic.entropy(this.wTNormhistogram);
     }
 
 }

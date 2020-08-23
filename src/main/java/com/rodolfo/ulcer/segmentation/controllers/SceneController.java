@@ -127,7 +127,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        new Test(6, configuration);
+        new Test(7, configuration);
     }
 
     @FXML
