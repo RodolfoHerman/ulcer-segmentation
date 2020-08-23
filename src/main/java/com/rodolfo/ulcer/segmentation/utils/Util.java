@@ -3,7 +3,9 @@ package com.rodolfo.ulcer.segmentation.utils;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -45,5 +47,26 @@ public class Util {
 
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    public static Map<Float,Integer> createHistogram(List<Float> values) {
+        
+        Map<Float,Integer> histogram = new HashMap<>();
+
+        for (float val : values) {
+            
+            Integer temp = histogram.get(val);
+
+            if(temp != null) {
+
+                histogram.put(val, ++temp);
+
+            } else {
+
+                histogram.put(val, 1);
+            }
+        }
+
+        return histogram;
     }
 }

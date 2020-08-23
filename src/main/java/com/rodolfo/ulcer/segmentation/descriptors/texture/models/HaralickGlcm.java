@@ -41,7 +41,7 @@ public class HaralickGlcm implements Process {
 
         int maxIntensity = OpenCV.getMinMaxIntensityFromSuperpixel(this.img, this.points)[1];
 
-        this.glcm = Mat.zeros(maxIntensity, maxIntensity, opencv_core.CV_32FC1).asMat();
+        this.glcm = Mat.zeros(maxIntensity+1, maxIntensity+1, opencv_core.CV_32FC1).asMat();
 
         UByteRawIndexer imgIndex  = this.img.createIndexer();
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();

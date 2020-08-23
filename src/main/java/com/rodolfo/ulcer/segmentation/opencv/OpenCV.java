@@ -95,12 +95,26 @@ public class OpenCV {
 
         UByteRawIndexer index = src.createIndexer();
 
-        IntStream intStream = points.stream().mapToInt(point -> index.get(point.getRow(), point.getCol()));
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+
+        for(Point point: points) {
+
+            int aux = index.get(point.getRow(), point.getCol());
+
+            if(max < aux) {
+
+                max = aux;
+            }
+
+            if(min > aux) {
+
+                min = aux;
+            }
+
+        }
 
         index.release();
-
-        int min = intStream.min().orElse(0);
-        int max = intStream.max().orElse(255);
 
         return new int[]{min, max};
     }
@@ -109,29 +123,29 @@ public class OpenCV {
         
         FloatRawIndexer indice = src.createIndexer();
 
-        float maiorFloat = Integer.MIN_VALUE;
-        float menorFloat = Integer.MAX_VALUE;
+        float max = Integer.MIN_VALUE;
+        float min = Integer.MAX_VALUE;
 
         for(int row = 3; row < src.rows() - 3; row++) {
             for(int col = 3; col < src.cols() - 3; col++){
 
                 float aux = indice.get(row,col);
 
-                if(maiorFloat < aux) {
+                if(max < aux) {
 
-                    maiorFloat = aux;
+                    max = aux;
                 }
 
-                if(menorFloat > aux) {
+                if(min > aux) {
 
-                    menorFloat = aux;
+                    min = aux;
                 }
             }
         }
 
         indice.release();
 
-        return new float[]{menorFloat, maiorFloat};
+        return new float[]{min, max};
     }
 
     public static Mat dilateByEllipse(Mat src, int elementSize) {

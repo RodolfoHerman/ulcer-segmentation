@@ -107,6 +107,7 @@ public class SceneController implements Initializable {
             this.configuration.setSpecularReflectionThreshold(Float.valueOf(properties.getProperty("specular.reflection.threshold")));
             this.configuration.setWaveletLevel(Integer.valueOf(properties.getProperty("wavelet.level")));
             this.configuration.setImageEdgePixelDistance(Integer.valueOf(properties.getProperty("image.edge.pixel.distance")));
+            this.configuration.setHaralickPixelDistance(Integer.valueOf(properties.getProperty("haralick.pixel.distance")));
             this.configuration.setExtension(properties.getProperty("image.extension"));
             this.configuration.setImageName(properties.getProperty("image.name"));
             this.configuration.setLabeledImageName(properties.getProperty("image.labeled.name"));
@@ -126,7 +127,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        new Test(3, configuration);
+        new Test(6, configuration);
     }
 
     @FXML

@@ -85,7 +85,7 @@ public class HistogramStatistic {
         return (total == 0 ? 0 : Math.sqrt(standardDeviation/total));
     }
 
-    public static Double entroy(Map<Float,Integer> histogram) {
+    public static Double entropy(Map<Float,Integer> histogram) {
 
         log.info("Calculando o valor de entropia");
         

@@ -3,7 +3,11 @@ package com.rodolfo.ulcer.segmentation.tests;
 import java.io.File;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.HaralickDescriptors;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.WaveletDescriptors;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.models.HaralickGlcm;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.Wavelet;
+import com.rodolfo.ulcer.segmentation.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
@@ -31,6 +35,8 @@ public class Test {
     private static final int LIGHT_REMOVAL = 2;
     private static final int SUPERPIXELS = 3;
     private static final int APPLY_DWT = 4;
+    private static final int HARALICK = 5;
+    private static final int WAVELET = 6;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -76,6 +82,18 @@ public class Test {
             case APPLY_DWT:
                 
                 Test.applyDWT();
+
+            break;
+
+            case HARALICK:
+                
+                Test.haralickDescriptors();
+
+            break;
+
+            case WAVELET:
+                
+                Test.waveletDescriptors();
 
             break;
         
@@ -154,6 +172,58 @@ public class Test {
         OpenCV.showImageGUI(wavelet.getLhNormalized());
         wavelet.applyInverseDiscretWaveletTransform();
         OpenCV.showImageGUI(wavelet.getDs());
+    }
+
+    private static void haralickDescriptors() {
+
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+
+        Mat mask = lDetection.lightMask(image.getImage());
+
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
+
+        Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
+
+        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
+
+        slic.createSuperpixels();
+
+        HaralickGlcm haralickGlcm = new HaralickGlcm(gray, slic.getSuperpixelsSegmentation().get(0), GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
+        haralickGlcm.process();
+
+        HaralickDescriptors hDescriptors = new HaralickDescriptors(haralickGlcm);
+
+        System.out.println("Energia: " + hDescriptors.energy());
+        System.out.println("Entropia: " + hDescriptors.entropy());
+        System.out.println("Contraste: " + hDescriptors.contrast());
+        System.out.println("Hemogeneidade: " + hDescriptors.homogeneity());
+        System.out.println("Correlation: " + hDescriptors.correlation());
+    }
+
+    private static void waveletDescriptors() {
+
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+
+        Mat mask = lDetection.lightMask(image.getImage());
+
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
+
+        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
+
+        slic.createSuperpixels();
+
+        Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
+
+        Wavelet wavelet = new Wavelet(gray, conf.getWaveletLevel());
+
+        wavelet.process();
+
+        WaveletDescriptors wDescriptors = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), slic.getSuperpixelsSegmentation().get(0));
+
+        System.out.println("Energia: " + wDescriptors.energy());
+        System.out.println("Entropia: " + wDescriptors.entropy());
     }
 
 }

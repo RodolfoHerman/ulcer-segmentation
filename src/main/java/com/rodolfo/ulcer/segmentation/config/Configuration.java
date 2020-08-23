@@ -21,6 +21,8 @@ public class Configuration {
 
     private Integer imageEdgePixelDistance;
 
+    private Integer haralickPixelDistance;
+
     private String userDirectory;
     private String extension;
     private String imageName;

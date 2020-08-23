@@ -108,8 +108,8 @@ public abstract class Superpixels {
         UByteRawIndexer index = aux.createIndexer();
         List<Point> points = new ArrayList<>();
 
-        for(int row = this.imageEdge; row < aux.rows(); row++) {
-            for(int col = this.imageEdge; col < aux.cols(); col++) {
+        for(int row = this.imageEdge; row < aux.rows() -  this.imageEdge; row++) {
+            for(int col = this.imageEdge; col < aux.cols() -  this.imageEdge; col++) {
 
                 if(index.get(row, col) != 0) {
 
