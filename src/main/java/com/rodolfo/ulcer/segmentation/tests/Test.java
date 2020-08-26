@@ -3,6 +3,8 @@ package com.rodolfo.ulcer.segmentation.tests;
 import java.io.File;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.color.ColorDescriptors;
+import com.rodolfo.ulcer.segmentation.descriptors.color.models.Color;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.HaralickDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.LBPHDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.WaveletDescriptors;
@@ -40,6 +42,7 @@ public class Test {
     private static final int HARALICK = 5;
     private static final int WAVELET = 6;
     private static final int LBPH = 7;
+    private static final int COLOR = 8;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -103,6 +106,12 @@ public class Test {
             case LBPH:
                 
                 Test.LBPHDescriptors();
+
+            break;
+
+            case COLOR:
+                
+                Test.colorDescriptors();
 
             break;
         
@@ -259,5 +268,35 @@ public class Test {
         System.out.println("Variância: " + lDescriptors.variance());
         System.out.println("Entropia: " + lDescriptors.entropy());
         System.out.println("Energia: " + lDescriptors.energy());
+    }
+
+    private static void colorDescriptors() {
+
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+
+        Mat mask = lDetection.lightMask(image.getImage());
+
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
+
+        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
+
+        slic.createSuperpixels();
+
+        Color color = new Color(image.getImage(), slic.getSuperpixelsSegmentation().get(0), 2);
+        color.process();
+
+        ColorDescriptors cDescriptors = new ColorDescriptors(color.getChannel1());
+        
+        System.out.println("Média: " + cDescriptors.mean());
+        System.out.println("Variância: " + cDescriptors.variance());
+        System.out.println("Assimetria: " + cDescriptors.asymmetry());
+        System.out.println("Frequência 1: " + cDescriptors.frequency1());
+        System.out.println("Intensidade 1: " + cDescriptors.intensity1());
+        System.out.println("Frequência 2: " + cDescriptors.frequency2());
+        System.out.println("Intensidade 2: " + cDescriptors.intensity2());
+        System.out.println("Dominante 1: " + color.getDominantColor()[0]);
+        System.out.println("Dominante 2: " + color.getDominantColor()[1]);
+        System.out.println("Dominante 3: " + color.getDominantColor()[2]);
     }
 }

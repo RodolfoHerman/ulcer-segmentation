@@ -29,10 +29,10 @@ public class WaveletDescriptors {
         this.wTNorm = wTNorm;
         this.points = points;
 
-        this.createHistograms();
+        this.createHistogram();
     }
 
-    private void createHistograms() {
+    private void createHistogram() {
 
         log.info("Criando os histogramas para os descritores wavelet");
 

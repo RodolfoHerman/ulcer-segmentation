@@ -18,9 +18,128 @@ import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
+import org.bytedeco.javacpp.indexer.IntRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 public class OpenCV {
+    
+    /**
+     * Realiza o dump da imagem
+     * CV_8U   0 - Byte
+     * CV_8S   1 - Byte
+     * CV_16U  2 - Integer
+     * CV_16S  3 - Integer
+     * CV_32S  4 - Integer
+     * CV_32F  5 - Float
+     * CV_64F  6 - Float
+     * 
+     * @param img
+     */
+    public static void dump(Mat img) {
+        
+        StringBuilder data = new StringBuilder(); 
+
+        int depth = img.depth();
+
+        data.append("Dimensão (linha/coluna) : ").append("\t").append(img.rows()).append("/").append(img.cols());
+        data.append(System.lineSeparator());
+        data.append("Tipo da imagem : ").append("\t").append(img.type());
+        data.append(System.lineSeparator());
+        data.append("Qtd canais da imagem : ").append("\t").append(img.channels());
+        data.append(System.lineSeparator());
+        data.append(System.lineSeparator());
+
+        if(depth <= 1) {
+
+            data.append(dump_byte(img));
+            
+        } else if(depth <= 4) {
+            
+            data.append(dump_integer(img));
+            
+        } else {
+            
+            data.append(dump_float(img));
+        }
+
+        System.out.println(data.toString());
+    }
+    
+    /**
+     * Realizar o dump da imagem Mat do tipo Byte
+     * 
+     * @param img
+     * @return dados
+     */
+    private static String dump_byte(Mat img) {
+        
+        UByteRawIndexer indice = img.createIndexer();
+        StringBuilder dados = new StringBuilder();
+
+        for(int row = 0; row < img.rows(); row++) {
+            for(int col = 0; col < img.cols(); col++) {
+
+                dados.append(indice.get(row, col) + " ");
+            }
+
+            dados.append(System.lineSeparator());
+        }
+
+        indice.release();
+
+        return dados.toString();
+    }
+
+    /**
+     * Realizar o dump da imagem Mat do tipo Integer
+     * 
+     * @param img
+     * @return dados
+     */
+    private static String dump_integer(Mat img) {
+        
+        IntRawIndexer indice = img.createIndexer();
+        StringBuilder dados = new StringBuilder();
+
+        for(int row = 0; row < img.rows(); row++) {
+            for(int col = 0; col < img.cols(); col++) {
+
+                dados.append(indice.get(row, col) + " ");
+            }
+
+            dados.append(System.lineSeparator());
+        }
+
+        indice.release();
+
+        return dados.toString();
+    }
+    
+    /**
+     * Realizar o dump da imagem Mat do tipo Float
+     * 
+     * @param img
+     * @return dados
+     */
+    private static String dump_float(Mat img) {
+        
+        FloatRawIndexer indice = img.createIndexer();
+        StringBuilder dados = new StringBuilder();
+
+        for(int row = 0; row < img.rows(); row++) {
+            for(int col = 0; col < img.cols(); col++) {
+
+                dados.append(indice.get(row, col) + " ");
+            }
+
+            dados.append(System.lineSeparator());
+        }
+
+        indice.release();
+
+        return dados.toString();
+    }
+    
     
     public static Mat matImage2HSV(Mat src) {
 
@@ -293,6 +412,34 @@ public class OpenCV {
         opencv_imgproc.resize(src, dst, size, 0, 0, opencv_imgproc.INTER_CUBIC);
 
         return dst;
+    }
+
+    public static void showHistogram1DFromMat(Mat src) {
+
+        int histW = 600;
+        int histH = 600;
+        int binW = (int) Math.round((double) histW / 256.0);
+
+        Mat hist = new Mat();
+        Mat histImage = new Mat(histH, histW, opencv_core.CV_8UC1, Scalar.BLACK);
+
+        opencv_imgproc.calcHist(src, 1, new int[]{0}, new Mat(), hist, 1, new int[]{256}, new float[]{0f, 256f}, true, false);
+
+        float[] histData = new float[(int)(hist.total() * hist.channels())];
+
+        FloatRawIndexer index = hist.createIndexer();
+
+        index.get(0, 0, histData);
+
+        index.release();
+
+        for(int x = 1; x < 256; x++) {
+
+            opencv_imgproc.line(histImage, new org.bytedeco.javacpp.opencv_core.Point(binW * (x - 1), histH - Math.round(histData[x - 1])), 
+                new org.bytedeco.javacpp.opencv_core.Point(binW * x, histH - Math.round(histData[x])), Scalar.WHITE);
+        }
+
+        OpenCV.showImageGUI(histImage);
     }
 
     public static void showImageGUI(Mat src) {

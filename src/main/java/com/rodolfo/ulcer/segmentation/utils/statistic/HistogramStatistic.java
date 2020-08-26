@@ -139,15 +139,15 @@ public class HistogramStatistic {
         return Math.sqrt(energy);
     }
 
-    public static Double skewness(Map<Float,Integer> histogram) {
-        return skewness(histogram, mean(histogram), standardDeviation(histogram));
+    public static Double asymmetry(Map<Float,Integer> histogram) {
+        return asymmetry(histogram, mean(histogram), standardDeviation(histogram));
     }
 
-    public static Double skewness(Map<Float,Integer> histogram, Double mean, Double standarDeviation) {
+    public static Double asymmetry(Map<Float,Integer> histogram, Double mean, Double standarDeviation) {
 
         log.info("Calculando o valor de assimetria");
         
-        Double skewness = 0.0;
+        Double asymmetry = 0.0;
         standarDeviation = standarDeviation == 0.0 ? 1.0 : standarDeviation;
         
         int val;
@@ -157,11 +157,11 @@ public class HistogramStatistic {
             val = entry.getValue();
             Double div = histogram.size() == 0 ? 1.0 : (histogram.size()*1.0);
 
-            skewness += (Math.pow((entry.getKey() - mean) * val, 3)/div);
+            asymmetry += (Math.pow((entry.getKey() - mean) * val, 3)/div);
         }
 
 
-        return skewness/Math.pow(standarDeviation, 3);
+        return asymmetry/Math.pow(standarDeviation, 3);
     }
 
     public static Double kurtose(Map<Float,Integer> histogram) {
