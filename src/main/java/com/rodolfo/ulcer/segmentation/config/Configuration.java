@@ -37,6 +37,11 @@ public class Configuration {
     private String executionTimeFile;
     private String featuresExtractedFile;
 
+    private Integer iterations;
+    private Integer amount;
+    private Integer compactnessI;
+    private Float compactnessF;
+
     public void updateImageName(String imageName) {
 
         String newName = this.hasImageName(this.getImageName()) ? this.getImageName() : imageName;

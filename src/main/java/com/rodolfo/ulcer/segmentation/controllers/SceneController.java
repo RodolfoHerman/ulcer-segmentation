@@ -14,6 +14,8 @@ import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
+import com.rodolfo.ulcer.segmentation.process.Worker;
+import com.rodolfo.ulcer.segmentation.process.WorkerMonitor;
 import com.rodolfo.ulcer.segmentation.tests.Test;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
@@ -127,7 +129,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        new Test(8, configuration);
+        new Test(10, configuration);
     }
 
     @FXML

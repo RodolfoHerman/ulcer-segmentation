@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.models.Point;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
@@ -14,6 +15,8 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Scalar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bytedeco.javacpp.indexer.IntRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
@@ -21,21 +24,27 @@ import lombok.Data;
 
 @Data
 public abstract class Superpixels {
+
+    private static final Logger log = LoggerFactory.getLogger(Superpixels.class);
     
     private Integer imageEdge;
     private Integer iterations;
     private Integer amount;
     private Integer compactenssI;
     private Float compactenssF;
-    private Mat image;
+    private Image image;
     private Mat labels = new Mat();
     private Mat contour = new Mat();
     private Mat contourImage;
+    private Mat colorInformativePixels;
     private Integer superpixelsAmount;
     private Set<Integer> intLabels;
     private Map<Integer, List<Point>> superpixelsSegmentation;
+    private Map<Integer, List<Point>> ulcerRegion;
+    private Map<Integer, List<Point>> nonUlcerRegion;
+    private Map<Integer, List<Point>> excludedRegion;
 
-    public Superpixels(Mat image, Integer imageEdge, Integer iterations, Integer amount, Integer compactness) {
+    public Superpixels(Image image, Integer imageEdge, Integer iterations, Integer amount, Integer compactness) {
 
         this.image = image;
         this.imageEdge = imageEdge;
@@ -44,7 +53,7 @@ public abstract class Superpixels {
         this.compactenssI = compactness;
     }
 
-    public Superpixels(Mat image, Integer imageEdge, Integer iterations, Integer amount, Float compactness) {
+    public Superpixels(Image image, Integer imageEdge, Integer iterations, Integer amount, Float compactness) {
 
         this.image = image;
         this.imageEdge = imageEdge;
@@ -58,7 +67,7 @@ public abstract class Superpixels {
     protected void makeContourImage() {
 
         Mat mask = new Mat();
-        contourImage = this.image.clone();
+        contourImage = this.image.getImageWithoutReflection().clone();
         MatVector channels = new MatVector();
 
         opencv_core.split(contourImage, channels);
@@ -101,6 +110,170 @@ public abstract class Superpixels {
         });
 
         index.release();
+    }
+
+    public void extractRegionLabels() {
+
+        log.info("Criação dos superpixels para os conjuntos de treinamento");
+
+        Mat gray = OpenCV.matImage2GRAY(this.image.getLabeledImage());
+        Mat outlineFilled = OpenCV.findLargerOutlineAndFill(gray);
+        Mat largerOutline = OpenCV.dilateByCross(OpenCV.findLargerOutline(outlineFilled), 3);
+
+        Set<Integer> labelsUlcer = this.labelsToBeConsidered(outlineFilled);
+
+        opencv_core.bitwise_not(outlineFilled, outlineFilled);
+
+        Set<Integer> labelsNonUlcer = this.labelsToBeConsidered(outlineFilled);
+        Set<Integer> labelExcluded = this.labelsToBeConsidered(largerOutline);
+        labelsNonUlcer.add(0);
+
+        labelsUlcer.removeAll(labelExcluded);
+        labelsNonUlcer.removeAll(labelExcluded);
+
+        this.createColorInformativePixels(labelsUlcer, labelsNonUlcer, labelExcluded);
+
+        this.excludedRegion = this.createRegionsExtracted(labelExcluded);
+
+        int balanceAmount = labelsUlcer.size() - labelsNonUlcer.size();
+
+        if(balanceAmount < 0) {
+
+            List<Integer> remove = this.balanceAmountOfSuperpixels(new ArrayList<>(labelsNonUlcer), Math.abs(balanceAmount));
+            labelsNonUlcer.removeAll(remove);
+            
+        } else {
+            
+            List<Integer> remove = this.balanceAmountOfSuperpixels(new ArrayList<>(labelsUlcer), Math.abs(balanceAmount));
+            labelsUlcer.removeAll(remove);
+        }
+
+        this.nonUlcerRegion = this.createRegionsExtracted(labelsNonUlcer);
+        this.ulcerRegion = this.createRegionsExtracted(labelsUlcer);
+    }
+
+    private void createColorInformativePixels(Set<Integer> labelsUlcer, Set<Integer> labelsNonUlcer, Set<Integer> labelExcluded) {
+
+        this.colorInformativePixels = new Mat(this.labels.size(), opencv_core.CV_8UC1, Scalar.BLACK);
+        Mat mask = new Mat();
+
+        final int WHITE = 255;
+        final int LIGHT_GRAY = 180;
+        final int DARK_GRAY = 90;
+
+        UByteRawIndexer index = this.colorInformativePixels.createIndexer();
+
+        labelsUlcer.stream().forEach(label -> {
+
+            List<Point> points = this.superpixelsSegmentation.get(label);
+
+            points.forEach(point -> {
+
+                int row = point.getRow();
+                int col = point.getCol();
+
+                index.put(row, col, WHITE);
+            });
+        });
+
+        labelsNonUlcer.stream().forEach(label -> {
+
+            List<Point> points = this.superpixelsSegmentation.get(label);
+
+            points.forEach(point -> {
+
+                int row = point.getRow();
+                int col = point.getCol();
+
+                index.put(row, col, LIGHT_GRAY);
+            });
+        });
+
+        labelExcluded.stream().forEach(label -> {
+
+            List<Point> points = this.superpixelsSegmentation.get(label);
+
+            points.forEach(point -> {
+
+                int row = point.getRow();
+                int col = point.getCol();
+
+                index.put(row, col, DARK_GRAY);
+            });
+        });
+
+        index.release();
+
+        opencv_core.bitwise_not(OpenCV.dilateByCross(this.contour, 3), mask);
+        opencv_core.bitwise_and(this.colorInformativePixels, mask, this.colorInformativePixels);
+    }
+
+    private Set<Integer> labelsToBeConsidered(Mat mask) {
+
+        Mat dst = new Mat();
+        Set<Integer> labelsToBeConsidered = new HashSet<>();
+
+        mask.convertTo(mask, this.labels.type());
+        opencv_core.bitwise_and(mask, this.labels, dst);
+
+        IntRawIndexer index = dst.createIndexer();
+
+        int total = (int) dst.total();
+
+        for(int x = 0; x < total; x++) {
+
+            int labelValue = index.get(x);
+            
+            if(labelValue != 0) {
+
+                labelsToBeConsidered.add(labelValue);
+            }
+        }
+
+        index.release();
+
+        return labelsToBeConsidered;
+    }
+
+    private List<Integer> balanceAmountOfSuperpixels(List<Integer> regions, int balanceAmount) {
+
+        List<Integer> labelsToRemove = new ArrayList<>();
+
+        int start = balanceAmount/2;
+		int end = balanceAmount/2;
+        int size = regions.size();
+        
+        if((start + end) < balanceAmount) {
+
+			end++;
+        }
+
+		for(int indice = 0; indice < start; indice++) {
+
+			labelsToRemove.add(regions.get(indice));
+			labelsToRemove.add(regions.get(size - end));
+
+			end--;
+		}
+
+		if(end > 0) {
+
+			labelsToRemove.add(regions.get(size - end));
+		}
+
+		return labelsToRemove;
+    }
+
+    private Map<Integer, List<Point>> createRegionsExtracted(Set<Integer> regions) {
+
+        Map<Integer, List<Point>> temp = new HashMap<>();
+        
+        regions.stream().forEach(region -> {
+
+            temp.put(region, this.superpixelsSegmentation.get(region));
+        });
+        
+        return temp;
     }
 
     private List<Point> extractPixelsIndex(Mat aux) {

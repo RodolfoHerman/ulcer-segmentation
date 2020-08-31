@@ -1,5 +1,6 @@
 package com.rodolfo.ulcer.segmentation.opencv;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
+import org.opencv.core.MatOfPoint;
 import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
@@ -440,6 +442,66 @@ public class OpenCV {
         }
 
         OpenCV.showImageGUI(histImage);
+    }
+
+    public static Mat findLargerOutlineAndFill(Mat src) {
+
+        Mat aux = new Mat(src.size(), opencv_core.CV_8UC1, Scalar.WHITE);
+        Mat dst = new Mat(src.size(), opencv_core.CV_8UC1, Scalar.BLACK);
+
+        UByteRawIndexer srcIndex = src.createIndexer();
+        UByteRawIndexer auxIndex = aux.createIndexer();
+
+        int total = (int)src.total();
+
+        for(int index = 0; index < total; index++) {
+
+            if(srcIndex.get(index) <= 10) {
+
+                auxIndex.put(index, 0);
+            }
+        }
+        
+        srcIndex.release();
+        auxIndex.release();
+
+        Mat largerOutline = OpenCV.findLargerContour(aux);
+        
+        opencv_imgproc.fillPoly(dst, new MatVector(largerOutline), Scalar.WHITE);
+
+        return dst;
+    }
+
+    public static Mat findLargerOutline(Mat src) {
+
+        Mat dst = new Mat(src.size(), opencv_core.CV_8UC1, Scalar.BLACK);
+        Mat largerOutline = OpenCV.findLargerContour(src);
+
+        opencv_imgproc.polylines(dst, new MatVector(largerOutline), true, Scalar.WHITE);
+
+        return dst;
+    }
+
+    public static Mat findLargerContour(Mat src) {
+
+        MatVector contours = new MatVector();
+        Mat largerOutline = null;
+        long max = 0L;
+
+        opencv_imgproc.findContours(src, contours, new Mat(), opencv_imgproc.RETR_TREE, opencv_imgproc.CHAIN_APPROX_SIMPLE);
+
+        List<Mat> listOfContours = Arrays.asList(contours.get());
+
+        for(Mat contour: listOfContours) {
+
+            if(max < contour.total()) {
+
+                largerOutline = contour;
+                max = contour.total();
+            }
+        }
+
+        return largerOutline;
     }
 
     public static void showImageGUI(Mat src) {

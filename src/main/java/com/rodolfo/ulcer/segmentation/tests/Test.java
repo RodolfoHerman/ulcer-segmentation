@@ -1,6 +1,9 @@
 package com.rodolfo.ulcer.segmentation.tests;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.descriptors.color.ColorDescriptors;
@@ -26,6 +29,7 @@ import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSLIC;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
 
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_photo;
 import org.bytedeco.javacpp.opencv_core.Mat;
 
@@ -43,6 +47,8 @@ public class Test {
     private static final int WAVELET = 6;
     private static final int LBPH = 7;
     private static final int COLOR = 8;
+    private static final int LARGER_OUTLINE = 9;
+    private static final int CREATE_LABELS_FROM_LABELED_IMAGE = 10;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -114,6 +120,18 @@ public class Test {
                 Test.colorDescriptors();
 
             break;
+
+            case LARGER_OUTLINE:
+
+                Test.findLargerOutlineAndFill();
+
+            break;
+
+            case CREATE_LABELS_FROM_LABELED_IMAGE:
+
+                Test.createSuperpixelsLabelsFromLabeledImage();
+            
+            break;
         
             default:
             break;
@@ -159,9 +177,9 @@ public class Test {
         LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
         lRemoval.lightRemoval(image, conf.getKernelFilterSize());
 
-        Superpixels lsc = new SuperpixelsLSC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 0.060f);
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
-        Superpixels seeds = new SuperpixelsSEEDS(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 300, 3);
+        Superpixels lsc = new SuperpixelsLSC(image, conf.getImageEdgePixelDistance(), 400, 20, 0.060f);
+        Superpixels slic = new SuperpixelsSLIC(image, conf.getImageEdgePixelDistance(), 400, 20, 20);
+        Superpixels seeds = new SuperpixelsSEEDS(image, conf.getImageEdgePixelDistance(), 400, 300, 3);
 
         lsc.createSuperpixels();
         slic.createSuperpixels();
@@ -194,20 +212,11 @@ public class Test {
 
     private static void haralickDescriptors() {
 
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
-
-        Mat mask = lDetection.lightMask(image.getImage());
-
-        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
-        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
-
+        Superpixels superpixels = Test.createSuperpixel();
+        
         Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
 
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
-
-        slic.createSuperpixels();
-
-        HaralickGlcm haralickGlcm = new HaralickGlcm(gray, slic.getSuperpixelsSegmentation().get(0), GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
+        HaralickGlcm haralickGlcm = new HaralickGlcm(gray, superpixels.getSuperpixelsSegmentation().get(0), GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
         haralickGlcm.process();
 
         HaralickDescriptors hDescriptors = new HaralickDescriptors(haralickGlcm);
@@ -221,16 +230,7 @@ public class Test {
 
     private static void waveletDescriptors() {
 
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
-
-        Mat mask = lDetection.lightMask(image.getImage());
-
-        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
-        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
-
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
-
-        slic.createSuperpixels();
+        Superpixels superpixels = Test.createSuperpixel();
 
         Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
 
@@ -238,7 +238,7 @@ public class Test {
 
         wavelet.process();
 
-        WaveletDescriptors wDescriptors = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), slic.getSuperpixelsSegmentation().get(0));
+        WaveletDescriptors wDescriptors = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), superpixels.getSuperpixelsSegmentation().get(0));
 
         System.out.println("Energia: " + wDescriptors.energy());
         System.out.println("Entropia: " + wDescriptors.entropy());
@@ -246,20 +246,11 @@ public class Test {
 
     private static void LBPHDescriptors() {
         
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
-
-        Mat mask = lDetection.lightMask(image.getImage());
-
-        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
-        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
-
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
-
-        slic.createSuperpixels();
+        Superpixels superpixels = Test.createSuperpixel();
 
         Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
 
-        LBPH lbph = new LBPH(gray, slic.getSuperpixelsSegmentation().get(0));
+        LBPH lbph = new LBPH(gray, superpixels.getSuperpixelsSegmentation().get(0));
         lbph.process();
 
         LBPHDescriptors lDescriptors = new LBPHDescriptors(lbph.getValues());
@@ -272,18 +263,9 @@ public class Test {
 
     private static void colorDescriptors() {
 
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+        Superpixels superpixels = Test.createSuperpixel();
 
-        Mat mask = lDetection.lightMask(image.getImage());
-
-        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
-        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
-
-        Superpixels slic = new SuperpixelsSLIC(image.getImageWithoutReflection(), conf.getImageEdgePixelDistance(), 400, 20, 20);
-
-        slic.createSuperpixels();
-
-        Color color = new Color(image.getImage(), slic.getSuperpixelsSegmentation().get(0), 2);
+        Color color = new Color(image.getImage(), superpixels.getSuperpixelsSegmentation().get(0), 2);
         color.process();
 
         ColorDescriptors cDescriptors = new ColorDescriptors(color.getChannel1());
@@ -298,5 +280,41 @@ public class Test {
         System.out.println("Dominante 1: " + color.getDominantColor()[0]);
         System.out.println("Dominante 2: " + color.getDominantColor()[1]);
         System.out.println("Dominante 3: " + color.getDominantColor()[2]);
+    }
+
+    private static void findLargerOutlineAndFill() {
+
+        Mat gray = OpenCV.matImage2GRAY(image.getLabeledImage());
+
+        OpenCV.showImageGUI(gray);
+
+        Mat outlineFilled = OpenCV.findLargerOutlineAndFill(gray);
+
+        OpenCV.showImageGUI(outlineFilled);
+        OpenCV.showImageGUI(OpenCV.findLargerOutline(outlineFilled));
+    }
+
+    private static void createSuperpixelsLabelsFromLabeledImage() {
+
+        Superpixels superpixels = Test.createSuperpixel();
+
+        superpixels.extractRegionLabels();
+        OpenCV.showImageGUI(superpixels.getColorInformativePixels());
+    }
+
+    private static Superpixels createSuperpixel() {
+
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+
+        Mat mask = lDetection.lightMask(image.getImage());
+
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(image, conf.getKernelFilterSize());
+
+        Superpixels slic = new SuperpixelsSLIC(image, conf.getImageEdgePixelDistance(), 400, 20, 20);
+
+        slic.createSuperpixels();
+
+        return slic;
     }
 }
