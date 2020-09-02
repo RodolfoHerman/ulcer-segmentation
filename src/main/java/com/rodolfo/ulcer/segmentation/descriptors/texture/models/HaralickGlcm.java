@@ -3,14 +3,13 @@ package com.rodolfo.ulcer.segmentation.descriptors.texture.models;
 import java.util.List;
 
 import com.rodolfo.ulcer.segmentation.descriptors.Process;
-import com.rodolfo.ulcer.segmentation.enums.GlcmDegreeEnum;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.models.Point;
-import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
 import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
-import org.bytedeco.javacpp.opencv_core.Mat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class HaralickGlcm implements Process {
 
         log.info("Criação da GLCM de grau : {}", this.gde.toString());
 
-        int maxIntensity = OpenCV.getMinMaxIntensityFromSuperpixel(this.img, this.points)[1];
+        int maxIntensity = 255; //OpenCV.getMinMaxIntensityFromSuperpixel(this.img, this.points, this.distance)[1];
 
         this.glcm = Mat.zeros(maxIntensity+1, maxIntensity+1, opencv_core.CV_32FC1).asMat();
 
@@ -74,9 +73,9 @@ public class HaralickGlcm implements Process {
 
         if(this.gde.toString().equals("DEGREE_90")) {
 
-            return index.get(point.getRow() - this.distance, point.getCol() + this.distance);
+            return index.get(point.getRow() - this.distance, point.getCol());
         }
 
-        return index.get(point.getRow() - this.distance, point.getCol() + this.distance);
+        return index.get(point.getRow() - this.distance, point.getCol() - this.distance);
     }
 }

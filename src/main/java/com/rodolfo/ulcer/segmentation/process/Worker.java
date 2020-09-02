@@ -1,6 +1,11 @@
 package com.rodolfo.ulcer.segmentation.process;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.descriptors.DescriptorFactory;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
@@ -13,8 +18,8 @@ import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsLSC;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSEEDS;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSLIC;
 
-import org.bytedeco.javacpp.opencv_photo;
 import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_photo;
 
 import javafx.concurrent.Task;
 
@@ -68,10 +73,28 @@ public class Worker extends Task<Void> {
 
     private void featureExtraction() {
 
+        List<Descriptor> nonUlcerDescriptors = new ArrayList<>();
+        List<Descriptor> ulcerDescriptors = new ArrayList<>();
+        
         Superpixels superpixels = this.createSuperpixelsMethod();
 
         superpixels.createSuperpixels();
         superpixels.extractRegionLabels();
+
+        DescriptorFactory dFactoryNonUlcer = new DescriptorFactory(this.image, this.conf, superpixels.getNonUlcerRegion());
+        dFactoryNonUlcer.process();
+        DescriptorFactory dFactoryUlcer = new DescriptorFactory(this.image, this.conf, superpixels.getUlcerRegion());
+        dFactoryUlcer.process();
+
+        dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
+
+            nonUlcerDescriptors.add(new Descriptor("NON_ULCER", descriptors));
+        });
+
+        dFactoryUlcer.getDescriptors().stream().forEach(descriptors -> {
+
+            ulcerDescriptors.add(new Descriptor("ULCER", descriptors));
+        });
 
     }
 

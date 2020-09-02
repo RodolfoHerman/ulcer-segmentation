@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.DescriptorsEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
 
@@ -68,5 +69,15 @@ public class Util {
         }
 
         return histogram;
+    }
+
+    public static List<String> getDescriptorsNames(String descriptorName) {
+
+        DescriptorsEnum[] descriptorsEnums = DescriptorsEnum.values();
+
+        return Arrays.stream(descriptorsEnums)
+            .filter(descriptor -> descriptor.name().contains(descriptorName))
+            .map(DescriptorsEnum::name)
+            .collect(Collectors.toList());
     }
 }

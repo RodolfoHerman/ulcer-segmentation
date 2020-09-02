@@ -1,5 +1,7 @@
 package com.rodolfo.ulcer.segmentation.models;
 
+import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
+
 import org.bytedeco.javacpp.opencv_core.Mat;
 
 import lombok.Data;
@@ -21,5 +23,30 @@ public class Image {
         this.directory = directory;
         this.resampleWidth = resampleWidth;
         this.resampleHeight = resampleHeight;
+    }
+
+    public Mat matImage2BGR() {
+
+        return this.imageWithoutReflection.clone();
+    }
+
+    public Mat matImage2LAB() {
+
+        return OpenCV.matImage2LAB(this.imageWithoutReflection);
+    }
+
+    public Mat matImage2LUV() {
+
+        return OpenCV.matImage2LUV(this.imageWithoutReflection);
+    }
+
+    public Mat matImage2GRAY() {
+
+        return OpenCV.matImage2GRAY(this.imageWithoutReflection);
+    }
+
+    public Mat matImage2BGRNorm() {
+
+        return OpenCV.matImage2BGRNorm(this.imageWithoutReflection);
     }
 }

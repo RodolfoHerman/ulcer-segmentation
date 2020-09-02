@@ -1,6 +1,5 @@
 package com.rodolfo.ulcer.segmentation.opencv;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
-import org.opencv.core.MatOfPoint;
 import org.bytedeco.javacpp.opencv_imgcodecs;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
@@ -175,6 +173,36 @@ public class OpenCV {
         return dst;
     }
 
+    public static Mat matImage2BGRNorm(Mat src) {
+
+        Mat dst = new Mat();
+
+        src.convertTo(dst, opencv_core.CV_32FC3);
+
+        FloatRawIndexer indice = dst.createIndexer();
+
+        float[] pixel = new float[dst.channels()];
+
+        for (int row = 0; row < dst.rows(); row++) {
+            for(int col = 0; col < dst.cols(); col++) {
+
+                indice.get(row, col, pixel);
+
+                float r = (pixel[2]/(pixel[0] + pixel[1] + pixel[2])) * 255f;
+                float g = (pixel[1]/(pixel[0] + pixel[1] + pixel[2])) * 255f;
+                float b = (pixel[0]/(pixel[0] + pixel[1] + pixel[2])) * 255f;
+
+                indice.put(row, col, new float[]{b,g,r});
+            }
+        }
+
+        indice.release();
+
+        dst.convertTo(dst, opencv_core.CV_8UC3);
+
+        return dst;
+    }
+
     public static Mat getMatChannel(Mat src, int channel) {
 
         MatVector matVector = new MatVector();
@@ -211,32 +239,47 @@ public class OpenCV {
         );
     }
 
-    public static int[] getMinMaxIntensityFromSuperpixel(Mat src, List<Point> points) {
+    public static int[] getMinMaxIntensityFromSuperpixel(Mat src, List<Point> points, int distance) {
 
         UByteRawIndexer index = src.createIndexer();
 
-        int max = Integer.MIN_VALUE;
-        int min = Integer.MAX_VALUE;
+        int[] minMax = {Integer.MAX_VALUE, Integer.MIN_VALUE};
 
         for(Point point: points) {
 
-            int aux = index.get(point.getRow(), point.getCol());
+            int aux1 = index.get(point.getRow(), point.getCol());
+            // 0º
+            int aux2 = index.get(point.getRow(), point.getCol() + distance);
+            // 45º
+            int aux3 = index.get(point.getRow() - distance, point.getCol() + distance);
+            // 90º
+            int aux4 = index.get(point.getRow() - distance, point.getCol());
+            // 135º
+            int aux5 = index.get(point.getRow() - distance, point.getCol() - distance);
 
-            if(max < aux) {
-
-                max = aux;
-            }
-
-            if(min > aux) {
-
-                min = aux;
-            }
-
+            OpenCV.getMinMaxVals(minMax, aux1);
+            OpenCV.getMinMaxVals(minMax, aux2);
+            OpenCV.getMinMaxVals(minMax, aux3);
+            OpenCV.getMinMaxVals(minMax, aux4);
+            OpenCV.getMinMaxVals(minMax, aux5);
         }
 
         index.release();
 
-        return new int[]{min, max};
+        return minMax;
+    }
+
+    private static void getMinMaxVals(int[] minMax, int aux) {
+
+        if(minMax[1] < aux) {
+
+            minMax[1] = aux;
+        }
+
+        if(minMax[0] > aux) {
+
+            minMax[0] = aux;
+        }
     }
 
     public static float[] getMinMaxIntensityFloatMat(Mat src) {

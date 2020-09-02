@@ -1,9 +1,7 @@
 package com.rodolfo.ulcer.segmentation.descriptors.texture;
 
-import com.rodolfo.ulcer.segmentation.descriptors.texture.models.HaralickGlcm;
-
-import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +11,9 @@ public class HaralickDescriptors {
     
     private Mat glcm;
 
-    public HaralickDescriptors(HaralickGlcm hGlcm) {
+    public HaralickDescriptors(Mat hGlcm) {
 
-        this.glcm = hGlcm.getGlcm();
+        this.glcm = hGlcm;
     }
 
     /**

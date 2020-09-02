@@ -1,4 +1,4 @@
-package com.rodolfo.ulcer.segmentation.enums;
+package com.rodolfo.ulcer.segmentation.descriptors.texture.enums;
 
 public enum GlcmDegreeEnum {
     

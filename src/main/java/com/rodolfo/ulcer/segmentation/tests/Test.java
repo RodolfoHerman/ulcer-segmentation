@@ -1,20 +1,21 @@
 package com.rodolfo.ulcer.segmentation.tests;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.descriptors.DescriptorFactory;
 import com.rodolfo.ulcer.segmentation.descriptors.color.ColorDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.color.models.Color;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.HaralickDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.LBPHDescriptors;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.WaveletDescriptors;
+import com.rodolfo.ulcer.segmentation.descriptors.texture.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.HaralickGlcm;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.LBPH;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.Wavelet;
-import com.rodolfo.ulcer.segmentation.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
@@ -29,9 +30,8 @@ import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSLIC;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
 
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_photo;
 import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_photo;
 
 public class Test {
 
@@ -49,6 +49,7 @@ public class Test {
     private static final int COLOR = 8;
     private static final int LARGER_OUTLINE = 9;
     private static final int CREATE_LABELS_FROM_LABELED_IMAGE = 10;
+    private static final int DESCRIPTORS_EXTRACTION = 11;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -130,6 +131,12 @@ public class Test {
             case CREATE_LABELS_FROM_LABELED_IMAGE:
 
                 Test.createSuperpixelsLabelsFromLabeledImage();
+            
+            break;
+
+            case DESCRIPTORS_EXTRACTION:
+
+                Test.descriptorsExtractionAndLabel();
             
             break;
         
@@ -219,7 +226,7 @@ public class Test {
         HaralickGlcm haralickGlcm = new HaralickGlcm(gray, superpixels.getSuperpixelsSegmentation().get(0), GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
         haralickGlcm.process();
 
-        HaralickDescriptors hDescriptors = new HaralickDescriptors(haralickGlcm);
+        HaralickDescriptors hDescriptors = new HaralickDescriptors(haralickGlcm.getGlcm());
 
         System.out.println("Energia: " + hDescriptors.energy());
         System.out.println("Entropia: " + hDescriptors.entropy());
@@ -277,9 +284,9 @@ public class Test {
         System.out.println("Intensidade 1: " + cDescriptors.intensity1());
         System.out.println("Frequência 2: " + cDescriptors.frequency2());
         System.out.println("Intensidade 2: " + cDescriptors.intensity2());
-        System.out.println("Dominante 1: " + color.getDominantColor()[0]);
-        System.out.println("Dominante 2: " + color.getDominantColor()[1]);
-        System.out.println("Dominante 3: " + color.getDominantColor()[2]);
+        System.out.println("Dominante 1: " + color.getCentroid()[0]);
+        System.out.println("Dominante 2: " + color.getCentroid()[1]);
+        System.out.println("Dominante 3: " + color.getCentroid()[2]);
     }
 
     private static void findLargerOutlineAndFill() {
@@ -300,6 +307,32 @@ public class Test {
 
         superpixels.extractRegionLabels();
         OpenCV.showImageGUI(superpixels.getColorInformativePixels());
+    }
+
+    private static void descriptorsExtractionAndLabel() {
+
+        List<Descriptor> nonUlcerDescriptors = new ArrayList<>();
+        List<Descriptor> ulcerDescriptors = new ArrayList<>();
+        
+        Superpixels superpixels = Test.createSuperpixel();
+
+        superpixels.createSuperpixels();
+        superpixels.extractRegionLabels();
+
+        DescriptorFactory dFactoryNonUlcer = new DescriptorFactory(image, conf, superpixels.getNonUlcerRegion());
+        dFactoryNonUlcer.process();
+        DescriptorFactory dFactoryUlcer = new DescriptorFactory(image, conf, superpixels.getUlcerRegion());
+        dFactoryUlcer.process();
+
+        dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
+
+            nonUlcerDescriptors.add(new Descriptor("NON_ULCER", descriptors));
+        });
+
+        dFactoryUlcer.getDescriptors().stream().forEach(descriptors -> {
+
+            ulcerDescriptors.add(new Descriptor("ULCER", descriptors));
+        });
     }
 
     private static Superpixels createSuperpixel() {

@@ -25,7 +25,7 @@ public class Color implements Process {
     private Mat img1Row;
     private List<Point> points;
     private int k;
-    private int[] dominantColor;
+    private int[] centroid;
     private Mat channel1;
     private Mat channel2;
     private Mat channel3;
@@ -116,9 +116,9 @@ public class Color implements Process {
         }
 
         int largestCluster = this.getLargestCluster(amount);
-        this.dominantColor = new int[this.img.channels()];
+        this.centroid = new int[this.img.channels()];
         
-        indexCenters.get(largestCluster, 0, this.dominantColor);
+        indexCenters.get(largestCluster, 0, this.centroid);
 
         indexLabels.release();
         indexCenters.release();
