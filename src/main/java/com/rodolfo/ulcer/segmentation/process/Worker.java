@@ -80,7 +80,7 @@ public class Worker extends Task<Void> {
 
     private void featureExtraction() throws InterruptedException {
 
-        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22};
         int maxProcess = process.length;
         int index = 0;
 
@@ -156,6 +156,19 @@ public class Worker extends Task<Void> {
         updateProgress(process[index++], maxProcess);
 
         fileService.saveDescritores(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
+        updateProgress(process[index++], maxProcess);
+        
+        imageService.save(superpixels.getContourImage(), this.image.getDirectory().getSuperpixelsLabelsPath());
+        updateProgress(process[index++], maxProcess);
+
+        imageService.save(superpixels.getColorInformativePixels(), this.image.getDirectory().getSuperpixelsInformationalPath());
+        updateProgress(process[index++], maxProcess);
+        
+        if(this.isWithSRRemoval) {
+
+            imageService.save(this.image.getImageWithoutReflection(), this.image.getDirectory().getImageWithoutReflectionsPath());
+        }
+        
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);

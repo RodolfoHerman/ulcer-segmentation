@@ -118,6 +118,7 @@ public class SceneController implements Initializable {
             this.configuration.setLabeledImageName(properties.getProperty("image.labeled.name"));
             this.configuration.setImageWithoutReflectionsName(properties.getProperty("image.without.reflections.name"));
             this.configuration.setSuperpixelsLabelImageName(properties.getProperty("image.superpixels.label.name"));
+            this.configuration.setSuperpixelsInformationalImageName(properties.getProperty("image.superpixels.informational.name"));
             this.configuration.setSvmClassificationImageName(properties.getProperty("image.svm.classification.name"));
             this.configuration.setGrabcutSegmentationBinaryImageName(properties.getProperty("image.grabcut.segmentation.binary.name"));
             this.configuration.setGrabcutSegmentationImageName(properties.getProperty("image.grabcut.segmentation.name"));

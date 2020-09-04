@@ -16,7 +16,8 @@ public class Directory {
     private File imagePath;
     private File imageWithoutReflectionsPath;
     private File labeledImagePath;
-    private File superpixelsLabesPath;
+    private File superpixelsLabelsPath;
+    private File superpixelsInformationalPath;
     private File svmClassificatioPath;
     private File grabCutSegmentationBinaryPath;
     private File grabCutSegmentationPath;
@@ -33,7 +34,8 @@ public class Directory {
         this.imagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getExtension()));
         this.labeledImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getLabeledImageName()).concat(configuration.getExtension()));
         this.imageWithoutReflectionsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getImageWithoutReflectionsName()).concat(configuration.getExtension()));
-        this.superpixelsLabesPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSuperpixelsLabelImageName()).concat(configuration.getExtension()));
+        this.superpixelsLabelsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSuperpixelsLabelImageName()).concat(configuration.getExtension()));
+        this.superpixelsInformationalPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSuperpixelsInformationalImageName()).concat(configuration.getExtension()));
         this.svmClassificatioPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSvmClassificationImageName()).concat(configuration.getExtension()));
         this.grabCutSegmentationBinaryPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationBinaryImageName()).concat(configuration.getExtension()));
         this.grabCutSegmentationPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationImageName()).concat(configuration.getExtension()));

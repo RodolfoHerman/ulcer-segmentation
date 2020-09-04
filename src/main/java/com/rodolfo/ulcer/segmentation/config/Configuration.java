@@ -29,6 +29,7 @@ public class Configuration {
     private String labeledImageName;
     private String imageWithoutReflectionsName;
     private String superpixelsLabelImageName;
+    private String superpixelsInformationalImageName;
     private String svmClassificationImageName;
     private String grabcutSegmentationBinaryImageName;
     private String grabcutSegmentationImageName;
