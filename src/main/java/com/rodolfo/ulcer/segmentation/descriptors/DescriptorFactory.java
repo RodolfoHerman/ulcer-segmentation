@@ -22,65 +22,55 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 
-public class DescriptorFactory implements Process {
+public class DescriptorFactory {
     
-    private final Image image;
+    private Mat bgr;
+    private Mat lab;
+    private Mat luv;
+    private Mat norm;
+
+    private Mat bgr_b;
+    private Mat bgr_g;
+    private Mat bgr_r;
+
+    private Mat lab_a;
+    private Mat lab_b;
+
+    private Mat luv_u;
+    private Mat luv_v;
+
     private final Map<Integer,List<Point>> superpixels;
     private final Configuration conf;
     private List<List<Double>> descriptors;
 
     public DescriptorFactory(Image image, Configuration conf, Map<Integer,List<Point>> superpixels) {
 
-        this.image = image;
+        this.bgr = image.matImage2BGR();
+        this.lab = image.matImage2LAB();
+        this.luv = image.matImage2LUV();
+        this.norm = image.matImage2BGRNorm();
+
+        this.bgr_b = OpenCV.getMatChannel(bgr, 0);
+        this.bgr_g = OpenCV.getMatChannel(bgr, 1);
+        this.bgr_r = OpenCV.getMatChannel(bgr, 2);
+
+        this.lab_a = OpenCV.getMatChannel(lab, 1);
+        this.lab_b = OpenCV.getMatChannel(lab, 2);
+
+        this.luv_u = OpenCV.getMatChannel(luv, 1);
+        this.luv_v = OpenCV.getMatChannel(luv, 2);
+
         this.conf = conf;
         this.superpixels = superpixels;
         this.descriptors = new ArrayList<>();
     }
 
-    @Override
-    public void process() {
-        
-        Mat bgr = this.image.matImage2BGR();
-        Mat lab = this.image.matImage2LAB();
-        Mat luv = this.image.matImage2LUV();
-        Mat norm = this.image.matImage2BGRNorm();
-
-        Mat bgr_b = OpenCV.getMatChannel(bgr, 0);
-        Mat bgr_g = OpenCV.getMatChannel(bgr, 1);
-        Mat bgr_r = OpenCV.getMatChannel(bgr, 2);
-
-        Mat lab_a = OpenCV.getMatChannel(lab, 1);
-        Mat lab_b = OpenCV.getMatChannel(lab, 2);
-
-        Mat luv_u = OpenCV.getMatChannel(luv, 1);
-        Mat luv_v = OpenCV.getMatChannel(luv, 2);
+    public void processColor() {
 
         List<List<Double>> colorBGR = this.extractColorDescriptors(bgr);
         List<List<Double>> colorLAB = this.extractColorDescriptors(lab);
         List<List<Double>> colorLUV = this.extractColorDescriptors(luv);
         List<List<Double>> colorNORM = this.extractColorDescriptors(norm);
-        
-        List<List<Double>> haralickBGR_B = this.extractHaralickDescriptors(bgr_b);
-        List<List<Double>> haralickBGR_G = this.extractHaralickDescriptors(bgr_g);
-        List<List<Double>> haralickBGR_R = this.extractHaralickDescriptors(bgr_r);
-        List<List<Double>> haralickLAB_A = this.extractHaralickDescriptors(lab_a);
-        List<List<Double>> haralickLAB_B = this.extractHaralickDescriptors(lab_b);
-        List<List<Double>> haralickLUV_U = this.extractHaralickDescriptors(luv_u);
-        List<List<Double>> haralickLUV_V = this.extractHaralickDescriptors(luv_v);
-
-        List<List<Double>> haralickBGR_BG = this.extractVariationHaralickDescriptors(bgr_b, bgr_g);
-        List<List<Double>> haralickBGR_BR = this.extractVariationHaralickDescriptors(bgr_b, bgr_r);
-        List<List<Double>> haralickBGR_GR = this.extractVariationHaralickDescriptors(bgr_g, bgr_r);
-        List<List<Double>> haralickLAB_AB = this.extractVariationHaralickDescriptors(lab_a, lab_b);
-        List<List<Double>> haralickLUV_UV = this.extractVariationHaralickDescriptors(luv_u, luv_v);
-
-        List<List<Double>> LBPHBGR_B = this.extractLBPHDescriptors(bgr_b);
-        List<List<Double>> LBPHBGR_G = this.extractLBPHDescriptors(bgr_g);
-        List<List<Double>> LBPHBGR_R = this.extractLBPHDescriptors(bgr_r);
-
-        List<List<Double>> WaveletBGR_B = this.extractWaveletDescriptors(bgr_b);
-        List<List<Double>> WaveletBGR_G = this.extractWaveletDescriptors(bgr_g);
-        List<List<Double>> WaveletBGR_R = this.extractWaveletDescriptors(bgr_r);
 
         for(int index = 0; index < this.superpixels.size(); index++) {
 
@@ -90,7 +80,25 @@ public class DescriptorFactory implements Process {
             aux.addAll(colorLAB.get(index));
             aux.addAll(colorLUV.get(index));
             aux.addAll(colorNORM.get(index));
-            
+
+            this.descriptors.add(aux);
+        }
+    }
+
+    public void processHaralick() {
+
+        List<List<Double>> haralickBGR_B = this.extractHaralickDescriptors(this.bgr_b);
+        List<List<Double>> haralickBGR_G = this.extractHaralickDescriptors(this.bgr_g);
+        List<List<Double>> haralickBGR_R = this.extractHaralickDescriptors(this.bgr_r);
+        List<List<Double>> haralickLAB_A = this.extractHaralickDescriptors(this.lab_a);
+        List<List<Double>> haralickLAB_B = this.extractHaralickDescriptors(this.lab_b);
+        List<List<Double>> haralickLUV_U = this.extractHaralickDescriptors(this.luv_u);
+        List<List<Double>> haralickLUV_V = this.extractHaralickDescriptors(this.luv_v);
+
+        for(int index = 0; index < this.superpixels.size(); index++) {
+
+            List<Double> aux = new ArrayList<>();
+
             aux.addAll(haralickBGR_B.get(index));
             aux.addAll(haralickBGR_G.get(index));
             aux.addAll(haralickBGR_R.get(index));
@@ -98,16 +106,61 @@ public class DescriptorFactory implements Process {
             aux.addAll(haralickLAB_B.get(index));
             aux.addAll(haralickLUV_U.get(index));
             aux.addAll(haralickLUV_V.get(index));
-            
+
+            this.descriptors.add(aux);
+        }
+    }
+
+    public void processVariationHaralick() {
+
+        List<List<Double>> haralickBGR_BG = this.extractVariationHaralickDescriptors(this.bgr_b, this.bgr_g);
+        List<List<Double>> haralickBGR_BR = this.extractVariationHaralickDescriptors(this.bgr_b, this.bgr_r);
+        List<List<Double>> haralickBGR_GR = this.extractVariationHaralickDescriptors(this.bgr_g, this.bgr_r);
+        List<List<Double>> haralickLAB_AB = this.extractVariationHaralickDescriptors(this.lab_a, this.lab_b);
+        List<List<Double>> haralickLUV_UV = this.extractVariationHaralickDescriptors(this.luv_u, this.luv_v);
+
+        for(int index = 0; index < this.superpixels.size(); index++) {
+
+            List<Double> aux = new ArrayList<>();
+
             aux.addAll(haralickBGR_BG.get(index));
             aux.addAll(haralickBGR_BR.get(index));
             aux.addAll(haralickBGR_GR.get(index));
             aux.addAll(haralickLAB_AB.get(index));
             aux.addAll(haralickLUV_UV.get(index));
-            
+
+            this.descriptors.add(aux);
+        }
+    }
+
+    public void processLBPH() {
+
+        List<List<Double>> LBPHBGR_B = this.extractLBPHDescriptors(this.bgr_b);
+        List<List<Double>> LBPHBGR_G = this.extractLBPHDescriptors(this.bgr_g);
+        List<List<Double>> LBPHBGR_R = this.extractLBPHDescriptors(this.bgr_r);
+
+        for(int index = 0; index < this.superpixels.size(); index++) {
+
+            List<Double> aux = new ArrayList<>();
+
             aux.addAll(LBPHBGR_B.get(index));
             aux.addAll(LBPHBGR_G.get(index));
             aux.addAll(LBPHBGR_R.get(index));
+
+            this.descriptors.add(aux);
+        }
+    }
+
+
+    public void processWavelet() {
+
+        List<List<Double>> WaveletBGR_B = this.extractWaveletDescriptors(this.bgr_b);
+        List<List<Double>> WaveletBGR_G = this.extractWaveletDescriptors(this.bgr_g);
+        List<List<Double>> WaveletBGR_R = this.extractWaveletDescriptors(this.bgr_r);
+
+        for(int index = 0; index < this.superpixels.size(); index++) {
+
+            List<Double> aux = new ArrayList<>();
             
             aux.addAll(WaveletBGR_B.get(index));
             aux.addAll(WaveletBGR_G.get(index));
@@ -115,8 +168,6 @@ public class DescriptorFactory implements Process {
 
             this.descriptors.add(aux);
         }
-
-        System.out.println();
     }
 
     private List<List<Double>> extractColorDescriptors(Mat img) {

@@ -42,15 +42,8 @@ public class Configuration {
     private Integer compactnessI;
     private Float compactnessF;
 
-    public void updateImageName(String imageName) {
+    public boolean hasImageName() {
 
-        String newName = this.hasImageName(this.getImageName()) ? this.getImageName() : imageName;
-
-        this.imageName = newName;
-    }
-
-    private boolean hasImageName(String imageName) {
-
-        return !imageName.equalsIgnoreCase("folder_number");
+        return !this.imageName.equalsIgnoreCase("folder_number");
     }
 }

@@ -17,6 +17,10 @@ import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.Superpixels;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsLSC;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSEEDS;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSLIC;
+import com.rodolfo.ulcer.segmentation.services.FileService;
+import com.rodolfo.ulcer.segmentation.services.ImageService;
+import com.rodolfo.ulcer.segmentation.services.impl.FileServiceImpl;
+import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
@@ -25,25 +29,28 @@ import javafx.concurrent.Task;
 
 public class Worker extends Task<Void> {
 
+    private static final FileService fileService = new FileServiceImpl();
+    private static final ImageService imageService = new ImageServiceImpl();
+
     private final Configuration conf;
+    private final boolean isWithSRRemoval;
     private final Image image;
     private final MethodEnum methodEnum;
     private final OperationEnum operationEnum;
 
-    public Worker(Configuration configuration, Image image, MethodEnum methodEnum, OperationEnum operationEnum) {
+    public Worker(Configuration configuration, boolean isWithSRRemoval, Image image, MethodEnum methodEnum, OperationEnum operationEnum) {
 
         this.conf = configuration;
+        this.isWithSRRemoval = isWithSRRemoval;
         this.image = image;
         this.methodEnum = methodEnum;
         this.operationEnum = operationEnum;
 
-        this.updateTitle("");
+        this.updateTitle(this.image.getImageName());
     }
 
     @Override
     protected Void call() throws Exception {
-        
-        this.executeLightRemoval();
         
         switch (this.operationEnum) {
             
@@ -71,41 +78,97 @@ public class Worker extends Task<Void> {
 
     }
 
-    private void featureExtraction() {
+    private void featureExtraction() throws InterruptedException {
 
-        List<Descriptor> nonUlcerDescriptors = new ArrayList<>();
-        List<Descriptor> ulcerDescriptors = new ArrayList<>();
+        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+        int maxProcess = process.length;
+        int index = 0;
+
+        List<Descriptor> descriptors2Save = new ArrayList<>();
+
+        imageService.openWithLabeled(this.image);
+        updateProgress(process[index++], maxProcess);
+
+        if(isWithSRRemoval) {
+
+            this.executeLightRemoval();
+
+        } else {
+
+            this.image.setImageWithoutReflection(this.image.getImage());
+        }
+        updateProgress(process[index++], maxProcess);
         
         Superpixels superpixels = this.createSuperpixelsMethod();
+        updateProgress(process[index++], maxProcess);
 
         superpixels.createSuperpixels();
+        updateProgress(process[index++], maxProcess);
+
         superpixels.extractRegionLabels();
+        updateProgress(process[index++], maxProcess);
 
         DescriptorFactory dFactoryNonUlcer = new DescriptorFactory(this.image, this.conf, superpixels.getNonUlcerRegion());
-        dFactoryNonUlcer.process();
+        
+        dFactoryNonUlcer.processColor();
+        updateProgress(process[index++], maxProcess);
+
+        dFactoryNonUlcer.processHaralick();
+        updateProgress(process[index++], maxProcess);
+        
+        dFactoryNonUlcer.processVariationHaralick();
+        updateProgress(process[index++], maxProcess);
+
+        dFactoryNonUlcer.processLBPH();
+        updateProgress(process[index++], maxProcess);
+
+        dFactoryNonUlcer.processWavelet();
+        updateProgress(process[index++], maxProcess);
+
+
         DescriptorFactory dFactoryUlcer = new DescriptorFactory(this.image, this.conf, superpixels.getUlcerRegion());
-        dFactoryUlcer.process();
+        
+        dFactoryUlcer.processColor();
+        updateProgress(process[index++], maxProcess);
 
-        dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
+        dFactoryUlcer.processHaralick();
+        updateProgress(process[index++], maxProcess);
+        
+        dFactoryUlcer.processVariationHaralick();
+        updateProgress(process[index++], maxProcess);
 
-            nonUlcerDescriptors.add(new Descriptor("NON_ULCER", descriptors));
-        });
+        dFactoryUlcer.processLBPH();
+        updateProgress(process[index++], maxProcess);
+
+        dFactoryUlcer.processWavelet();
+        updateProgress(process[index++], maxProcess);
 
         dFactoryUlcer.getDescriptors().stream().forEach(descriptors -> {
 
-            ulcerDescriptors.add(new Descriptor("ULCER", descriptors));
+            descriptors2Save.add(new Descriptor("ULCER", descriptors));
         });
+        updateProgress(process[index++], maxProcess);
+        
+        dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
 
+            descriptors2Save.add(new Descriptor("NON_ULCER", descriptors));
+        });
+        updateProgress(process[index++], maxProcess);
+
+        fileService.saveDescritores(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
+        updateProgress(maxProcess, maxProcess);
+
+        Thread.sleep(500l);
     }
 
     private void executeLightRemoval() {
 
-        LightMaskDetection lightMaskDetection = new SpecularReflectionDetection(this.conf.getSpecularReflectionElemntSize(), this.conf.getSpecularReflectionThreshold());
+        LightMaskDetection lDetection = new SpecularReflectionDetection(this.conf.getSpecularReflectionElemntSize(), this.conf.getSpecularReflectionThreshold());
 
-        Mat mask = lightMaskDetection.lightMask(this.image.getImage());
+        Mat mask = lDetection.lightMask(this.image.getImage());
 
-        LightRemoval lightRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, this.conf.getInpaintingNeighbor());
-        lightRemoval.lightRemoval(image, conf.getKernelFilterSize());
+        LightRemoval lRemoval = new Inpainting(mask, opencv_photo.INPAINT_TELEA, this.conf.getInpaintingNeighbor());
+        lRemoval.lightRemoval(this.image, this.conf.getKernelFilterSize());
     }
 
     private Superpixels createSuperpixelsMethod() {

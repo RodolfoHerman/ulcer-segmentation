@@ -27,7 +27,7 @@ public class SuperpixelsSEEDS extends Superpixels {
 
         final int width = imgLAB.arrayWidth();
         final int height = imgLAB.arrayHeight();
-        final int channels = this.getImage().getImageWithoutReflection().channels();
+        final int channels = 3; //this.getImage().getImageWithoutReflection().channels();
 
         SuperpixelSEEDS seeds = opencv_ximgproc.createSuperpixelSEEDS(
             width, height, channels, this.getAmount(), this.getCompactenssI()

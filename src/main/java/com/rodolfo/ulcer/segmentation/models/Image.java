@@ -1,6 +1,7 @@
 package com.rodolfo.ulcer.segmentation.models;
 
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
+import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 
@@ -48,5 +49,10 @@ public class Image {
     public Mat matImage2BGRNorm() {
 
         return OpenCV.matImage2BGRNorm(this.imageWithoutReflection);
+    }
+
+    public String getImageName() {
+
+        return Util.extractFileNameFromPath(this.directory.getImagePath().getAbsolutePath());
     }
 }

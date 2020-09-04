@@ -15,15 +15,11 @@ import lombok.Setter;
 @Setter
 public class WorkerMonitor {
 
-    private ReadOnlyStringWrapper directory;
-    private ReadOnlyDoubleWrapper progress;
-    private ReadOnlyBooleanWrapper idle;
+    private ReadOnlyStringWrapper directory = new ReadOnlyStringWrapper();
+    private ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
+    private ReadOnlyBooleanWrapper idle = new ReadOnlyBooleanWrapper();
 
-    public void monitor(Task<Void> worker) {
-
-        this.progress = new ReadOnlyDoubleWrapper();
-        this.idle = new ReadOnlyBooleanWrapper();
-        this.directory = new ReadOnlyStringWrapper(worker.getTitle());
+    private void monitor(Worker worker) {
 
         worker.stateProperty().addListener(new ChangeListener<Task.State>() {
 
@@ -33,8 +29,6 @@ public class WorkerMonitor {
 
                     case RUNNING:
 
-                        idle.set(false);
-                        progress.unbind();
                         progress.set(worker.progressProperty().get());
                         progress.bind(worker.progressProperty());
 
@@ -42,6 +36,7 @@ public class WorkerMonitor {
 
                     case SUCCEEDED:
 
+                        directory.unbind();
                         idle.set(true);
                         progress.unbind();
                         progress.set(0.0);
@@ -50,8 +45,18 @@ public class WorkerMonitor {
 
                     case FAILED:
 
+                        directory.unbind();
                         worker.stateProperty().removeListener(this);
                         idle.set(true);
+
+                    break;
+
+                    case SCHEDULED:
+
+                        directory.unbind();
+                        directory.set(worker.getTitle());
+                        idle.set(false);
+                        progress.unbind();
 
                     break;
                 
@@ -63,7 +68,7 @@ public class WorkerMonitor {
         });
     }
 
-    public void monitor(List<Task<Void>> workers) {
+    public void monitor(List<Worker> workers) {
 
         workers.stream().forEach(worker -> this.monitor(worker));
     }

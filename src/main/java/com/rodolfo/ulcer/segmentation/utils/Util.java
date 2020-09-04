@@ -38,10 +38,10 @@ public class Util {
             
             if(temp.isDirectory()) {
 
-                configuration.updateImageName(folder);
+                String imageName = configuration.hasImageName() ? configuration.getImageName() : folder;
 
                 Directory directory = new Directory();
-                directory.updatePaths(temp, configuration);
+                directory.updatePaths(temp, imageName, configuration);
 
                 return (new Image(directory, configuration.getResampleWidth(), configuration.getResampleHeight()));
             }
@@ -79,5 +79,37 @@ public class Util {
             .filter(descriptor -> descriptor.name().contains(descriptorName))
             .map(DescriptorsEnum::name)
             .collect(Collectors.toList());
+    }
+
+    public static List<String> getDescriptorsNames() {
+
+        DescriptorsEnum[] descriptorsEnums = DescriptorsEnum.values();
+
+        return Arrays.stream(descriptorsEnums)
+            .map(DescriptorsEnum::name)
+            .collect(Collectors.toList());
+    }
+
+    public static String createARFFHeader() {
+        
+        StringBuffer header = new StringBuffer("@relation ulcer_classification");
+        header.append("\n");
+        header.append("\n");
+
+        for (String feature : getDescriptorsNames()) {
+            
+            header.append("@attribute ");
+            header.append(feature);
+            header.append(" real");
+            header.append("\n");
+        }
+
+        header.append("@attribute classification {ULCER,NON_ULCER}");
+        header.append("\n");
+        header.append("\n");
+        header.append("@data");
+        header.append("\n");
+
+        return header.toString();
     }
 }

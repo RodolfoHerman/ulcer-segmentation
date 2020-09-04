@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.MainApp;
@@ -82,6 +84,7 @@ public class SceneController implements Initializable {
     private Configuration configuration;
     private DirectoryChooser directoryChooser;
     private List<Image> images;
+    private String principalDirectory;
 
     private static final Logger log = LoggerFactory.getLogger(SceneController.class);
     private final String PROPERTIES = "application.properties";
@@ -129,7 +132,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        new Test(11, configuration);
+        // new Test(11, configuration);
     }
 
     @FXML
@@ -143,8 +146,62 @@ public class SceneController implements Initializable {
 
         } else {
 
-            System.out.println("ENTROU PROCESS");
+            this.reset();
+
+            WorkerMonitor wMonitor = new WorkerMonitor();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            
+            this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
+            this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));
+
+            MethodEnum method = this.getSelectedMethod();
+
+            if(method.equals(MethodEnum.LSC)) {
+
+                this.configuration.setCompactnessF(Float.valueOf(this.compactness.getText()));
+
+            } else {
+
+                this.configuration.setCompactnessI(Integer.valueOf(this.compactness.getText()));
+            }
+
+            List<Worker> workers = this.images.stream()
+                .map(image -> new Worker(this.configuration, this.isWithSRRemoval(), image, method, this.getSelectedOperation()))
+                .collect(Collectors.toList());
+
+            wMonitor.monitor(workers);
+            this.setWorkerProperties(wMonitor);
+
+            workers.stream().forEach(worker -> {
+
+                executor.execute(worker);
+            });
         }
+    }
+
+    private void setWorkerProperties(WorkerMonitor wMonitor) {
+
+        this.imageNumber.textProperty().bind(wMonitor.getDirectory());
+        this.progressBar.progressProperty().bind(wMonitor.getProgress());
+        this.btnProcess.disableProperty().bind(wMonitor.getIdle().not());
+        this.btnOpen.disableProperty().bind(wMonitor.getIdle().not());
+    }
+
+    private void reset() {
+        
+        // this.bntSalvarArff.disableProperty().unbind();
+        this.btnOpen.disableProperty().unbind();
+        this.progressBar.progressProperty().unbind();
+        this.btnProcess.disableProperty().unbind();
+        this.imageNumber.textProperty().unbind();
+        this.imageNumber.setText("");
+        this.directory.textProperty().unbind();
+        this.directory.setText(this.principalDirectory);
+        
+        // this.bntSalvarArff.setDisable(false);
+        this.progressBar.setProgress(0);
+        this.btnProcess.setDisable(false);
+        this.btnOpen.setDisable(false);
     }
 
     @FXML
@@ -161,6 +218,9 @@ public class SceneController implements Initializable {
             this.directoryChooser.setInitialDirectory(file);
             this.configuration.setChooseDirectory(file.getAbsolutePath());
             this.images = Util.createImageFiles(file.list(), this.configuration);
+            this.principalDirectory = file.getAbsolutePath();
+
+            this.reset();
         }
     }
 
@@ -186,7 +246,7 @@ public class SceneController implements Initializable {
             OperationEnum.SEGMENTATION;
     }
 
-    private boolean isSRRemoval() {
+    private boolean isWithSRRemoval() {
 
         return this.srRemoval.isSelected();
     }

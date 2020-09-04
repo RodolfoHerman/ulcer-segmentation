@@ -320,10 +320,21 @@ public class Test {
         superpixels.extractRegionLabels();
 
         DescriptorFactory dFactoryNonUlcer = new DescriptorFactory(image, conf, superpixels.getNonUlcerRegion());
-        dFactoryNonUlcer.process();
-        DescriptorFactory dFactoryUlcer = new DescriptorFactory(image, conf, superpixels.getUlcerRegion());
-        dFactoryUlcer.process();
+        
+        dFactoryNonUlcer.processColor();
+        dFactoryNonUlcer.processHaralick();
+        dFactoryNonUlcer.processVariationHaralick();
+        dFactoryNonUlcer.processLBPH();
+        dFactoryNonUlcer.processWavelet();
 
+        DescriptorFactory dFactoryUlcer = new DescriptorFactory(image, conf, superpixels.getUlcerRegion());
+        
+        dFactoryUlcer.processColor();
+        dFactoryUlcer.processHaralick();
+        dFactoryUlcer.processVariationHaralick();
+        dFactoryUlcer.processLBPH();
+        dFactoryUlcer.processWavelet();
+        
         dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
 
             nonUlcerDescriptors.add(new Descriptor("NON_ULCER", descriptors));
