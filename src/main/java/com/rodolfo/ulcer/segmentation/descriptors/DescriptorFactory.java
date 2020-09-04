@@ -41,7 +41,11 @@ public class DescriptorFactory {
 
     private final Map<Integer,List<Point>> superpixels;
     private final Configuration conf;
-    private List<List<Double>> descriptors;
+    private List<List<Double>> colorDescriptors;
+    private List<List<Double>> haralickDescriptors;
+    private List<List<Double>> variationHaralickDescriptors;
+    private List<List<Double>> lbphDescriptors;
+    private List<List<Double>> waveletDescriptors;
 
     public DescriptorFactory(Image image, Configuration conf, Map<Integer,List<Point>> superpixels) {
 
@@ -62,15 +66,19 @@ public class DescriptorFactory {
 
         this.conf = conf;
         this.superpixels = superpixels;
-        this.descriptors = new ArrayList<>();
+        this.colorDescriptors = new ArrayList<>();
+        this.haralickDescriptors = new ArrayList<>();
+        this.variationHaralickDescriptors = new ArrayList<>();
+        this.lbphDescriptors = new ArrayList<>();
+        this.waveletDescriptors = new ArrayList<>();
     }
 
     public void processColor() {
 
-        List<List<Double>> colorBGR = this.extractColorDescriptors(bgr);
-        List<List<Double>> colorLAB = this.extractColorDescriptors(lab);
-        List<List<Double>> colorLUV = this.extractColorDescriptors(luv);
-        List<List<Double>> colorNORM = this.extractColorDescriptors(norm);
+        List<List<Double>> colorBGR = this.extractColorDescriptors(this.bgr);
+        List<List<Double>> colorLAB = this.extractColorDescriptors(this.lab);
+        List<List<Double>> colorLUV = this.extractColorDescriptors(this.luv);
+        List<List<Double>> colorNORM = this.extractColorDescriptors(this.norm);
 
         for(int index = 0; index < this.superpixels.size(); index++) {
 
@@ -81,7 +89,7 @@ public class DescriptorFactory {
             aux.addAll(colorLUV.get(index));
             aux.addAll(colorNORM.get(index));
 
-            this.descriptors.add(aux);
+            this.colorDescriptors.add(aux);
         }
     }
 
@@ -107,7 +115,7 @@ public class DescriptorFactory {
             aux.addAll(haralickLUV_U.get(index));
             aux.addAll(haralickLUV_V.get(index));
 
-            this.descriptors.add(aux);
+            this.haralickDescriptors.add(aux);
         }
     }
 
@@ -129,7 +137,7 @@ public class DescriptorFactory {
             aux.addAll(haralickLAB_AB.get(index));
             aux.addAll(haralickLUV_UV.get(index));
 
-            this.descriptors.add(aux);
+            this.variationHaralickDescriptors.add(aux);
         }
     }
 
@@ -147,7 +155,7 @@ public class DescriptorFactory {
             aux.addAll(LBPHBGR_G.get(index));
             aux.addAll(LBPHBGR_R.get(index));
 
-            this.descriptors.add(aux);
+            this.lbphDescriptors.add(aux);
         }
     }
 
@@ -166,7 +174,7 @@ public class DescriptorFactory {
             aux.addAll(WaveletBGR_G.get(index));
             aux.addAll(WaveletBGR_R.get(index));
 
-            this.descriptors.add(aux);
+            this.waveletDescriptors.add(aux);
         }
     }
 
@@ -359,7 +367,22 @@ public class DescriptorFactory {
 
     public List<List<Double>> getDescriptors() {
 
-        return this.descriptors;
+        List<List<Double>> descriptors = new ArrayList<>();
+
+        for(int index = 0; index < this.superpixels.size(); index++) {
+
+            List<Double> descTemp = new ArrayList<>();
+
+            descTemp.addAll(this.colorDescriptors.get(index));
+            descTemp.addAll(this.haralickDescriptors.get(index));
+            descTemp.addAll(this.variationHaralickDescriptors.get(index));
+            descTemp.addAll(this.lbphDescriptors.get(index));
+            descTemp.addAll(this.waveletDescriptors.get(index));
+
+            descriptors.add(descTemp);
+        }
+
+        return descriptors;
     }
 
 }
