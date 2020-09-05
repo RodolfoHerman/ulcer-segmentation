@@ -1,5 +1,7 @@
 package com.rodolfo.ulcer.segmentation.config;
 
+import java.io.File;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -42,6 +44,13 @@ public class Configuration {
     private Integer amount;
     private Integer compactnessI;
     private Float compactnessF;
+
+    private String datasourceSEEDSName;
+    private String datasourceLSCName;
+    private String datasourceSLICName;
+
+    private File datasource;
+    private File mlModel;
 
     public boolean hasImageName() {
 

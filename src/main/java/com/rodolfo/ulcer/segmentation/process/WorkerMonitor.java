@@ -19,7 +19,7 @@ public class WorkerMonitor {
     private ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
     private ReadOnlyBooleanWrapper idle = new ReadOnlyBooleanWrapper();
 
-    private void monitor(Worker worker) {
+    public void monitor(Worker worker) {
 
         worker.stateProperty().addListener(new ChangeListener<Task.State>() {
 

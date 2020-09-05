@@ -52,10 +52,13 @@ public class SceneController implements Initializable {
     private CheckBox srRemoval;
     
     @FXML
-    private RadioButton operationSegmentation;
-    
-    @FXML
     private RadioButton operationFeature;
+
+    @FXML
+    private RadioButton operationARFF;
+
+    @FXML
+    private RadioButton operationSegmentation;
 
     @FXML
     private TextField iterations;
@@ -125,6 +128,9 @@ public class SceneController implements Initializable {
             this.configuration.setGrabcutMaskImageName(properties.getProperty("image.grabcut.mask.name"));
             this.configuration.setExecutionTimeFile(properties.getProperty("file.execution.time"));
             this.configuration.setFeaturesExtractedFile(properties.getProperty("file.features.extracted"));
+            this.configuration.setDatasourceSEEDSName(properties.getProperty("ml.file.datasource.seeds.name"));
+            this.configuration.setDatasourceLSCName(properties.getProperty("ml.file.datasource.lsc.name"));
+            this.configuration.setDatasourceSLICName(properties.getProperty("ml.file.datasource.slic.name"));
             this.configuration.setUserDirectory(properties.getProperty("user.local.directory"));
 
         } catch (Exception e) {
@@ -152,32 +158,88 @@ public class SceneController implements Initializable {
             WorkerMonitor wMonitor = new WorkerMonitor();
             ExecutorService executor = Executors.newSingleThreadExecutor();
             
-            this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
-            this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));
+            if(this.getSelectedOperation() == OperationEnum.CREATE_ARFF_FILE) {
 
-            MethodEnum method = this.getSelectedMethod();
-
-            if(method.equals(MethodEnum.LSC)) {
-
-                this.configuration.setCompactnessF(Float.valueOf(this.compactness.getText()));
+                this.arffExecutor(wMonitor, executor);
 
             } else {
 
-                this.configuration.setCompactnessI(Integer.valueOf(this.compactness.getText()));
+                this.imageExecutor(wMonitor, executor);
             }
-
-            List<Worker> workers = this.images.stream()
-                .map(image -> new Worker(this.configuration, this.isWithSRRemoval(), image, method, this.getSelectedOperation()))
-                .collect(Collectors.toList());
-
-            wMonitor.monitor(workers);
-            this.setWorkerProperties(wMonitor);
-
-            workers.stream().forEach(worker -> {
-
-                executor.execute(worker);
-            });
         }
+    }
+
+    private void arffExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
+
+        File dFile = this.createDatasourceFile();
+        this.configuration.setDatasource(dFile);
+
+        List<File> arffFiles = this.images.stream()
+            .map(image -> image.getDirectory().getFeaturesExtractedPath())
+            .collect(Collectors.toList());
+
+        Worker worker = new Worker(this.configuration, arffFiles, this.getSelectedOperation());
+
+        wMonitor.monitor(worker);
+        this.setWorkerProperties(wMonitor);
+
+        executor.execute(worker);
+    }
+
+    private void imageExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
+
+        this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
+        this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));
+
+        File dFile = this.createDatasourceFile();
+        this.configuration.setDatasource(dFile);
+
+        MethodEnum method = this.getSelectedMethod();
+
+        if(method.name().equals("LSC")) {
+
+            this.configuration.setCompactnessF(Float.valueOf(this.compactness.getText()));
+
+        } else {
+
+            this.configuration.setCompactnessI(Integer.valueOf(this.compactness.getText()));
+        }
+
+        List<Worker> workers = this.images.stream()
+            .map(image -> new Worker(this.configuration, this.isWithSRRemoval(), image, method, this.getSelectedOperation()))
+            .collect(Collectors.toList());
+
+        wMonitor.monitor(workers);
+        this.setWorkerProperties(wMonitor);
+
+        workers.stream().forEach(worker -> {
+
+            executor.execute(worker);
+        });
+    }
+
+    private File createDatasourceFile() {
+
+        File dFile = null;
+
+        MethodEnum method = this.getSelectedMethod();
+
+        if(method.name().equals("SEEDS")) {
+
+            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceSEEDSName())).getFile());
+        }
+
+        if(method.name().equals("LSC")) {
+
+            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceLSCName())).getFile());
+        }
+
+        if(method.name().equals("SLIC")) {
+
+            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceSLICName())).getFile());
+        }
+
+        return dFile;
     }
 
     private void setWorkerProperties(WorkerMonitor wMonitor) {
@@ -244,6 +306,7 @@ public class SceneController implements Initializable {
 
         return
             this.operationFeature.isSelected() ? OperationEnum.FEATURE_EXTRACTION :
+            this.operationARFF.isSelected() ? OperationEnum.CREATE_ARFF_FILE :
             OperationEnum.SEGMENTATION;
     }
 

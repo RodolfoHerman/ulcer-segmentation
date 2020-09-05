@@ -2,6 +2,7 @@ package com.rodolfo.ulcer.segmentation.enums;
 
 public enum OperationEnum {
     
-    SEGMENTATION,
-    FEATURE_EXTRACTION;
+    FEATURE_EXTRACTION,
+    CREATE_ARFF_FILE,
+    SEGMENTATION;
 }

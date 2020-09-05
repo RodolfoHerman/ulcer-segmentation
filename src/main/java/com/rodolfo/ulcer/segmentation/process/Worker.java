@@ -1,5 +1,6 @@
 package com.rodolfo.ulcer.segmentation.process;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +33,12 @@ public class Worker extends Task<Void> {
     private static final FileService fileService = new FileServiceImpl();
     private static final ImageService imageService = new ImageServiceImpl();
 
-    private final Configuration conf;
-    private final boolean isWithSRRemoval;
-    private final Image image;
-    private final MethodEnum methodEnum;
-    private final OperationEnum operationEnum;
+    private Configuration conf;
+    private boolean isWithSRRemoval;
+    private Image image;
+    private MethodEnum methodEnum;
+    private OperationEnum operationEnum;
+    private List<File> arffFiles;
 
     public Worker(Configuration configuration, boolean isWithSRRemoval, Image image, MethodEnum methodEnum, OperationEnum operationEnum) {
 
@@ -47,6 +49,15 @@ public class Worker extends Task<Void> {
         this.operationEnum = operationEnum;
 
         this.updateTitle(this.image.getImageName());
+    }
+
+    public Worker(Configuration configuration, List<File> arffFiles, OperationEnum operationEnum) {
+
+        this.conf = configuration;
+        this.arffFiles = arffFiles;
+        this.operationEnum = operationEnum;
+
+        this.updateTitle("ARFF");
     }
 
     @Override
@@ -65,9 +76,26 @@ public class Worker extends Task<Void> {
                 this.featureExtraction();
 
             break;
+
+            case CREATE_ARFF_FILE:
+
+                this.createARFFFile();
+
+            break;
         }
         
         return null;
+    }
+
+    private void createARFFFile() {
+
+        int maxProcess = 100000;
+
+        for(int index = 0; index < maxProcess; index++) {
+
+            updateProgress(index, maxProcess);
+        }
+
     }
 
     private void segmentation() {

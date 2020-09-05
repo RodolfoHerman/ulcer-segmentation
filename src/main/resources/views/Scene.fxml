@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="921.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rodolfo.ulcer.segmentation.controllers.SceneController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="1060.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.rodolfo.ulcer.segmentation.controllers.SceneController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -64,9 +64,9 @@
                </padding>
             </VBox>
             <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <VBox prefHeight="152.0" prefWidth="450.0">
+            <VBox prefHeight="152.0" prefWidth="560.0">
                <children>
-                  <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <VBox alignment="TOP_CENTER" prefHeight="175.0">
                      <children>
                         <Label text="Parameters">
                            <VBox.margin>
@@ -76,8 +76,8 @@
                         <Separator prefHeight="0.0" prefWidth="215.0" />
                         <GridPane>
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="230.0" minWidth="10.0" prefWidth="180.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="324.0" minWidth="10.0" prefWidth="304.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="145.0" minWidth="10.0" prefWidth="145.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="480.0" minWidth="10.0" prefWidth="400.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -95,23 +95,31 @@
                               <Label text="Operation" GridPane.rowIndex="3" />
                               <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                  <children>
-                                    <RadioButton fx:id="operationSegmentation" mnemonicParsing="false" selected="true" text="Segmentation">
+                                    <RadioButton fx:id="operationFeature" accessibleText="Extrair descritores" alignment="CENTER_RIGHT" mnemonicParsing="false" selected="true" text="Feature extraction">
                                        <HBox.margin>
-                                          <Insets left="20.0" />
+                                          <Insets />
                                        </HBox.margin>
                                        <tooltip>
-                                          <Tooltip text="Segmentação com SVM" />
+                                          <Tooltip text="Extrair descritores" />
                                        </tooltip>
                                        <toggleGroup>
                                           <ToggleGroup fx:id="operation" />
                                        </toggleGroup>
                                     </RadioButton>
-                                    <RadioButton fx:id="operationFeature" accessibleText="Extrair descritores" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Feature extraction" toggleGroup="$operation">
+                                    <RadioButton fx:id="operationARFF" mnemonicParsing="false" text="Create ARFF file" toggleGroup="$operation">
                                        <HBox.margin>
                                           <Insets left="20.0" />
                                        </HBox.margin>
                                        <tooltip>
-                                          <Tooltip text="Extrair descritores" />
+                                          <Tooltip text="Arquivo que contém os descritores" />
+                                       </tooltip>
+                                    </RadioButton>
+                                    <RadioButton fx:id="operationSegmentation" mnemonicParsing="false" text="Segmentation" toggleGroup="$operation">
+                                       <HBox.margin>
+                                          <Insets left="20.0" />
+                                       </HBox.margin>
+                                       <tooltip>
+                                          <Tooltip text="Segmentação com SVM" />
                                        </tooltip>
                                     </RadioButton>
                                  </children>
@@ -149,7 +157,7 @@
                   <Insets bottom="5.0" top="5.0" />
                </padding>
             </VBox>
-            <Separator orientation="VERTICAL" prefHeight="205.0" prefWidth="0.0" />
+            <Separator orientation="VERTICAL" prefHeight="175.0" prefWidth="0.0" />
             <HBox alignment="CENTER" prefHeight="152.0" prefWidth="179.0">
                <children>
                   <Button fx:id="btnProcess" alignment="CENTER" mnemonicParsing="false" onAction="#actionProcess" prefWidth="120.0" stylesheets="@../styles/Styles.css" text="Process" />
