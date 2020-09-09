@@ -2,6 +2,7 @@ package com.rodolfo.ulcer.segmentation.services.impl;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.repositories.FileRepository;
@@ -16,11 +17,27 @@ public class FileServiceImpl implements FileService {
     private static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
 
     @Override
-    public void saveDescritores(List<Descriptor> descriptors, File path) {
-        
+    public void saveDescriptors(List<Descriptor> descriptors, File path) {
+
         log.info("Salvando descritores no caminho : {}", path.getAbsolutePath());
 
-        fileRepository.saveDescritores(descriptors, path);
+        fileRepository.saveDescriptors(descriptors, path);
+    }
+
+    @Override
+    public void saveMinMaxDescriptors(Map<String, List<Double>> minMaxDescriptors, File path) {
+        
+        log.info("Salvando min/max descritores no caminho : {}", path.getAbsolutePath());
+
+        fileRepository.saveMinMaxDescriptors(minMaxDescriptors, path);
+    }
+
+    @Override
+    public Map<String, List<Double>> openMinMaxDescriptors(File path) {
+        
+        log.info("Abrindo min/max descritores no caminho : {}", path.getAbsolutePath());
+
+        return fileRepository.openMinMaxDescriptors(path);
     }
     
 }

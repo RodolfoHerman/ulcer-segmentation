@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.data.preparation.Normalization;
+import com.rodolfo.ulcer.segmentation.data.preparation.Preparation;
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.descriptors.DescriptorFactory;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
@@ -22,6 +24,7 @@ import com.rodolfo.ulcer.segmentation.services.FileService;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 import com.rodolfo.ulcer.segmentation.services.impl.FileServiceImpl;
 import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
+import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
@@ -87,15 +90,36 @@ public class Worker extends Task<Void> {
         return null;
     }
 
-    private void createARFFFile() {
+    private void createARFFFile() throws InterruptedException {
 
-        int maxProcess = 100000;
+        int [] process = new int[this.arffFiles.size() + 3];
+        int maxProcess = this.arffFiles.size() + 3;
+        int index = 0;
 
-        for(int index = 0; index < maxProcess; index++) {
+        List<Descriptor> descriptors = new ArrayList<>();
 
-            updateProgress(index, maxProcess);
+        for(int x = 0; x < maxProcess; x++) {
+
+            process[x] = x;
         }
 
+        for(File arffFile: this.arffFiles) {
+
+            descriptors.addAll(Util.getContentFromARFFFile(arffFile));
+            updateProgress(process[index++], maxProcess);
+        }
+
+        Preparation normalization = new Normalization(this.conf, descriptors, Util.getDescriptorsNames());
+        normalization.preparation();
+        updateProgress(process[index++], maxProcess);
+
+        fileService.saveDescriptors(normalization.getDescriptors(), this.conf.getDatasource());
+        updateProgress(process[index++], maxProcess);
+
+        fileService.saveMinMaxDescriptors(normalization.getMinMaxDescriptors(), this.conf.getMinMax());
+        updateProgress(maxProcess, maxProcess);
+
+        Thread.sleep(500l);
     }
 
     private void segmentation() {
@@ -183,7 +207,7 @@ public class Worker extends Task<Void> {
         });
         updateProgress(process[index++], maxProcess);
 
-        fileService.saveDescritores(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
+        fileService.saveDescriptors(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
         updateProgress(process[index++], maxProcess);
         
         imageService.save(superpixels.getContourImage(), this.image.getDirectory().getSuperpixelsLabelsPath());
@@ -192,11 +216,7 @@ public class Worker extends Task<Void> {
         imageService.save(superpixels.getColorInformativePixels(), this.image.getDirectory().getSuperpixelsInformationalPath());
         updateProgress(process[index++], maxProcess);
         
-        if(this.isWithSRRemoval) {
-
-            imageService.save(this.image.getImageWithoutReflection(), this.image.getDirectory().getImageWithoutReflectionsPath());
-        }
-        
+        imageService.save(this.image.getImageWithoutReflection(), this.image.getDirectory().getImageWithoutReflectionsPath());
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);

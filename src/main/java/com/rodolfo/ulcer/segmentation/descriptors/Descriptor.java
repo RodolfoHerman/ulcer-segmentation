@@ -9,11 +9,16 @@ import lombok.Setter;
 @Setter
 public class Descriptor {
     
-    final private String ulcerClass;
-    final private List<Double> descriptors;
+    private String ulcerClass;
+    private List<Double> descriptors;
 
     public Descriptor(String ulcerClass, List<Double> descriptors) {
         this.ulcerClass = ulcerClass;
         this.descriptors = descriptors;
+    }
+
+    public Integer getNumberOfDescriptors() {
+
+        return this.descriptors.size();
     }
 }

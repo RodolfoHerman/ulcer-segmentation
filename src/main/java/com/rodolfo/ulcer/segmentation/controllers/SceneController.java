@@ -127,10 +127,14 @@ public class SceneController implements Initializable {
             this.configuration.setGrabcutSegmentationImageName(properties.getProperty("image.grabcut.segmentation.name"));
             this.configuration.setGrabcutMaskImageName(properties.getProperty("image.grabcut.mask.name"));
             this.configuration.setExecutionTimeFile(properties.getProperty("file.execution.time"));
+            this.configuration.setPreparationNormalizationDecimalPlaces(Integer.valueOf(properties.getProperty("data.preparation.normalization.decimal.places")));
             this.configuration.setFeaturesExtractedFile(properties.getProperty("file.features.extracted"));
             this.configuration.setDatasourceSEEDSName(properties.getProperty("ml.file.datasource.seeds.name"));
             this.configuration.setDatasourceLSCName(properties.getProperty("ml.file.datasource.lsc.name"));
             this.configuration.setDatasourceSLICName(properties.getProperty("ml.file.datasource.slic.name"));
+            this.configuration.setMinMaxSEEDSName(properties.getProperty("ml.file.min.max.seeds.name"));
+            this.configuration.setMinMaxLSCName(properties.getProperty("ml.file.min.max.lsc.name"));
+            this.configuration.setMinMaxSLICName(properties.getProperty("ml.file.min.max.slic.name"));
             this.configuration.setUserDirectory(properties.getProperty("user.local.directory"));
 
         } catch (Exception e) {
@@ -139,7 +143,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        // new Test(11, configuration);
+        // new Test(12, configuration);
     }
 
     @FXML
@@ -171,8 +175,11 @@ public class SceneController implements Initializable {
 
     private void arffExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
 
-        File dFile = this.createDatasourceFile();
+        File dFile = Util.createDatasourceFile(this.getSelectedMethod(), this.configuration);
+        File minMaxFile = Util.createMinMaxFile(this.getSelectedMethod(), this.configuration);
+        
         this.configuration.setDatasource(dFile);
+        this.configuration.setMinMax(minMaxFile);
 
         List<File> arffFiles = this.images.stream()
             .map(image -> image.getDirectory().getFeaturesExtractedPath())
@@ -191,8 +198,11 @@ public class SceneController implements Initializable {
         this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
         this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));
 
-        File dFile = this.createDatasourceFile();
+        File dFile = Util.createDatasourceFile(this.getSelectedMethod(), this.configuration);
+        File minMaxFile = Util.createMinMaxFile(this.getSelectedMethod(), this.configuration);
+        
         this.configuration.setDatasource(dFile);
+        this.configuration.setMinMax(minMaxFile);
 
         MethodEnum method = this.getSelectedMethod();
 
@@ -216,30 +226,6 @@ public class SceneController implements Initializable {
 
             executor.execute(worker);
         });
-    }
-
-    private File createDatasourceFile() {
-
-        File dFile = null;
-
-        MethodEnum method = this.getSelectedMethod();
-
-        if(method.name().equals("SEEDS")) {
-
-            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceSEEDSName())).getFile());
-        }
-
-        if(method.name().equals("LSC")) {
-
-            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceLSCName())).getFile());
-        }
-
-        if(method.name().equals("SLIC")) {
-
-            dFile = new File(SceneController.class.getClassLoader().getResource("datasources/full/".concat(this.configuration.getDatasourceSLICName())).getFile());
-        }
-
-        return dFile;
     }
 
     private void setWorkerProperties(WorkerMonitor wMonitor) {

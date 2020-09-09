@@ -1,7 +1,10 @@
 package com.rodolfo.ulcer.segmentation.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +13,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.descriptors.DescriptorsEnum;
+import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
 
@@ -111,5 +116,80 @@ public class Util {
         header.append("\n");
 
         return header.toString();
+    }
+
+    public static List<Descriptor> getContentFromARFFFile(File arffFile) {
+
+        List<Descriptor> aux = new ArrayList<>();
+
+        try (BufferedReader bReader = new BufferedReader(new FileReader(arffFile))) {
+            
+            String content = null;
+
+            while (!(content = bReader.readLine()).equals("@data")) {}
+
+            while ((content = bReader.readLine()) != null) {
+
+                String[] contentAux = content.split(",");
+                List<Double> descriptors = new ArrayList<>();
+
+                for(int index = 0; index < contentAux.length - 1; index++) {
+
+                    descriptors.add(Double.valueOf(contentAux[index]));
+                }
+
+                aux.add(new Descriptor(contentAux[contentAux.length-1], descriptors));
+            }
+
+        } catch (Exception e) {
+            
+            System.err.println(e);
+        }
+
+        return aux;
+    }
+
+    public static File createDatasourceFile(MethodEnum method, Configuration configuration) {
+
+        File dFile = null;
+
+        if(method.name().equals("SEEDS")) {
+
+            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceSEEDSName()));
+        }
+
+        if(method.name().equals("LSC")) {
+
+            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceLSCName()));
+        }
+
+        if(method.name().equals("SLIC")) {
+
+            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceSLICName()));
+        }
+
+        return dFile;
+    }
+
+    public static File createMinMaxFile(MethodEnum method, Configuration configuration) {
+
+        File dFile = null;
+
+        if(method.name().equals("SEEDS")) {
+
+            dFile = new File("files/datasources/".concat(configuration.getMinMaxSEEDSName()));
+        }
+
+        if(method.name().equals("LSC")) {
+
+            dFile = new File("files/datasources/".concat(configuration.getMinMaxLSCName()));
+        }
+
+        if(method.name().equals("SLIC")) {
+
+            dFile = new File("files/datasources/".concat(configuration.getMinMaxSLICName()));
+        }
+
+        return dFile;
     }
 }

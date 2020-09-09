@@ -16,6 +16,7 @@ import com.rodolfo.ulcer.segmentation.descriptors.texture.enums.GlcmDegreeEnum;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.HaralickGlcm;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.LBPH;
 import com.rodolfo.ulcer.segmentation.descriptors.texture.models.Wavelet;
+import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
@@ -27,8 +28,11 @@ import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.Superpixels;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsLSC;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSEEDS;
 import com.rodolfo.ulcer.segmentation.preprocessing.superpixels.SuperpixelsSLIC;
+import com.rodolfo.ulcer.segmentation.services.FileService;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
+import com.rodolfo.ulcer.segmentation.services.impl.FileServiceImpl;
 import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
+import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
@@ -50,6 +54,7 @@ public class Test {
     private static final int LARGER_OUTLINE = 9;
     private static final int CREATE_LABELS_FROM_LABELED_IMAGE = 10;
     private static final int DESCRIPTORS_EXTRACTION = 11;
+    private static final int MIN_MAX_CONTENT = 12;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -138,6 +143,12 @@ public class Test {
 
                 Test.descriptorsExtractionAndLabel();
             
+            break;
+
+            case MIN_MAX_CONTENT:
+
+                Test.readMinMaxContent();
+
             break;
         
             default:
@@ -344,6 +355,16 @@ public class Test {
 
             ulcerDescriptors.add(new Descriptor("ULCER", descriptors));
         });
+    }
+
+    private static void readMinMaxContent() {
+
+        FileService fService = new FileServiceImpl();
+
+        File minMaxFile = Util.createMinMaxFile(MethodEnum.SEEDS, conf);
+        conf.setMinMax(minMaxFile);
+
+        System.out.println(fService.openMinMaxDescriptors(conf.getMinMax()));
     }
 
     private static Superpixels createSuperpixel() {

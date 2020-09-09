@@ -45,10 +45,16 @@ public class Configuration {
     private Integer compactnessI;
     private Float compactnessF;
 
+    private Integer preparationNormalizationDecimalPlaces;
+
     private String datasourceSEEDSName;
     private String datasourceLSCName;
     private String datasourceSLICName;
+    private String minMaxSEEDSName;
+    private String minMaxLSCName;
+    private String minMaxSLICName;
 
+    private File minMax;
     private File datasource;
     private File mlModel;
 
