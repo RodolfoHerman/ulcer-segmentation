@@ -11,6 +11,8 @@ import com.rodolfo.ulcer.segmentation.services.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import weka.core.converters.ConverterUtils.DataSource;
+
 public class FileServiceImpl implements FileService {
 
     private static final FileRepository fileRepository = new FileRepository();
@@ -26,7 +28,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void saveMinMaxDescriptors(Map<String, List<Double>> minMaxDescriptors, File path) {
-        
+
         log.info("Salvando min/max descritores no caminho : {}", path.getAbsolutePath());
 
         fileRepository.saveMinMaxDescriptors(minMaxDescriptors, path);
@@ -34,10 +36,26 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Map<String, List<Double>> openMinMaxDescriptors(File path) {
-        
+
         log.info("Abrindo min/max descritores no caminho : {}", path.getAbsolutePath());
 
         return fileRepository.openMinMaxDescriptors(path);
+    }
+
+    @Override
+    public DataSource openDataSoruce(File path) {
+        
+        log.info("Abrindo datasource no caminho : {}", path.getAbsolutePath());
+
+        return fileRepository.openDataSoruce(path);
+    }
+
+    @Override
+    public Object openMlModel(File path) {
+        
+        log.info("Abrindo o modelo do classificador no caminho : {}", path.getAbsolutePath());
+
+        return fileRepository.openMlModel(path);
     }
     
 }

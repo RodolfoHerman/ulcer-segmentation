@@ -1,0 +1,59 @@
+package com.rodolfo.ulcer.segmentation.core.classification;
+
+import java.util.List;
+
+import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_core.Scalar;
+import org.bytedeco.javacpp.opencv_core.Size;
+import org.bytedeco.javacpp.indexer.UByteRawIndexer;
+
+import weka.classifiers.functions.LibSVM;
+import weka.core.converters.ConverterUtils.DataSource;
+
+public class SVM extends MachineLearning {
+
+    public SVM(Object model, DataSource dataSource, Size imageSize, List<Descriptor> descriptors) {
+
+        super(model, dataSource, imageSize, descriptors);
+    }
+
+    @Override
+    public void classify() throws Exception {
+
+        LibSVM svm = (LibSVM) this.model;
+        this.classified = new Mat(this.imageSize, opencv_core.CV_8UC1, Scalar.WHITE);
+
+        UByteRawIndexer index = this.classified.createIndexer();
+
+        for(Descriptor descriptor: this.descriptors) {
+
+            this.setValues(descriptor);
+
+            double[] classificationResult = svm.distributionForInstance(this.instance);
+
+            int assignClass = classificationResult[0] > classificationResult[1] ? 0 : 255;
+
+            descriptor.getPoints().stream().forEach(point -> {
+
+                index.put(point.getRow(), point.getCol(), assignClass);
+            });
+        }
+        
+        index.release();
+    }
+
+    @Override
+    protected void setValues(Descriptor descriptor) {
+        
+        List<Double> values = descriptor.getDescriptors();
+
+        for(int index = 0; index < values.size(); index++) {
+
+            this.instance.setValue(index, values.get(index));
+        }
+    }
+    
+}

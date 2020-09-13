@@ -39,6 +39,10 @@ public class Normalization extends Preparation {
                 Double divider = max - min == 0.0 ? 1.0 : max - min;
                 Double value = desc.getDescriptors().get(index);
                 
+                /**
+                 * Normalization:
+                 * newValue = 2 * ((x - x_min)/(x_max - x_min)) - 1
+                 */
                 Double newValue = 2 * ((value - min)/divider) - 1;
 
                 BigDecimal bd = new BigDecimal(newValue).setScale(this.getConf().getPreparationNormalizationDecimalPlaces(), RoundingMode.HALF_UP);
@@ -46,7 +50,7 @@ public class Normalization extends Preparation {
                 aux.add(bd.doubleValue());
             }
 
-            return new Descriptor(desc.getUlcerClass(), aux);
+            return new Descriptor(desc.getUlcerClass(), aux, desc.getPoints());
 
         }).collect(Collectors.toList());
     }

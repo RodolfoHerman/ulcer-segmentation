@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ import com.rodolfo.ulcer.segmentation.descriptors.DescriptorsEnum;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
+
+import weka.core.Attribute;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class Util {
     
@@ -138,6 +142,11 @@ public class Util {
                     descriptors.add(Double.valueOf(contentAux[index]));
                 }
 
+                if(descriptors.size() < 186) {
+
+                    System.out.println("MENOR QUE 186");
+                }
+
                 aux.add(new Descriptor(contentAux[contentAux.length-1], descriptors));
             }
 
@@ -149,23 +158,23 @@ public class Util {
         return aux;
     }
 
-    public static File createDatasourceFile(MethodEnum method, Configuration configuration) {
+    public static File createDatasourceFile(String path, MethodEnum method, Configuration configuration) {
 
         File dFile = null;
 
         if(method.name().equals("SEEDS")) {
 
-            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceSEEDSName()));
+            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceSEEDSName()));
         }
 
         if(method.name().equals("LSC")) {
 
-            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceLSCName()));
+            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceLSCName()));
         }
 
         if(method.name().equals("SLIC")) {
 
-            dFile = new File("files/datasources/full/".concat(configuration.getDatasourceSLICName()));
+            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceSLICName()));
         }
 
         return dFile;
@@ -191,5 +200,54 @@ public class Util {
         }
 
         return dFile;
+    }
+
+    public static File createMlModelFile(MethodEnum method, Configuration configuration) {
+
+        File dFile = null;
+
+        if(method.name().equals("SEEDS")) {
+
+            dFile = new File("files/models/".concat(configuration.getMlModelSEEDSName()));
+        }
+
+        if(method.name().equals("LSC")) {
+
+            dFile = new File("files/models/".concat(configuration.getMlModelLSCName()));
+        }
+
+        if(method.name().equals("SLIC")) {
+
+            dFile = new File("files/models/".concat(configuration.getMlModelSLICName()));
+        }
+
+        return dFile;
+    }
+
+    public static List<String> getListOfDescriptorsNamesFromDataSource(DataSource dataSource) {
+
+        List<String> descriptorsNames = new ArrayList<>();
+        
+        try {
+        
+            Enumeration<Attribute> enumeration = dataSource.getDataSet().enumerateAttributes();
+
+            while(enumeration.hasMoreElements()) {
+
+                descriptorsNames.add(enumeration.nextElement().name());
+            }
+    
+            if(!descriptorsNames.isEmpty()) {
+    
+                descriptorsNames.remove(descriptorsNames.size() - 1);
+            }
+            
+        } catch (Exception e) {
+        
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
+        return descriptorsNames;
     }
 }

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
 
+import weka.core.converters.ConverterUtils.DataSource;
+
 public interface FileService {
     
     void saveDescriptors(List<Descriptor> descriptors, File path);
@@ -13,5 +15,9 @@ public interface FileService {
     void saveMinMaxDescriptors(Map<String,List<Double>> minMaxDescriptors, File path);
 
     Map<String, List<Double>> openMinMaxDescriptors(File path);
+
+    DataSource openDataSoruce(File path);
+
+    Object openMlModel(File path);
 
 }

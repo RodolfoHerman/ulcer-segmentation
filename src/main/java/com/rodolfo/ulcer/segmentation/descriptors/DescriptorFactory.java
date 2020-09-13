@@ -2,7 +2,7 @@ package com.rodolfo.ulcer.segmentation.descriptors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.descriptors.color.ColorDescriptors;
@@ -22,6 +22,11 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class DescriptorFactory {
     
     private Mat bgr;
@@ -39,16 +44,21 @@ public class DescriptorFactory {
     private Mat luv_u;
     private Mat luv_v;
 
-    private final Map<Integer,List<Point>> superpixels;
-    private final Configuration conf;
-    private List<List<Double>> colorDescriptors;
-    private List<List<Double>> haralickDescriptors;
-    private List<List<Double>> variationHaralickDescriptors;
-    private List<List<Double>> lbphDescriptors;
-    private List<List<Double>> waveletDescriptors;
+    private Configuration conf;
+    private List<String> descriptorsNames;
+    private List<Point> points;
+    private int label;
+    private String ulcerClass;
 
-    public DescriptorFactory(Image image, Configuration conf, Map<Integer,List<Point>> superpixels) {
+    private List<Double> colorDescriptors;
+    private List<Double> haralickDescriptors;
+    private List<Double> variationHaralickDescriptors;
+    private List<Double> lbphDescriptors;
+    private List<Double> waveletDescriptors;
 
+
+    public DescriptorFactory(Image image, Configuration configuration, List<String> descriptorsNames, List<Point> points, int label, String ulcerClass) {
+        
         this.bgr = image.matImage2BGR();
         this.lab = image.matImage2LAB();
         this.luv = image.matImage2LUV();
@@ -63,232 +73,473 @@ public class DescriptorFactory {
 
         this.luv_u = OpenCV.getMatChannel(luv, 1);
         this.luv_v = OpenCV.getMatChannel(luv, 2);
+        
+        this.conf = configuration;
+        this.descriptorsNames = descriptorsNames;
+        this.points = points;
+        this.label = label;
+        this.ulcerClass = ulcerClass;
 
-        this.conf = conf;
-        this.superpixels = superpixels;
-        this.colorDescriptors = new ArrayList<>();
-        this.haralickDescriptors = new ArrayList<>();
-        this.variationHaralickDescriptors = new ArrayList<>();
-        this.lbphDescriptors = new ArrayList<>();
-        this.waveletDescriptors = new ArrayList<>();
+        colorDescriptors = new ArrayList<>();
+        haralickDescriptors = new ArrayList<>();
+        variationHaralickDescriptors = new ArrayList<>();
+        lbphDescriptors = new ArrayList<>();
+        waveletDescriptors = new ArrayList<>();
     }
 
     public void processColor() {
 
-        List<List<Double>> colorBGR = this.extractColorDescriptors(this.bgr);
-        List<List<Double>> colorLAB = this.extractColorDescriptors(this.lab);
-        List<List<Double>> colorLUV = this.extractColorDescriptors(this.luv);
-        List<List<Double>> colorNORM = this.extractColorDescriptors(this.norm);
+        List<Double> colorBGR = this.getColorProcessed("color_bgr_", "b", "g");
+        List<Double> colorLAB = this.getColorProcessed("color_lab_", "l", "a");
+        List<Double> colorLUV = this.getColorProcessed("color_luv_", "l", "u");
+        List<Double> colorNORM = this.getColorProcessed("color_norm_", "b", "g");
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
-
-            List<Double> aux = new ArrayList<>();
-
-            aux.addAll(colorBGR.get(index));
-            aux.addAll(colorLAB.get(index));
-            aux.addAll(colorLUV.get(index));
-            aux.addAll(colorNORM.get(index));
-
-            this.colorDescriptors.add(aux);
-        }
+        this.addElementsToList(colorBGR, this.colorDescriptors);
+        this.addElementsToList(colorLAB, this.colorDescriptors);
+        this.addElementsToList(colorLUV, this.colorDescriptors);
+        this.addElementsToList(colorNORM, this.colorDescriptors);
     }
 
     public void processHaralick() {
 
-        List<List<Double>> haralickBGR_B = this.extractHaralickDescriptors(this.bgr_b);
-        List<List<Double>> haralickBGR_G = this.extractHaralickDescriptors(this.bgr_g);
-        List<List<Double>> haralickBGR_R = this.extractHaralickDescriptors(this.bgr_r);
-        List<List<Double>> haralickLAB_A = this.extractHaralickDescriptors(this.lab_a);
-        List<List<Double>> haralickLAB_B = this.extractHaralickDescriptors(this.lab_b);
-        List<List<Double>> haralickLUV_U = this.extractHaralickDescriptors(this.luv_u);
-        List<List<Double>> haralickLUV_V = this.extractHaralickDescriptors(this.luv_v);
+        List<Double> haralickBGR_B = this.getHaralickProcessed(this.bgr_b, "haralick_bgr_b_");
+        List<Double> haralickBGR_G = this.getHaralickProcessed(this.bgr_g, "haralick_bgr_g_");
+        List<Double> haralickBGR_R = this.getHaralickProcessed(this.bgr_r, "haralick_bgr_r_");
+        List<Double> haralickLAB_A = this.getHaralickProcessed(this.lab_a, "haralick_lab_a_");
+        List<Double> haralickLAB_B = this.getHaralickProcessed(this.lab_b, "haralick_lab_b_");
+        List<Double> haralickLUV_U = this.getHaralickProcessed(this.luv_u, "haralick_luv_u_");
+        List<Double> haralickLUV_V = this.getHaralickProcessed(this.luv_v, "haralick_luv_v_");
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
-
-            List<Double> aux = new ArrayList<>();
-
-            aux.addAll(haralickBGR_B.get(index));
-            aux.addAll(haralickBGR_G.get(index));
-            aux.addAll(haralickBGR_R.get(index));
-            aux.addAll(haralickLAB_A.get(index));
-            aux.addAll(haralickLAB_B.get(index));
-            aux.addAll(haralickLUV_U.get(index));
-            aux.addAll(haralickLUV_V.get(index));
-
-            this.haralickDescriptors.add(aux);
-        }
+        this.addElementsToList(haralickBGR_B, this.haralickDescriptors);
+        this.addElementsToList(haralickBGR_G, this.haralickDescriptors);
+        this.addElementsToList(haralickBGR_R, this.haralickDescriptors);
+        this.addElementsToList(haralickLAB_A, this.haralickDescriptors);
+        this.addElementsToList(haralickLAB_B, this.haralickDescriptors);
+        this.addElementsToList(haralickLUV_U, this.haralickDescriptors);
+        this.addElementsToList(haralickLUV_V, this.haralickDescriptors);
     }
 
     public void processVariationHaralick() {
 
-        List<List<Double>> haralickBGR_BG = this.extractVariationHaralickDescriptors(this.bgr_b, this.bgr_g);
-        List<List<Double>> haralickBGR_BR = this.extractVariationHaralickDescriptors(this.bgr_b, this.bgr_r);
-        List<List<Double>> haralickBGR_GR = this.extractVariationHaralickDescriptors(this.bgr_g, this.bgr_r);
-        List<List<Double>> haralickLAB_AB = this.extractVariationHaralickDescriptors(this.lab_a, this.lab_b);
-        List<List<Double>> haralickLUV_UV = this.extractVariationHaralickDescriptors(this.luv_u, this.luv_v);
+        List<Double> haralickBGR_BG = this.getVariationHaralickProcessed(this.bgr_b, this.bgr_g, "haralick_bgr_bg_");
+        List<Double> haralickBGR_BR = this.getVariationHaralickProcessed(this.bgr_b, this.bgr_r, "haralick_bgr_br_");
+        List<Double> haralickBGR_GR = this.getVariationHaralickProcessed(this.bgr_g, this.bgr_r, "haralick_bgr_gr_");
+        List<Double> haralickLAB_AB = this.getVariationHaralickProcessed(this.lab_a, this.lab_b, "haralick_lab_ab_");
+        List<Double> haralickLUV_UV = this.getVariationHaralickProcessed(this.luv_u, this.luv_v, "haralick_luv_uv_");
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
-
-            List<Double> aux = new ArrayList<>();
-
-            aux.addAll(haralickBGR_BG.get(index));
-            aux.addAll(haralickBGR_BR.get(index));
-            aux.addAll(haralickBGR_GR.get(index));
-            aux.addAll(haralickLAB_AB.get(index));
-            aux.addAll(haralickLUV_UV.get(index));
-
-            this.variationHaralickDescriptors.add(aux);
-        }
+        this.addElementsToList(haralickBGR_BG, this.variationHaralickDescriptors);
+        this.addElementsToList(haralickBGR_BR, this.variationHaralickDescriptors);
+        this.addElementsToList(haralickBGR_GR, this.variationHaralickDescriptors);
+        this.addElementsToList(haralickLAB_AB, this.variationHaralickDescriptors);
+        this.addElementsToList(haralickLUV_UV, this.variationHaralickDescriptors);
     }
 
     public void processLBPH() {
 
-        List<List<Double>> LBPHBGR_B = this.extractLBPHDescriptors(this.bgr_b);
-        List<List<Double>> LBPHBGR_G = this.extractLBPHDescriptors(this.bgr_g);
-        List<List<Double>> LBPHBGR_R = this.extractLBPHDescriptors(this.bgr_r);
+        List<Double> LBPHBGR_B = this.getLBPHProcessed(this.bgr_b, "lbph_bgr_b_");
+        List<Double> LBPHBGR_G = this.getLBPHProcessed(this.bgr_g, "lbph_bgr_g_");
+        List<Double> LBPHBGR_R = this.getLBPHProcessed(this.bgr_r, "lbph_bgr_r_");
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
-
-            List<Double> aux = new ArrayList<>();
-
-            aux.addAll(LBPHBGR_B.get(index));
-            aux.addAll(LBPHBGR_G.get(index));
-            aux.addAll(LBPHBGR_R.get(index));
-
-            this.lbphDescriptors.add(aux);
-        }
+        this.addElementsToList(LBPHBGR_B, this.lbphDescriptors);
+        this.addElementsToList(LBPHBGR_G, this.lbphDescriptors);
+        this.addElementsToList(LBPHBGR_R, this.lbphDescriptors);
     }
-
 
     public void processWavelet() {
 
-        List<List<Double>> WaveletBGR_B = this.extractWaveletDescriptors(this.bgr_b);
-        List<List<Double>> WaveletBGR_G = this.extractWaveletDescriptors(this.bgr_g);
-        List<List<Double>> WaveletBGR_R = this.extractWaveletDescriptors(this.bgr_r);
+        List<Double> WaveletBGR_B = this.getWaveletProcessed(this.bgr_b, "wavelet_bgr_b_");
+        List<Double> WaveletBGR_G = this.getWaveletProcessed(this.bgr_g, "wavelet_bgr_g_");
+        List<Double> WaveletBGR_R = this.getWaveletProcessed(this.bgr_r, "wavelet_bgr_r_");
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
+        this.addElementsToList(WaveletBGR_B, this.waveletDescriptors);
+        this.addElementsToList(WaveletBGR_G, this.waveletDescriptors);
+        this.addElementsToList(WaveletBGR_R, this.waveletDescriptors);
+    }
 
-            List<Double> aux = new ArrayList<>();
-            
-            aux.addAll(WaveletBGR_B.get(index));
-            aux.addAll(WaveletBGR_G.get(index));
-            aux.addAll(WaveletBGR_R.get(index));
+    private List<Double> getColorProcessed(String colorComponent, String channel1, String channel2) {
 
-            this.waveletDescriptors.add(aux);
+        if(this.isConsidered(colorComponent)) {
+
+            List<String> channels = this.extractColorChannelToBeconsidered(colorComponent).stream().map(channel -> {
+
+                return channel.equals(channel1) ? "1" : 
+                       channel.equals(channel2) ? "2" : "3";
+
+            }).collect(Collectors.toList());
+
+            return this.extractColorDescriptors(this.norm, this.extractDescriptorsToBeConsidered(colorComponent), channels);
         }
+
+        return null;
     }
 
-    private List<List<Double>> extractColorDescriptors(Mat img) {
+    private List<Double> getHaralickProcessed(Mat mat, String colorComponent) {
 
-        List<List<Double>> descriptorsValue = new ArrayList<>();
+        if(this.isConsidered(colorComponent)) {
 
-        this.superpixels.forEach((key, points) -> { 
+            return this.extractHaralickDescriptors(mat, this.extractDescriptorsToBeConsidered(colorComponent));
+        }
 
-            List<Double> descTemp = new ArrayList<>();
+        return null;
+    }
 
-            Color color = new Color(img, points, 2);
-            color.process();
+    private List<Double> getVariationHaralickProcessed(Mat mat1, Mat mat2, String colorComponent) {
 
-            ColorDescriptors cDescriptorsChannel1 = new ColorDescriptors(color.getChannel1());
-            ColorDescriptors cDescriptorsChannel2 = new ColorDescriptors(color.getChannel2());
-            ColorDescriptors cDescriptorsChannel3 = new ColorDescriptors(color.getChannel3());
+        if(this.isConsidered(colorComponent)) {
 
-            descTemp.add(cDescriptorsChannel1.mean());
-            descTemp.add(cDescriptorsChannel2.mean());
-            descTemp.add(cDescriptorsChannel3.mean());
+            return this.extractVariationHaralickDescriptors(mat1, mat2, this.extractDescriptorsToBeConsidered(colorComponent));
+        }
 
-            descTemp.add(cDescriptorsChannel1.variance());
-            descTemp.add(cDescriptorsChannel2.variance());
-            descTemp.add(cDescriptorsChannel3.variance());
+        return null;
+    }
 
-            descTemp.add((double)color.getCentroid()[0]);
-            descTemp.add((double)color.getCentroid()[1]);
-            descTemp.add((double)color.getCentroid()[2]);
+    private List<Double> getLBPHProcessed(Mat mat, String colorComponent) {
 
-            descTemp.add(cDescriptorsChannel1.asymmetry());
-            descTemp.add(cDescriptorsChannel2.asymmetry());
-            descTemp.add(cDescriptorsChannel3.asymmetry());
+        if(this.isConsidered(colorComponent)) {
 
-            descTemp.add(cDescriptorsChannel1.intensity1());
-            descTemp.add(cDescriptorsChannel2.intensity1());
-            descTemp.add(cDescriptorsChannel3.intensity1());
+            return this.extractLBPHDescriptors(mat, this.extractDescriptorsToBeConsidered(colorComponent));
+        }
 
-            descTemp.add(cDescriptorsChannel1.intensity2());
-            descTemp.add(cDescriptorsChannel2.intensity2());
-            descTemp.add(cDescriptorsChannel3.intensity2());
+        return null;
+    }
 
-            descTemp.add(cDescriptorsChannel1.frequency1());
-            descTemp.add(cDescriptorsChannel2.frequency1());
-            descTemp.add(cDescriptorsChannel3.frequency1());
+    private List<Double> getWaveletProcessed(Mat mat, String colorComponent) {
 
-            descTemp.add(cDescriptorsChannel1.frequency2());
-            descTemp.add(cDescriptorsChannel2.frequency2());
-            descTemp.add(cDescriptorsChannel3.frequency2());
+        if(this.isConsidered(colorComponent)) {
 
-            descriptorsValue.add(descTemp);
-        });
+            return this.extractWaveletDescriptors(mat);
+        }
+
+        return null;
+    }
+
+    private List<Double> extractColorDescriptors(Mat img, List<String> descriptorsToBeConsidered, List<String> channelsToBeConsidered) {
+
+        List<Double> descriptorsValue = new ArrayList<>();
+
+        Color color = new Color(img, this.points, 2);
+        color.process();
+
+        ColorDescriptors cDescriptorsChannel1 = null;
+        ColorDescriptors cDescriptorsChannel2 = null;
+        ColorDescriptors cDescriptorsChannel3 = null;
+
+        boolean hasChannel1 = channelsToBeConsidered.contains("1");
+        boolean hasChannel2 = channelsToBeConsidered.contains("2");
+        boolean hasChannel3 = channelsToBeConsidered.contains("3");
+
+        if(hasChannel1) {
+
+            cDescriptorsChannel1 = new ColorDescriptors(color.getChannel1());
+        }
+
+        if(hasChannel2) {
+
+            cDescriptorsChannel2 = new ColorDescriptors(color.getChannel2());
+        }
+
+        if(hasChannel3) {
+
+            cDescriptorsChannel3 = new ColorDescriptors(color.getChannel3());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("mean")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.mean());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("mean")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.mean());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("mean")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.mean());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("variance")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.variance());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("variance")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.variance());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("variance")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.variance());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("centroid")) {
+
+            descriptorsValue.add((double)color.getCentroid()[0]);
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("centroid")) {
+
+            descriptorsValue.add((double)color.getCentroid()[1]);
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("centroid")) {
+
+            descriptorsValue.add((double)color.getCentroid()[2]);
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("asymetry")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.asymmetry());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("asymetry")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.asymmetry());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("asymetry")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.asymmetry());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("intensity1")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.intensity1());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("intensity1")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.intensity1());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("intensity1")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.intensity1());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("intensity2")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.intensity2());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("intensity2")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.intensity2());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("intensity2")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.intensity2());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("frequency1")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.frequency1());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("frequency1")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.frequency1());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("frequency1")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.frequency1());
+        }
+
+        if(hasChannel1 && descriptorsToBeConsidered.contains("frequency2")) {
+
+            descriptorsValue.add(cDescriptorsChannel1.frequency2());
+        }
+
+        if(hasChannel2 && descriptorsToBeConsidered.contains("frequency2")) {
+
+            descriptorsValue.add(cDescriptorsChannel2.frequency2());
+        }
+
+        if(hasChannel3 && descriptorsToBeConsidered.contains("frequency2")) {
+
+            descriptorsValue.add(cDescriptorsChannel3.frequency2());
+        }
+        
+        return descriptorsValue;
+    }
+
+    private List<Double> extractHaralickDescriptors(Mat img, List<String> descriptorsToBeConsidered) {
+
+        List<Double> descriptorsValue = new ArrayList<>();
+        Mat hGlcm = this.createHaralickGlcm(img);
+
+        HaralickDescriptors hDescriptors = new HaralickDescriptors(hGlcm);
+
+        if(descriptorsToBeConsidered.contains("contrast")) {
+
+            descriptorsValue.add(hDescriptors.contrast().doubleValue());
+        }
+
+        if(descriptorsToBeConsidered.contains("energy")) {
+
+            descriptorsValue.add(hDescriptors.energy().doubleValue());
+        }
+
+        if(descriptorsToBeConsidered.contains("entropy")) {
+
+            descriptorsValue.add(hDescriptors.entropy().doubleValue());
+        }
+
+        if(descriptorsToBeConsidered.contains("homogeneity")) {
+
+            descriptorsValue.add(hDescriptors.homogeneity().doubleValue());
+        }
+
+        if(descriptorsToBeConsidered.contains("correlation")) {
+
+            descriptorsValue.add(hDescriptors.correlation().doubleValue());
+        }
 
         return descriptorsValue;
     }
 
-    private List<List<Double>> extractHaralickDescriptors(Mat img) {
+    private List<Double> extractVariationHaralickDescriptors(Mat mat1, Mat mat2, List<String> descriptorsToBeConsidered) { 
 
-        List<List<Double>> descriptorsValue = new ArrayList<>();
+        List<Double> descriptorsValue = new ArrayList<>();
+        Mat hGlcm = new Mat();
 
-        this.superpixels.forEach((key, points) -> {
+        Mat glcmChannel1 = this.createHaralickGlcm(mat1);
+        Mat glcmChannel2 = this.createHaralickGlcm(mat2);
 
-            List<Double> descTemp = new ArrayList<>();
+        opencv_core.add(glcmChannel1, glcmChannel2, hGlcm);
 
-            Mat hGlcm = this.createHaralickGlcm(img, points);
+        HaralickDescriptors hDescriptors = new HaralickDescriptors(hGlcm);
 
-            HaralickDescriptors hDescriptors = new HaralickDescriptors(hGlcm);
+        if(descriptorsToBeConsidered.contains("contrast")) {
 
-            descTemp.add(hDescriptors.contrast().doubleValue());
-            descTemp.add(hDescriptors.energy().doubleValue());
-            descTemp.add(hDescriptors.entropy().doubleValue());
-            descTemp.add(hDescriptors.homogeneity().doubleValue());
-            descTemp.add(hDescriptors.correlation().doubleValue());
+            descriptorsValue.add(hDescriptors.contrast().doubleValue());
+        }
 
-            descriptorsValue.add(descTemp);
-        });
+        if(descriptorsToBeConsidered.contains("energy")) {
 
-        return descriptorsValue;
-    }
+            descriptorsValue.add(hDescriptors.energy().doubleValue());
+        }
 
-    private List<List<Double>> extractVariationHaralickDescriptors(Mat img1, Mat img2) { 
+        if(descriptorsToBeConsidered.contains("entropy")) {
 
-        List<List<Double>> descriptorsValue = new ArrayList<>();
+            descriptorsValue.add(hDescriptors.entropy().doubleValue());
+        }
 
-        this.superpixels.forEach((key, points) -> { 
+        if(descriptorsToBeConsidered.contains("homogeneity")) {
 
-            List<Double> descTemp = new ArrayList<>();
-            Mat hGlcm = new Mat();
+            descriptorsValue.add(hDescriptors.homogeneity().doubleValue());
+        }
 
-            Mat glcmChannel1 = this.createHaralickGlcm(img1, points);
-            Mat glcmChannel2 = this.createHaralickGlcm(img2, points);
+        if(descriptorsToBeConsidered.contains("correlation")) {
 
-            opencv_core.add(glcmChannel1, glcmChannel2, hGlcm);
-
-            HaralickDescriptors hDescriptors = new HaralickDescriptors(hGlcm);
-
-            descTemp.add(hDescriptors.contrast().doubleValue());
-            descTemp.add(hDescriptors.energy().doubleValue());
-            descTemp.add(hDescriptors.entropy().doubleValue());
-            descTemp.add(hDescriptors.homogeneity().doubleValue());
-            descTemp.add(hDescriptors.correlation().doubleValue());
-
-            descriptorsValue.add(descTemp);
-        });
+            descriptorsValue.add(hDescriptors.correlation().doubleValue());
+        }
 
         return descriptorsValue;
     }
 
-    private Mat createHaralickGlcm(Mat img, List<Point> points) {
+    private List<Double> extractLBPHDescriptors(Mat img, List<String> descriptorsToBeConsidered) {
+        
+        List<Double> descriptorsValue = new ArrayList<>();
 
-        HaralickGlcm hGlcm0 = new HaralickGlcm(img, points, GlcmDegreeEnum.DEGREE_0, this.conf.getHaralickPixelDistance());
-        HaralickGlcm hGlcm45 = new HaralickGlcm(img, points, GlcmDegreeEnum.DEGREE_45, this.conf.getHaralickPixelDistance());
-        HaralickGlcm hGlcm90 = new HaralickGlcm(img, points, GlcmDegreeEnum.DEGREE_90, this.conf.getHaralickPixelDistance());
-        HaralickGlcm hGlcm135 = new HaralickGlcm(img, points, GlcmDegreeEnum.DEGREE_135, this.conf.getHaralickPixelDistance());
+        LBPH lbph = new LBPH(img, this.points);
+        lbph.process();
+
+        LBPHDescriptors lbphDescriptors = new LBPHDescriptors(lbph.getValues());
+
+        if(descriptorsToBeConsidered.contains("mean")) {
+
+            descriptorsValue.add(lbphDescriptors.mean());
+        }
+
+        if(descriptorsToBeConsidered.contains("variance")) {
+
+            descriptorsValue.add(lbphDescriptors.variance());
+        }
+
+        if(descriptorsToBeConsidered.contains("entropy")) {
+
+            descriptorsValue.add(lbphDescriptors.entropy());
+        }
+
+        if(descriptorsToBeConsidered.contains("energy")) {
+
+            descriptorsValue.add(lbphDescriptors.energy());
+        }
+
+        return descriptorsValue;
+    }
+
+    private List<Double> extractWaveletDescriptors(Mat img) {
+        
+        List<Double> descriptorsValue = new ArrayList<>();
+
+        Wavelet wavelet = new Wavelet(img, this.conf.getWaveletLevel());
+        wavelet.process();
+
+        WaveletDescriptors wDescriptorsLH = null;
+        WaveletDescriptors wDescriptorsHH = null;
+        WaveletDescriptors wDescriptorsHL = null;
+
+        if(this.isConsidered("_3_lh_")) {
+
+            wDescriptorsLH = new WaveletDescriptors(wavelet.getLh(), wavelet.getLhNormalized(), this.points);
+        }
+
+        if(this.isConsidered("_3_hh_")) {
+
+            wDescriptorsHH = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), this.points);
+        }
+
+        if(this.isConsidered("_3_hl_")) {
+
+            wDescriptorsHL = new WaveletDescriptors(wavelet.getHl(), wavelet.getHlNormalized(), this.points);
+        }
+
+        if(this.isConsidered("_3_lh_entropy")) {
+
+            descriptorsValue.add(wDescriptorsLH.entropy());
+        }
+
+        if(this.isConsidered("_3_hh_entropy")) {
+
+            descriptorsValue.add(wDescriptorsHH.entropy());
+        }
+
+        if(this.isConsidered("_3_hl_entropy")) {
+
+            descriptorsValue.add(wDescriptorsHL.entropy());
+        }
+
+        // ***
+
+        if(this.isConsidered("_3_lh_energy")) {
+
+            descriptorsValue.add(wDescriptorsLH.energy());
+        }
+
+        if(this.isConsidered("_3_hh_energy")) {
+
+            descriptorsValue.add(wDescriptorsHH.energy());
+        }
+
+        if(this.isConsidered("_3_hl_energy")) {
+
+            descriptorsValue.add(wDescriptorsHL.energy());
+        }
+
+        return descriptorsValue;
+    }
+
+    private Mat createHaralickGlcm(Mat img) {
+
+        HaralickGlcm hGlcm0 = new HaralickGlcm(img, this.points, GlcmDegreeEnum.DEGREE_0, this.conf.getHaralickPixelDistance());
+        HaralickGlcm hGlcm45 = new HaralickGlcm(img, this.points, GlcmDegreeEnum.DEGREE_45, this.conf.getHaralickPixelDistance());
+        HaralickGlcm hGlcm90 = new HaralickGlcm(img, this.points, GlcmDegreeEnum.DEGREE_90, this.conf.getHaralickPixelDistance());
+        HaralickGlcm hGlcm135 = new HaralickGlcm(img, this.points, GlcmDegreeEnum.DEGREE_135, this.conf.getHaralickPixelDistance());
 
         hGlcm0.process();
         hGlcm45.process();
@@ -312,77 +563,71 @@ public class DescriptorFactory {
         return resp;
     }
 
+    private boolean isConsidered(String consider) {
 
-    private List<List<Double>> extractLBPHDescriptors(Mat img) {
-        
-        List<List<Double>> descriptorsValue = new ArrayList<>();
+        boolean resp = false;
 
-        this.superpixels.forEach((key, points) -> { 
+        for(String descriptorName: this.descriptorsNames) {
 
-            List<Double> descTemp = new ArrayList<>();
+            if(descriptorName.contains(consider)) {
 
-            LBPH lbph = new LBPH(img, points);
-            lbph.process();
+                resp = true;
+                break;
+            }
+        }
 
-            LBPHDescriptors lbphDescriptors = new LBPHDescriptors(lbph.getValues());
-
-            descTemp.add(lbphDescriptors.mean());
-            descTemp.add(lbphDescriptors.variance());
-            descTemp.add(lbphDescriptors.entropy());
-            descTemp.add(lbphDescriptors.energy());
-
-            descriptorsValue.add(descTemp);
-        });
-
-        return descriptorsValue;
+        return resp;
     }
 
-    private List<List<Double>> extractWaveletDescriptors(Mat img) {
-        
-        List<List<Double>> descriptorsValue = new ArrayList<>();
+    private List<String> extractDescriptorsToBeConsidered(String descriptor) {
 
-        Wavelet wavelet = new Wavelet(img, this.conf.getWaveletLevel());
-        wavelet.process();
+        return this.descriptorsNames.stream()
+            .filter(descName -> descName.contains(descriptor))
+            .map(descName -> {
 
-        this.superpixels.forEach((key, points) -> { 
+                String[] descs = descName.split("_");
 
-            List<Double> descTemp = new ArrayList<>();
+                return descs[descs.length - 1];
 
-            WaveletDescriptors wDescriptorsLH = new WaveletDescriptors(wavelet.getLh(), wavelet.getLhNormalized(), points);
-            WaveletDescriptors wDescriptorsHH = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), points);
-            WaveletDescriptors wDescriptorsHL = new WaveletDescriptors(wavelet.getHl(), wavelet.getHlNormalized(), points);
-
-            descTemp.add(wDescriptorsLH.entropy());
-            descTemp.add(wDescriptorsHH.entropy());
-            descTemp.add(wDescriptorsHL.entropy());
-            descTemp.add(wDescriptorsLH.energy());
-            descTemp.add(wDescriptorsHH.energy());
-            descTemp.add(wDescriptorsHL.energy());
-
-            descriptorsValue.add(descTemp);
-        });
-
-        return descriptorsValue;
+            }).collect(Collectors.toList());
     }
 
-    public List<List<Double>> getDescriptors() {
+    private List<String> extractColorChannelToBeconsidered(String colorComponent) {
 
-        List<List<Double>> descriptors = new ArrayList<>();
+        return this.descriptorsNames.stream()
+            .filter(descName -> descName.contains(colorComponent))
+            .map(descName -> {
 
-        for(int index = 0; index < this.superpixels.size(); index++) {
+                String[] descs = descName.split("_");
 
-            List<Double> descTemp = new ArrayList<>();
+                return descs[descs.length - 2];
 
-            descTemp.addAll(this.colorDescriptors.get(index));
-            descTemp.addAll(this.haralickDescriptors.get(index));
-            descTemp.addAll(this.variationHaralickDescriptors.get(index));
-            descTemp.addAll(this.lbphDescriptors.get(index));
-            descTemp.addAll(this.waveletDescriptors.get(index));
+            }).collect(Collectors.toList());
+    }
 
-            descriptors.add(descTemp);
+    private void addElementsToList(List<Double> elements, List<Double> list) {
+
+        if(elements != null) {
+
+            elements.stream().forEach(element -> list.add(element));
+        }
+    }
+
+    public List<Double> getDescriptors() {
+
+        List<Double> descriptors = new ArrayList<>();
+
+        descriptors.addAll(this.colorDescriptors);
+        descriptors.addAll(this.haralickDescriptors);
+        descriptors.addAll(this.variationHaralickDescriptors);
+        descriptors.addAll(this.lbphDescriptors);
+        descriptors.addAll(this.waveletDescriptors);
+
+        if(descriptors.isEmpty()) {
+
+            System.out.println("VAZIO");
         }
 
         return descriptors;
     }
-
 }

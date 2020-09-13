@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.MainApp;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
+import com.rodolfo.ulcer.segmentation.core.classification.MachineLearning;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
@@ -135,6 +136,9 @@ public class SceneController implements Initializable {
             this.configuration.setMinMaxSEEDSName(properties.getProperty("ml.file.min.max.seeds.name"));
             this.configuration.setMinMaxLSCName(properties.getProperty("ml.file.min.max.lsc.name"));
             this.configuration.setMinMaxSLICName(properties.getProperty("ml.file.min.max.slic.name"));
+            this.configuration.setMlModelSEEDSName(properties.getProperty("ml.file.seeds.model"));
+            this.configuration.setMlModelLSCName(properties.getProperty("ml.file.lsc.model"));
+            this.configuration.setMlModelSLICName(properties.getProperty("ml.file.slic.model"));
             this.configuration.setUserDirectory(properties.getProperty("user.local.directory"));
 
         } catch (Exception e) {
@@ -143,7 +147,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        // new Test(12, configuration);
+        // new Test(13, configuration);
     }
 
     @FXML
@@ -175,7 +179,7 @@ public class SceneController implements Initializable {
 
     private void arffExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
 
-        File dFile = Util.createDatasourceFile(this.getSelectedMethod(), this.configuration);
+        File dFile = Util.createDatasourceFile("full", this.getSelectedMethod(), this.configuration);
         File minMaxFile = Util.createMinMaxFile(this.getSelectedMethod(), this.configuration);
         
         this.configuration.setDatasource(dFile);
@@ -198,11 +202,13 @@ public class SceneController implements Initializable {
         this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
         this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));
 
-        File dFile = Util.createDatasourceFile(this.getSelectedMethod(), this.configuration);
+        File dFile = Util.createDatasourceFile("reduced", this.getSelectedMethod(), this.configuration);
         File minMaxFile = Util.createMinMaxFile(this.getSelectedMethod(), this.configuration);
+        File mlModel = Util.createMlModelFile(this.getSelectedMethod(), this.configuration);
         
         this.configuration.setDatasource(dFile);
         this.configuration.setMinMax(minMaxFile);
+        this.configuration.setMlModel(mlModel);
 
         MethodEnum method = this.getSelectedMethod();
 

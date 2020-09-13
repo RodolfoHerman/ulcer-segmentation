@@ -4,6 +4,7 @@ import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_core.Size;
 
 import lombok.Data;
 
@@ -54,5 +55,10 @@ public class Image {
     public String getImageName() {
 
         return Util.extractFileNameFromPath(this.directory.getImagePath().getAbsolutePath());
+    }
+
+    public Size getSize() {
+
+        return this.image.size();
     }
 }

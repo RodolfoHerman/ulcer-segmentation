@@ -23,20 +23,20 @@ public class SuperpixelsSEEDS extends Superpixels {
 
         log.info("Segmentação em superpixels com o método SEEDS");
         
-        Mat imgLAB = OpenCV.matImage2LAB(this.getImage().getImageWithoutReflection());
+        Mat imgLAB = OpenCV.matImage2LAB(this.image.getImageWithoutReflection());
 
         final int width = imgLAB.arrayWidth();
         final int height = imgLAB.arrayHeight();
         final int channels = 3; //this.getImage().getImageWithoutReflection().channels();
 
         SuperpixelSEEDS seeds = opencv_ximgproc.createSuperpixelSEEDS(
-            width, height, channels, this.getAmount(), this.getCompactenssI()
+            width, height, channels, this.amount, this.compactenssI
         );
 
-        seeds.iterate(imgLAB, this.getIterations());
-        seeds.getLabels(this.getLabels());
-        seeds.getLabelContourMask(this.getContour());
-        this.setSuperpixelsAmount(seeds.getNumberOfSuperpixels());
+        seeds.iterate(imgLAB, this.iterations);
+        seeds.getLabels(this.labels);
+        seeds.getLabelContourMask(this.contour);
+        this.superpixelsAmount = seeds.getNumberOfSuperpixels();
         seeds.deallocate();
 
         this.makeContourImage();

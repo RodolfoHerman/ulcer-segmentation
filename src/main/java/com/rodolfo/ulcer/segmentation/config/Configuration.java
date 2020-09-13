@@ -53,6 +53,9 @@ public class Configuration {
     private String minMaxSEEDSName;
     private String minMaxLSCName;
     private String minMaxSLICName;
+    private String mlModelSEEDSName;
+    private String mlModelLSCName;
+    private String mlModelSLICName;
 
     private File minMax;
     private File datasource;

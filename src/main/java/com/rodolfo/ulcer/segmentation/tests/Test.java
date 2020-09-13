@@ -37,6 +37,8 @@ import com.rodolfo.ulcer.segmentation.utils.Util;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
 
+import weka.core.converters.ConverterUtils.DataSource;
+
 public class Test {
 
     private static Image image;
@@ -55,6 +57,7 @@ public class Test {
     private static final int CREATE_LABELS_FROM_LABELED_IMAGE = 10;
     private static final int DESCRIPTORS_EXTRACTION = 11;
     private static final int MIN_MAX_CONTENT = 12;
+    private static final int DATA_SOURCE_CONTENT = 13;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -72,57 +75,57 @@ public class Test {
         imageService.openWithLabeled(image);
 
         switch (testnumber) {
-            
+
             case CROPP_IMAGE:
-                
+
                 Test.croppImage();
 
             break;
 
             case ZERO_PADDING_IMAGE:
-                
+
                 Test.createZeroPadding();
 
             break;
 
             case LIGHT_REMOVAL:
-                
+
                 Test.lightRemoval();
 
-            break;
+             break;
 
             case SUPERPIXELS:
-                
+
                 Test.superpixels();
 
             break;
 
             case APPLY_DWT:
-                
+
                 Test.applyDWT();
 
             break;
 
             case HARALICK:
-                
+
                 Test.haralickDescriptors();
 
-            break;
+                break;
 
             case WAVELET:
-                
+
                 Test.waveletDescriptors();
 
             break;
 
             case LBPH:
-                
+
                 Test.LBPHDescriptors();
 
             break;
 
             case COLOR:
-                
+
                 Test.colorDescriptors();
 
             break;
@@ -136,13 +139,13 @@ public class Test {
             case CREATE_LABELS_FROM_LABELED_IMAGE:
 
                 Test.createSuperpixelsLabelsFromLabeledImage();
-            
+
             break;
 
             case DESCRIPTORS_EXTRACTION:
 
                 Test.descriptorsExtractionAndLabel();
-            
+
             break;
 
             case MIN_MAX_CONTENT:
@@ -150,9 +153,15 @@ public class Test {
                 Test.readMinMaxContent();
 
             break;
-        
-            default:
+
+            case DATA_SOURCE_CONTENT:
+
+                Test.readDataSourceContent();
+
             break;
+
+            default:
+                break;
         }
     }
 
@@ -166,7 +175,7 @@ public class Test {
     private static void createZeroPadding() {
 
         Mat zeroPadding = OpenCV.createImageWithZeroPadding(image.getImage());
-        
+
         System.out.println("ROWS : " + zeroPadding.rows());
         System.out.println("COLS : " + zeroPadding.cols());
 
@@ -175,7 +184,8 @@ public class Test {
 
     private static void lightRemoval() {
 
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(),
+                conf.getSpecularReflectionThreshold());
 
         Mat mask = lDetection.lightMask(image.getImage());
         OpenCV.showImageGUI(mask);
@@ -188,7 +198,8 @@ public class Test {
 
     private static void superpixels() {
 
-        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
+        LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(),
+                conf.getSpecularReflectionThreshold());
 
         Mat mask = lDetection.lightMask(image.getImage());
 
@@ -212,7 +223,7 @@ public class Test {
         OpenCV.showImageGUI(seeds.getContourImage());
     }
 
-    private static void applyDWT() { 
+    private static void applyDWT() {
 
         Mat gray = OpenCV.matImage2GRAY(image.getImage());
 
@@ -231,10 +242,11 @@ public class Test {
     private static void haralickDescriptors() {
 
         Superpixels superpixels = Test.createSuperpixel();
-        
+
         Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
 
-        HaralickGlcm haralickGlcm = new HaralickGlcm(gray, superpixels.getSuperpixelsSegmentation().get(0), GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
+        HaralickGlcm haralickGlcm = new HaralickGlcm(gray, superpixels.getSuperpixelsSegmentation().get(0),
+                GlcmDegreeEnum.DEGREE_45, conf.getHaralickPixelDistance());
         haralickGlcm.process();
 
         HaralickDescriptors hDescriptors = new HaralickDescriptors(haralickGlcm.getGlcm());
@@ -256,14 +268,15 @@ public class Test {
 
         wavelet.process();
 
-        WaveletDescriptors wDescriptors = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(), superpixels.getSuperpixelsSegmentation().get(0));
+        WaveletDescriptors wDescriptors = new WaveletDescriptors(wavelet.getHh(), wavelet.getHhNormalized(),
+                superpixels.getSuperpixelsSegmentation().get(0));
 
         System.out.println("Energia: " + wDescriptors.energy());
         System.out.println("Entropia: " + wDescriptors.entropy());
     }
 
     private static void LBPHDescriptors() {
-        
+
         Superpixels superpixels = Test.createSuperpixel();
 
         Mat gray = OpenCV.matImage2GRAY(image.getImageWithoutReflection());
@@ -287,7 +300,7 @@ public class Test {
         color.process();
 
         ColorDescriptors cDescriptors = new ColorDescriptors(color.getChannel1());
-        
+
         System.out.println("Média: " + cDescriptors.mean());
         System.out.println("Variância: " + cDescriptors.variance());
         System.out.println("Assimetria: " + cDescriptors.asymmetry());
@@ -324,37 +337,49 @@ public class Test {
 
         List<Descriptor> nonUlcerDescriptors = new ArrayList<>();
         List<Descriptor> ulcerDescriptors = new ArrayList<>();
-        
+
         Superpixels superpixels = Test.createSuperpixel();
 
         superpixels.createSuperpixels();
         superpixels.extractRegionLabels();
 
-        DescriptorFactory dFactoryNonUlcer = new DescriptorFactory(image, conf, superpixels.getNonUlcerRegion());
-        
-        dFactoryNonUlcer.processColor();
-        dFactoryNonUlcer.processHaralick();
-        dFactoryNonUlcer.processVariationHaralick();
-        dFactoryNonUlcer.processLBPH();
-        dFactoryNonUlcer.processWavelet();
+        List<DescriptorFactory> dFactoriesNonUlcers = new ArrayList<>();
 
-        DescriptorFactory dFactoryUlcer = new DescriptorFactory(image, conf, superpixels.getUlcerRegion());
-        
-        dFactoryUlcer.processColor();
-        dFactoryUlcer.processHaralick();
-        dFactoryUlcer.processVariationHaralick();
-        dFactoryUlcer.processLBPH();
-        dFactoryUlcer.processWavelet();
-        
-        dFactoryNonUlcer.getDescriptors().stream().forEach(descriptors -> {
+        superpixels.getNonUlcerRegion().forEach((key, points) -> {
 
-            nonUlcerDescriptors.add(new Descriptor("NON_ULCER", descriptors));
+            dFactoriesNonUlcers.add(new DescriptorFactory(image, conf, Util.getDescriptorsNames(), points, key, "NON_ULCER"));
         });
 
-        dFactoryUlcer.getDescriptors().stream().forEach(descriptors -> {
+        dFactoriesNonUlcers.stream().forEach(factory -> factory.processColor());
+        dFactoriesNonUlcers.stream().forEach(factory -> factory.processHaralick());
+        dFactoriesNonUlcers.stream().forEach(factory -> factory.processVariationHaralick());
+        dFactoriesNonUlcers.stream().forEach(factory -> factory.processLBPH());
+        dFactoriesNonUlcers.stream().forEach(factory -> factory.processWavelet());
 
-            ulcerDescriptors.add(new Descriptor("ULCER", descriptors));
+
+        List<DescriptorFactory> dFactoriesUlcers = new ArrayList<>();
+
+        superpixels.getUlcerRegion().forEach((key, points) -> {
+
+            dFactoriesUlcers.add(new DescriptorFactory(image, conf, Util.getDescriptorsNames(), points, key, "ULCER"));
         });
+
+        dFactoriesUlcers.stream().forEach(factory -> factory.processColor());
+        dFactoriesUlcers.stream().forEach(factory -> factory.processHaralick());
+        dFactoriesUlcers.stream().forEach(factory -> factory.processVariationHaralick());
+        dFactoriesUlcers.stream().forEach(factory -> factory.processLBPH());
+        dFactoriesUlcers.stream().forEach(factory -> factory.processWavelet());
+
+
+        dFactoriesUlcers.stream().forEach(
+            factory -> ulcerDescriptors.add(new Descriptor(factory.getUlcerClass(), factory.getDescriptors()))
+        );
+
+        dFactoriesNonUlcers.stream().forEach(
+            factory -> nonUlcerDescriptors.add(new Descriptor(factory.getUlcerClass(), factory.getDescriptors()))
+        );
+
+        System.out.println();
     }
 
     private static void readMinMaxContent() {
@@ -365,6 +390,25 @@ public class Test {
         conf.setMinMax(minMaxFile);
 
         System.out.println(fService.openMinMaxDescriptors(conf.getMinMax()));
+    }
+
+    private static void readDataSourceContent() {
+
+        FileService fService = new FileServiceImpl();
+
+        File dataSourceFile = Util.createDatasourceFile("reduced", MethodEnum.SEEDS, conf);
+        conf.setDatasource(dataSourceFile);
+
+        DataSource dataSource = fService.openDataSoruce(conf.getDatasource());
+
+        try {
+
+            System.out.println(Util.getListOfDescriptorsNamesFromDataSource(dataSource));
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
     }
 
     private static Superpixels createSuperpixel() {

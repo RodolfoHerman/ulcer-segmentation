@@ -23,17 +23,17 @@ public class SuperpixelsSLIC extends Superpixels {
 
         log.info("Segmentação em superpixels com o método SLIC");
 
-        Mat imgLAB = OpenCV.matImage2LAB(this.getImage().getImageWithoutReflection());
+        Mat imgLAB = OpenCV.matImage2LAB(this.image.getImageWithoutReflection());
 
         SuperpixelSLIC slic = opencv_ximgproc.createSuperpixelSLIC(
-            imgLAB, opencv_ximgproc.SLIC, this.getAmount(), this.getCompactenssI()
+            imgLAB, opencv_ximgproc.SLIC, this.amount, this.compactenssI
         );
 
-        slic.iterate(this.getIterations());
-        slic.enforceLabelConnectivity(this.getAmount() - 1);
-        slic.getLabels(this.getLabels());
-        slic.getLabelContourMask(this.getContour());
-        this.setSuperpixelsAmount(slic.getNumberOfSuperpixels());
+        slic.iterate(this.iterations);
+        slic.enforceLabelConnectivity(this.amount - 1);
+        slic.getLabels(this.labels);
+        slic.getLabelContourMask(this.contour);
+        this.superpixelsAmount = slic.getNumberOfSuperpixels();
         slic.deallocate();
 
         this.makeContourImage();

@@ -28,16 +28,16 @@ public abstract class Superpixels {
     private static final Logger log = LoggerFactory.getLogger(Superpixels.class);
     
     private Integer imageEdge;
-    private Integer iterations;
-    private Integer amount;
-    private Integer compactenssI;
-    private Float compactenssF;
-    private Image image;
-    private Mat labels = new Mat();
-    private Mat contour = new Mat();
+    protected Integer iterations;
+    protected Integer amount;
+    protected Integer compactenssI;
+    protected Float compactenssF;
+    protected Image image;
+    protected Mat labels = new Mat();
+    protected Mat contour = new Mat();
     private Mat contourImage;
     private Mat colorInformativePixels;
-    private Integer superpixelsAmount;
+    protected Integer superpixelsAmount;
     private Set<Integer> intLabels;
     private Map<Integer, List<Point>> superpixelsSegmentation;
     private Map<Integer, List<Point>> ulcerRegion;
@@ -118,7 +118,8 @@ public abstract class Superpixels {
 
         Mat gray = OpenCV.matImage2GRAY(this.image.getLabeledImage());
         Mat outlineFilled = OpenCV.findLargerOutlineAndFill(gray);
-        Mat largerOutline = OpenCV.dilateByCross(OpenCV.findLargerOutline(outlineFilled), 3);
+        // Mat largerOutline = OpenCV.dilateByCross(OpenCV.findLargerOutline(outlineFilled), 3);
+        Mat largerOutline = OpenCV.findLargerOutline(outlineFilled);
 
         Set<Integer> labelsUlcer = this.labelsToBeConsidered(outlineFilled);
 

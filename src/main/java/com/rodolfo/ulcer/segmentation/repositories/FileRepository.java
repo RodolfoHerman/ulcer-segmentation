@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
+import weka.core.SerializationHelper;
+import weka.core.converters.ConverterUtils.DataSource;
+
 public class FileRepository {
     
     public void saveDescriptors(List<Descriptor> descriptors, File path) {
@@ -73,6 +76,36 @@ public class FileRepository {
         }
 
         return minMaxDescriptors;
+    }
+
+    public DataSource openDataSoruce(File path) {
+
+        try {
+            
+            return new DataSource(path.getAbsolutePath());
+
+        } catch (Exception e) {
+            
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        return null;
+    }
+
+    public Object openMlModel(File path) {
+
+        try {
+            
+            return SerializationHelper.read(path.getAbsolutePath());
+
+        } catch (Exception e) {
+            
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        return null;
     }
 
 }

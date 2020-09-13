@@ -23,17 +23,17 @@ public class SuperpixelsLSC extends Superpixels {
 
         log.info("Segmentação em superpixels com o método LSC");
         
-        Mat imgLAB = OpenCV.matImage2LAB(this.getImage().getImageWithoutReflection());
+        Mat imgLAB = OpenCV.matImage2LAB(this.image.getImageWithoutReflection());
 
         SuperpixelLSC lsc = opencv_ximgproc.createSuperpixelLSC(
-            imgLAB, this.getAmount(), this.getCompactenssF()
+            imgLAB, this.amount, this.compactenssF
         );
 
-        lsc.iterate(this.getIterations());
-        lsc.enforceLabelConnectivity(this.getAmount() - 1);
-        lsc.getLabels(this.getLabels());
-        lsc.getLabelContourMask(this.getContour());
-        this.setSuperpixelsAmount(lsc.getNumberOfSuperpixels());
+        lsc.iterate(this.iterations);
+        lsc.enforceLabelConnectivity(this.amount - 1);
+        lsc.getLabels(this.labels);
+        lsc.getLabelContourMask(this.contour);
+        this.superpixelsAmount = lsc.getNumberOfSuperpixels();
         lsc.deallocate();
         
         this.makeContourImage();
