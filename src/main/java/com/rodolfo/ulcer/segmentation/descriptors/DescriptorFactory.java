@@ -89,10 +89,10 @@ public class DescriptorFactory {
 
     public void processColor() {
 
-        List<Double> colorBGR = this.getColorProcessed("color_bgr_", "b", "g");
-        List<Double> colorLAB = this.getColorProcessed("color_lab_", "l", "a");
-        List<Double> colorLUV = this.getColorProcessed("color_luv_", "l", "u");
-        List<Double> colorNORM = this.getColorProcessed("color_norm_", "b", "g");
+        List<Double> colorBGR = this.getColorProcessed(this.bgr, "color_bgr_", "b", "g");
+        List<Double> colorLAB = this.getColorProcessed(this.lab, "color_lab_", "l", "a");
+        List<Double> colorLUV = this.getColorProcessed(this.luv, "color_luv_", "l", "u");
+        List<Double> colorNORM = this.getColorProcessed(this.norm, "color_norm_", "b", "g");
 
         this.addElementsToList(colorBGR, this.colorDescriptors);
         this.addElementsToList(colorLAB, this.colorDescriptors);
@@ -156,18 +156,13 @@ public class DescriptorFactory {
         this.addElementsToList(WaveletBGR_R, this.waveletDescriptors);
     }
 
-    private List<Double> getColorProcessed(String colorComponent, String channel1, String channel2) {
+    private List<Double> getColorProcessed(Mat mat, String colorComponent, String channel1, String channel2) {
 
         if(this.isConsidered(colorComponent)) {
 
-            List<String> channels = this.extractColorChannelToBeconsidered(colorComponent).stream().map(channel -> {
+            List<String> channelsAndDescriptors = this.extractColorChannelAndDescriptorsToBeconsidered(colorComponent);
 
-                return channel.equals(channel1) ? "1" : 
-                       channel.equals(channel2) ? "2" : "3";
-
-            }).collect(Collectors.toList());
-
-            return this.extractColorDescriptors(this.norm, this.extractDescriptorsToBeConsidered(colorComponent), channels);
+            return this.extractColorDescriptors(mat, channelsAndDescriptors);
         }
 
         return null;
@@ -213,7 +208,7 @@ public class DescriptorFactory {
         return null;
     }
 
-    private List<Double> extractColorDescriptors(Mat img, List<String> descriptorsToBeConsidered, List<String> channelsToBeConsidered) {
+    private List<Double> extractColorDescriptors(Mat img, List<String> descriptorsAndChannelsToBeConsidered) {
 
         List<Double> descriptorsValue = new ArrayList<>();
 
@@ -224,9 +219,9 @@ public class DescriptorFactory {
         ColorDescriptors cDescriptorsChannel2 = null;
         ColorDescriptors cDescriptorsChannel3 = null;
 
-        boolean hasChannel1 = channelsToBeConsidered.contains("1");
-        boolean hasChannel2 = channelsToBeConsidered.contains("2");
-        boolean hasChannel3 = channelsToBeConsidered.contains("3");
+        boolean hasChannel1 = descriptorsAndChannelsToBeConsidered.stream().filter(desc -> desc.contains("1_")).count() > 0l ? true : false;
+        boolean hasChannel2 = descriptorsAndChannelsToBeConsidered.stream().filter(desc -> desc.contains("2_")).count() > 0l ? true : false;
+        boolean hasChannel3 = descriptorsAndChannelsToBeConsidered.stream().filter(desc -> desc.contains("3_")).count() > 0l ? true : false;
 
         if(hasChannel1) {
 
@@ -243,122 +238,122 @@ public class DescriptorFactory {
             cDescriptorsChannel3 = new ColorDescriptors(color.getChannel3());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("mean")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_mean")) {
 
             descriptorsValue.add(cDescriptorsChannel1.mean());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("mean")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_mean")) {
 
             descriptorsValue.add(cDescriptorsChannel2.mean());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("mean")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_mean")) {
 
             descriptorsValue.add(cDescriptorsChannel3.mean());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("variance")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_variance")) {
 
             descriptorsValue.add(cDescriptorsChannel1.variance());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("variance")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_variance")) {
 
             descriptorsValue.add(cDescriptorsChannel2.variance());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("variance")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_variance")) {
 
             descriptorsValue.add(cDescriptorsChannel3.variance());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("centroid")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_centroid")) {
 
             descriptorsValue.add((double)color.getCentroid()[0]);
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("centroid")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_centroid")) {
 
             descriptorsValue.add((double)color.getCentroid()[1]);
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("centroid")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_centroid")) {
 
             descriptorsValue.add((double)color.getCentroid()[2]);
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("asymetry")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_asymetry")) {
 
             descriptorsValue.add(cDescriptorsChannel1.asymmetry());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("asymetry")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_asymetry")) {
 
             descriptorsValue.add(cDescriptorsChannel2.asymmetry());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("asymetry")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_asymetry")) {
 
             descriptorsValue.add(cDescriptorsChannel3.asymmetry());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("intensity1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_intensity1")) {
 
             descriptorsValue.add(cDescriptorsChannel1.intensity1());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("intensity1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_intensity1")) {
 
             descriptorsValue.add(cDescriptorsChannel2.intensity1());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("intensity1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_intensity1")) {
 
             descriptorsValue.add(cDescriptorsChannel3.intensity1());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("intensity2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_intensity2")) {
 
             descriptorsValue.add(cDescriptorsChannel1.intensity2());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("intensity2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_intensity2")) {
 
             descriptorsValue.add(cDescriptorsChannel2.intensity2());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("intensity2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_intensity2")) {
 
             descriptorsValue.add(cDescriptorsChannel3.intensity2());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("frequency1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_frequency1")) {
 
             descriptorsValue.add(cDescriptorsChannel1.frequency1());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("frequency1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_frequency1")) {
 
             descriptorsValue.add(cDescriptorsChannel2.frequency1());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("frequency1")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_frequency1")) {
 
             descriptorsValue.add(cDescriptorsChannel3.frequency1());
         }
 
-        if(hasChannel1 && descriptorsToBeConsidered.contains("frequency2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("1_frequency2")) {
 
             descriptorsValue.add(cDescriptorsChannel1.frequency2());
         }
 
-        if(hasChannel2 && descriptorsToBeConsidered.contains("frequency2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("2_frequency2")) {
 
             descriptorsValue.add(cDescriptorsChannel2.frequency2());
         }
 
-        if(hasChannel3 && descriptorsToBeConsidered.contains("frequency2")) {
+        if(descriptorsAndChannelsToBeConsidered.contains("3_frequency2")) {
 
             descriptorsValue.add(cDescriptorsChannel3.frequency2());
         }
@@ -592,17 +587,76 @@ public class DescriptorFactory {
             }).collect(Collectors.toList());
     }
 
-    private List<String> extractColorChannelToBeconsidered(String colorComponent) {
+    private List<String> extractColorChannelAndDescriptorsToBeconsidered(String colorComponent) {
 
         return this.descriptorsNames.stream()
             .filter(descName -> descName.contains(colorComponent))
             .map(descName -> {
 
-                String[] descs = descName.split("_");
+                if(descName.contains("_bgr_b_")) {
 
-                return descs[descs.length - 2];
+                    return this.getStandardizedName(descName, "_bgr_b_", "_bgr_1_");
+                }
 
+                if(descName.contains("_bgr_g_")) {
+
+                    return this.getStandardizedName(descName, "_bgr_g_", "_bgr_2_");
+                }
+
+                if(descName.contains("_bgr_r_")) {
+
+                    return this.getStandardizedName(descName, "_bgr_r_", "_bgr_3_");
+                }
+
+                if(descName.contains("_norm_b_")) {
+
+                    return this.getStandardizedName(descName, "_norm_b_", "_norm_1_");
+                }
+
+                if(descName.contains("_norm_g_")) {
+
+                    return this.getStandardizedName(descName, "_norm_g_", "_norm_2_");
+                }
+
+                if(descName.contains("_norm_r_")) {
+
+                    return this.getStandardizedName(descName, "_norm_r_", "_norm_3_");
+                }
+
+                if(descName.contains("_lab_l_")) {
+
+                    return this.getStandardizedName(descName, "_lab_l_", "_lab_1_");
+                }
+
+                if(descName.contains("_lab_a_")) {
+
+                    return this.getStandardizedName(descName, "_lab_a_", "_lab_2_");
+                }
+
+                if(descName.contains("_lab_b_")) {
+
+                    return this.getStandardizedName(descName, "_lab_b_", "_lab_3_");
+                }
+
+                if(descName.contains("_luv_l_")) {
+
+                    return this.getStandardizedName(descName, "_luv_l_", "_luv_1_");
+                }
+
+                if(descName.contains("_luv_u_")) {
+
+                    return this.getStandardizedName(descName, "_luv_u_", "_luv_2_");
+                }
+
+                return this.getStandardizedName(descName, "_luv_v_", "_luv_3_");
             }).collect(Collectors.toList());
+    }
+
+    private String getStandardizedName(String descName, String seacrh, String newValue) {
+
+        String[] temp = descName.replace(seacrh, newValue).split("_");
+
+        return temp[temp.length - 2] + "_" + temp[temp.length - 1];
     }
 
     private void addElementsToList(List<Double> elements, List<Double> list) {
@@ -622,11 +676,6 @@ public class DescriptorFactory {
         descriptors.addAll(this.variationHaralickDescriptors);
         descriptors.addAll(this.lbphDescriptors);
         descriptors.addAll(this.waveletDescriptors);
-
-        if(descriptors.isEmpty()) {
-
-            System.out.println("VAZIO");
-        }
 
         return descriptors;
     }
