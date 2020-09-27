@@ -61,4 +61,9 @@ public class Image {
 
         return this.image.size();
     }
+
+    public Integer getType() {
+
+        return this.image.type();
+    }
 }

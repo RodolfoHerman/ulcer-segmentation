@@ -8,6 +8,8 @@ import java.util.Map;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.core.classification.MachineLearning;
 import com.rodolfo.ulcer.segmentation.core.classification.SVM;
+import com.rodolfo.ulcer.segmentation.core.segmentation.Grabcut;
+import com.rodolfo.ulcer.segmentation.core.segmentation.Skeletonization;
 import com.rodolfo.ulcer.segmentation.data.preparation.Normalization;
 import com.rodolfo.ulcer.segmentation.data.preparation.Preparation;
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
@@ -129,7 +131,7 @@ public class Worker extends Task<Void> {
 
     private void segmentation() throws Exception {
 
-        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22};
+        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
         int maxProcess = process.length;
         int index = 0;
 
@@ -200,7 +202,20 @@ public class Worker extends Task<Void> {
         ml.classify();
         updateProgress(process[index++], maxProcess);
 
-        OpenCV.showImageGUI(ml.getClassified());
+        Skeletonization skeletonization = new Skeletonization(this.conf, ml.getOutlineFilled());
+        skeletonization.process();
+        updateProgress(process[index++], maxProcess);
+        
+        Grabcut grabcut = new Grabcut(this.image, this.conf, ml.getOutlineFilled(), skeletonization);
+        grabcut.process();
+        updateProgress(process[index++], maxProcess);
+
+        skeletonization.createSkeletonImageView();
+        grabcut.createFinalBinarySegmentation();
+        grabcut.createGrabCutHumanMask();
+        updateProgress(process[index++], maxProcess);
+
+        // TODO: salvar imagens e salvar tempo execução
 
         Thread.sleep(500l);
     }
@@ -298,6 +313,7 @@ public class Worker extends Task<Void> {
         );
         updateProgress(process[index++], maxProcess);
 
+        // TODO: refatorar para passar apenas o objeto Image e tratar o que será salvo no service
         fileService.saveDescriptors(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
         updateProgress(process[index++], maxProcess);
         

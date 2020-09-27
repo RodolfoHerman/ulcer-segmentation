@@ -3,6 +3,7 @@ package com.rodolfo.ulcer.segmentation.core.classification;
 import java.util.List;
 
 import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Size;
@@ -38,6 +39,11 @@ public abstract class MachineLearning {
 
         this.instance = new DenseInstance(instances.numAttributes());
         this.instance.setDataset(instances);
+    }
+
+    public Mat getOutlineFilled() {
+
+        return OpenCV.findLargerOutlineAndFill(this.classified);
     }
 
     public abstract void classify() throws Exception;

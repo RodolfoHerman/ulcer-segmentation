@@ -40,10 +40,16 @@ public class Configuration {
     private String executionTimeFile;
     private String featuresExtractedFile;
 
+    // Superpixels algorithm
     private Integer iterations;
     private Integer amount;
     private Integer compactnessI;
     private Float compactnessF;
+
+    private Integer skeletonKernelErodeSize;
+    private Double skeletonAreaErode;
+
+    private Integer grabcutNumberOfIterations;
 
     private Integer preparationNormalizationDecimalPlaces;
 

@@ -331,6 +331,16 @@ public class OpenCV {
         return dst;
     }
 
+    public static Mat erodeByCross(Mat src, int elementSize) {
+        
+        Mat dst = new Mat();
+
+        Mat kernel = opencv_imgproc.getStructuringElement(opencv_imgproc.MORPH_CROSS, new Size(elementSize, elementSize));
+        opencv_imgproc.erode(src, dst, kernel);
+
+        return dst;
+    }
+
     public static Mat findAndFillContoursCV_8UC1(Mat src) {
 
         Mat dst = new Mat(src.size(), opencv_core.CV_8UC1, Scalar.BLACK);
@@ -509,10 +519,30 @@ public class OpenCV {
         auxIndex.release();
 
         Mat largerOutline = OpenCV.findLargerContour(aux);
-        
+
         opencv_imgproc.fillPoly(dst, new MatVector(largerOutline), Scalar.WHITE);
 
         return dst;
+    }
+
+    public static Mat findLargerOutlineAndFill(Mat src, double objectColor, double backgroundColor) { 
+
+        Mat dst = new Mat(src.size(), opencv_core.CV_8UC1, new Scalar(backgroundColor));
+
+        Mat largerOutline = OpenCV.findLargerContour(src);
+
+        opencv_imgproc.fillPoly(dst, new MatVector(largerOutline), new Scalar(objectColor));
+
+        return dst;
+    }
+
+    public static Mat findLargerOutlineAndFill(Mat mat1, Mat mat2, double objectColor) { 
+
+        Mat largerOutline = OpenCV.findLargerContour(mat1);
+
+        opencv_imgproc.fillPoly(mat2, new MatVector(largerOutline), new Scalar(objectColor));
+
+        return mat2;
     }
 
     public static Mat findLargerOutline(Mat src) {

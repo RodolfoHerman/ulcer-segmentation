@@ -139,6 +139,9 @@ public class SceneController implements Initializable {
             this.configuration.setMlModelSEEDSName(properties.getProperty("ml.file.seeds.model"));
             this.configuration.setMlModelLSCName(properties.getProperty("ml.file.lsc.model"));
             this.configuration.setMlModelSLICName(properties.getProperty("ml.file.slic.model"));
+            this.configuration.setSkeletonKernelErodeSize(Integer.valueOf(properties.getProperty("skeleton.kernel.erode.size")));
+            this.configuration.setSkeletonAreaErode(Double.valueOf(properties.getProperty("skeleton.area.proportion.erode")));
+            this.configuration.setGrabcutNumberOfIterations(Integer.valueOf(properties.getProperty("grabcut.number.iterations")));
             this.configuration.setUserDirectory(properties.getProperty("user.local.directory"));
 
         } catch (Exception e) {
@@ -147,7 +150,7 @@ public class SceneController implements Initializable {
             System.exit(1);
         }
 
-        // new Test(13, configuration);
+        // new Test(9, configuration);
     }
 
     @FXML
