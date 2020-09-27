@@ -2,7 +2,7 @@ package com.rodolfo.ulcer.segmentation.core.classification;
 
 import java.util.List;
 
-import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
 import org.bytedeco.javacpp.opencv_core.Mat;

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import weka.core.SerializationHelper;

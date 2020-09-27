@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 
 import weka.core.converters.ConverterUtils.DataSource;
 

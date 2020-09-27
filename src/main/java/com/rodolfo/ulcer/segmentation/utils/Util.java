@@ -14,8 +14,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.config.Configuration;
-import com.rodolfo.ulcer.segmentation.descriptors.Descriptor;
-import com.rodolfo.ulcer.segmentation.descriptors.DescriptorsEnum;
+import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
+import com.rodolfo.ulcer.segmentation.core.descriptors.DescriptorsEnum;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
