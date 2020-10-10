@@ -1,49 +1,82 @@
 package com.rodolfo.ulcer.segmentation.services.impl;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.repositories.ImageRepository;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 
-import org.bytedeco.javacpp.opencv_core.Mat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ImageServiceImpl implements ImageService {
 
-	private static final ImageRepository imageRepository = new ImageRepository();
+	private static final ImageRepository IMAGE_REPOSITORY = new ImageRepository();
 	private static final Logger log = LoggerFactory.getLogger(ImageServiceImpl.class);
-
-	@Override
-	public void openWithLabeled(Image image) {
-
-		this.verifyImage(image);
-		this.verifyLabeledImage(image);
-
-		imageRepository.openWithLabeled(image);
-	}
 
 	@Override
 	public void open(Image image) {
 
 		this.verifyImage(image);
-		imageRepository.open(image);
+
+		IMAGE_REPOSITORY.open(image);
 	}
 
 	@Override
 	public void save(Image image) {
-		// TODO Auto-generated method stub
 
-	}
+		log.info("Salvando as imagens no caminho : {}", image.getDirectory().getDirPath().getAbsolutePath());
 
-	@Override
-	public void save(Mat img, File path) {
-		
-		log.info("Salvando a imagem no caminho : {}", path.getAbsolutePath());
+		if(image.getGrabCutHumanMask() != null) {
 
-		imageRepository.save(img, path);
+			IMAGE_REPOSITORY.save(image.getGrabCutHumanMask(), image.getDirectory().getGrabCutMaskPath());
+		}
+
+		if(image.getFinalUlcerSegmentation() != null) {
+
+			IMAGE_REPOSITORY.save(image.getFinalUlcerSegmentation(), image.getDirectory().getGrabCutSegmentationPath());
+		}
+
+		if(image.getFinalBinarySegmentation() != null) {
+
+			IMAGE_REPOSITORY.save(image.getFinalBinarySegmentation(), image.getDirectory().getGrabCutSegmentationBinaryPath());
+		}
+
+		if(image.getMlCLassifiedImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getMlCLassifiedImage(), image.getDirectory().getSvmClassificatioPath());
+		}
+
+		if(image.getSkeletonWithBranchs() != null) {
+
+			IMAGE_REPOSITORY.save(image.getSkeletonWithBranchs(), image.getDirectory().getSkeletonWithBranchsPath());
+		}
+
+		if(image.getSkeletonWithoutBranchs() != null) {
+
+			IMAGE_REPOSITORY.save(image.getSkeletonWithoutBranchs(), image.getDirectory().getSkeletonWithoutBranchsPath());
+		}
+
+		if(image.getImageWithoutReflection() != null) {
+
+			IMAGE_REPOSITORY.save(image.getImageWithoutReflection(), image.getDirectory().getImageWithoutReflectionsPath());
+		}
+	
+		if(image.getLabeledImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getLabeledImage(), image.getDirectory().getLabeledResampleImagePath());
+		}
+
+		if(image.getSuperpixelsContourImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getSuperpixelsContourImage(), image.getDirectory().getSuperpixelsLabelsPath());
+		}
+
+		if(image.getSuperpixelsColorInformativeImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getSuperpixelsColorInformativeImage(), image.getDirectory().getSuperpixelsInformationalPath());
+		}
+
 	}
 
 	private void verifyImage(Image image) {
@@ -59,18 +92,12 @@ public class ImageServiceImpl implements ImageService {
 			log.error("Erro inesperado ", new FileNotFoundException("Imagem não encontrada no caminho especificado"));
 			System.exit(1);
 		}
-	}
 
-	private void verifyLabeledImage(Image image) {
+		if (image.getDirectory().getLabeledImagePath() == null || !image.getDirectory().getLabeledImagePath().exists()) {
 
-		if (image.getDirectory().getLabeledImagePath() == null
-				|| !image.getDirectory().getLabeledImagePath().exists()) {
+			log.warn("Caminho informado não possui a imagem rotulada, '{}'", image.getDirectory().getDirPath().getAbsolutePath());
 
-			log.error("Erro inesperado ",
-					new FileNotFoundException("Imagem rotulada não encontrada no caminho especificado"));
-			System.exit(1);
+			image.getDirectory().setLabeledImagePath(image.getDirectory().getImagePath());
 		}
 	}
-
-
 }

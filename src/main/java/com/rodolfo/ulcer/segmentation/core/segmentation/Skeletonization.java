@@ -56,6 +56,14 @@ public class Skeletonization implements Process {
         this.skeletonWithBranchs = OpenCV.erodeByCross(this.skeletonWithBranchs, 3);
     }
 
+    public Mat getSkeletonWithoutBranchsNot() {
+
+        Mat resp = new Mat();
+        opencv_core.bitwise_not(this.skeletonWithoutBranchs, resp);
+
+        return resp;
+    }
+
     private int verify(boolean condition) {
 
         return condition ? 1 : 0;

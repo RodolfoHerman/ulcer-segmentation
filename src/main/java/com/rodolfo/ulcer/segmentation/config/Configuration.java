@@ -29,6 +29,7 @@ public class Configuration {
     private String extension;
     private String imageName;
     private String labeledImageName;
+    private String labeledResampleImageName;
     private String imageWithoutReflectionsName;
     private String superpixelsLabelImageName;
     private String superpixelsInformationalImageName;
@@ -36,6 +37,8 @@ public class Configuration {
     private String grabcutSegmentationBinaryImageName;
     private String grabcutSegmentationImageName;
     private String grabcutMaskImageName;
+    private String skeletonWithBranchsName;
+    private String skeletonWithoutBranchsName;
     private String chooseDirectory;
     private String executionTimeFile;
     private String featuresExtractedFile;

@@ -44,16 +44,4 @@ public class SVM extends MachineLearning {
         
         index.release();
     }
-
-    @Override
-    protected void setValues(Descriptor descriptor) {
-        
-        List<Double> values = descriptor.getDescriptors();
-
-        for(int index = 0; index < values.size(); index++) {
-
-            this.instance.setValue(index, values.get(index));
-        }
-    }
-    
 }

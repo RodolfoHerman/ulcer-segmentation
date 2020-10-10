@@ -120,6 +120,7 @@ public class SceneController implements Initializable {
             this.configuration.setExtension(properties.getProperty("image.extension"));
             this.configuration.setImageName(properties.getProperty("image.name"));
             this.configuration.setLabeledImageName(properties.getProperty("image.labeled.name"));
+            this.configuration.setLabeledResampleImageName(properties.getProperty("image.labeled.resample.name"));
             this.configuration.setImageWithoutReflectionsName(properties.getProperty("image.without.reflections.name"));
             this.configuration.setSuperpixelsLabelImageName(properties.getProperty("image.superpixels.label.name"));
             this.configuration.setSuperpixelsInformationalImageName(properties.getProperty("image.superpixels.informational.name"));
@@ -127,6 +128,8 @@ public class SceneController implements Initializable {
             this.configuration.setGrabcutSegmentationBinaryImageName(properties.getProperty("image.grabcut.segmentation.binary.name"));
             this.configuration.setGrabcutSegmentationImageName(properties.getProperty("image.grabcut.segmentation.name"));
             this.configuration.setGrabcutMaskImageName(properties.getProperty("image.grabcut.mask.name"));
+            this.configuration.setSkeletonWithBranchsName(properties.getProperty("image.skeleton.with.brnachs"));
+            this.configuration.setSkeletonWithoutBranchsName(properties.getProperty("image.skeleton.without.brnachs"));
             this.configuration.setExecutionTimeFile(properties.getProperty("file.execution.time"));
             this.configuration.setPreparationNormalizationDecimalPlaces(Integer.valueOf(properties.getProperty("data.preparation.normalization.decimal.places")));
             this.configuration.setFeaturesExtractedFile(properties.getProperty("file.features.extracted"));

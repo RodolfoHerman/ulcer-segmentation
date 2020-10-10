@@ -72,7 +72,7 @@ public class Test {
         directory.setLabeledImagePath(labeledImagePath);
 
         image = new Image(directory, conf.getResampleWidth(), conf.getResampleHeight());
-        imageService.openWithLabeled(image);
+        imageService.open(image);
 
         switch (testnumber) {
 

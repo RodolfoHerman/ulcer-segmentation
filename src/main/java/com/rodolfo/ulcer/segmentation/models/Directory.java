@@ -22,6 +22,9 @@ public class Directory {
     private File grabCutSegmentationBinaryPath;
     private File grabCutSegmentationPath;
     private File grabCutMaskPath;
+    private File skeletonWithBranchsPath;
+    private File skeletonWithoutBranchsPath;
+    private File labeledResampleImagePath;
 
     // Path files
     private File executionTimePath;
@@ -40,8 +43,16 @@ public class Directory {
         this.grabCutSegmentationBinaryPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationBinaryImageName()).concat(configuration.getExtension()));
         this.grabCutSegmentationPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationImageName()).concat(configuration.getExtension()));
         this.grabCutMaskPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutMaskImageName()).concat(configuration.getExtension()));
+        this.skeletonWithBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithBranchsName()).concat(configuration.getExtension()));
+        this.skeletonWithoutBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithoutBranchsName()).concat(configuration.getExtension()));
+        this.labeledResampleImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getLabeledResampleImageName()).concat(configuration.getExtension()));
         
         this.executionTimePath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getExecutionTimeFile()));
         this.featuresExtractedPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getFeaturesExtractedFile()));
+    }
+
+    public boolean hasLabeledImagePath() {
+
+        return !this.labeledImagePath.getAbsolutePath().equals(this.imagePath.getAbsolutePath());
     }
 }

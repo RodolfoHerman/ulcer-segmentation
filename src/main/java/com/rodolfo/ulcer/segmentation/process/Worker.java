@@ -39,8 +39,8 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class Worker extends Task<Void> {
 
-    private static final FileService fileService = new FileServiceImpl();
-    private static final ImageService imageService = new ImageServiceImpl();
+    private static final FileService FILE_SERVICE = new FileServiceImpl();
+    private static final ImageService IMAGE_SERVICE = new ImageServiceImpl();
 
     private Configuration conf;
     private boolean isWithSRRemoval;
@@ -119,10 +119,10 @@ public class Worker extends Task<Void> {
         normalization.preparation();
         updateProgress(process[index++], maxProcess);
 
-        fileService.saveDescriptors(normalization.getDescriptors(), this.conf.getDatasource());
+        FILE_SERVICE.saveDescriptors(normalization.getDescriptors(), this.conf.getDatasource());
         updateProgress(process[index++], maxProcess);
 
-        fileService.saveMinMaxDescriptors(normalization.getMinMaxDescriptors(), this.conf.getMinMax());
+        FILE_SERVICE.saveMinMaxDescriptors(normalization.getMinMaxDescriptors(), this.conf.getMinMax());
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);
@@ -130,13 +130,13 @@ public class Worker extends Task<Void> {
 
     private void segmentation() throws Exception {
 
-        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
         int maxProcess = process.length;
         int index = 0;
 
-        DataSource dataSource = fileService.openDataSoruce(this.conf.getDatasource());
-        Object model = fileService.openMlModel(this.conf.getMlModel());
-        Map<String,List<Double>> minMax = fileService.openMinMaxDescriptors(this.conf.getMinMax());
+        DataSource dataSource = FILE_SERVICE.openDataSoruce(this.conf.getDatasource());
+        Object model = FILE_SERVICE.openMlModel(this.conf.getMlModel());
+        Map<String,List<Double>> minMax = FILE_SERVICE.openMinMaxDescriptors(this.conf.getMinMax());
 
         List<DescriptorFactory> dFactories = new ArrayList<>();
         List<Descriptor> descriptors = new ArrayList<>();
@@ -147,7 +147,7 @@ public class Worker extends Task<Void> {
             System.exit(1);
         }
 
-        imageService.open(this.image);
+        IMAGE_SERVICE.open(this.image);
         updateProgress(process[index++], maxProcess);
 
         if(isWithSRRemoval) {
@@ -214,7 +214,15 @@ public class Worker extends Task<Void> {
         grabcut.createGrabCutHumanMask();
         updateProgress(process[index++], maxProcess);
 
-        // TODO: salvar imagens e salvar tempo execução
+        this.image.setGrabCutHumanMask(grabcut.getGrabCutHumanMask());
+        this.image.setFinalUlcerSegmentation(grabcut.getFinalUlcerSegmentation());
+        this.image.setFinalBinarySegmentation(grabcut.getFinalBinarySegmentation());
+        this.image.setMlCLassifiedImage(ml.getClassified());
+        this.image.setSkeletonWithBranchs(skeletonization.getSkeletonWithBranchs());
+        this.image.setSkeletonWithoutBranchs(skeletonization.getSkeletonWithoutBranchsNot());
+
+        IMAGE_SERVICE.save(this.image);
+        updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);
     }
@@ -232,8 +240,16 @@ public class Worker extends Task<Void> {
 
         List<Descriptor> descriptors2Save = new ArrayList<>();
 
-        imageService.openWithLabeled(this.image);
+        IMAGE_SERVICE.open(this.image);
         updateProgress(process[index++], maxProcess);
+
+        if(!this.image.getDirectory().hasLabeledImagePath()) {
+
+            throw new IllegalArgumentException(
+                "Não existe a imagem rotulada para realizar a extração de características no camiho: " 
+                + this.image.getDirectory().getDirPath().getAbsolutePath()
+            );
+        }
 
         if(isWithSRRemoval) {
 
@@ -312,17 +328,13 @@ public class Worker extends Task<Void> {
         );
         updateProgress(process[index++], maxProcess);
 
-        // TODO: refatorar para passar apenas o objeto Image e tratar o que será salvo no service
-        fileService.saveDescriptors(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
+        FILE_SERVICE.saveDescriptors(descriptors2Save, this.image.getDirectory().getFeaturesExtractedPath());
         updateProgress(process[index++], maxProcess);
         
-        imageService.save(superpixels.getContourImage(), this.image.getDirectory().getSuperpixelsLabelsPath());
-        updateProgress(process[index++], maxProcess);
+        this.image.setSuperpixelsContourImage(superpixels.getContourImage());
+        this.image.setSuperpixelsColorInformativeImage(superpixels.getColorInformativePixels());
 
-        imageService.save(superpixels.getColorInformativePixels(), this.image.getDirectory().getSuperpixelsInformationalPath());
-        updateProgress(process[index++], maxProcess);
-        
-        imageService.save(this.image.getImageWithoutReflection(), this.image.getDirectory().getImageWithoutReflectionsPath());
+        IMAGE_SERVICE.save(this.image);
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);

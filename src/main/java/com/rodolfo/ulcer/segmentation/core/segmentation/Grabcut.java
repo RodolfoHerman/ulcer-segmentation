@@ -54,7 +54,7 @@ public class Grabcut implements Process {
         Mat comparator2 = new Mat(1, 1, opencv_core.CV_8U, new Scalar(Double.valueOf(opencv_imgproc.GC_FGD)));
 
         opencv_imgproc.grabCut(
-            this.image.getImage(), 
+            this.image.getImageWithoutReflection(), 
             auxMask, 
             new Rect(), 
             bgdModel, 
@@ -66,8 +66,8 @@ public class Grabcut implements Process {
         opencv_core.compare(auxMask, comparator1, aux1, opencv_core.CMP_EQ);
         opencv_core.compare(auxMask, comparator2, aux2, opencv_core.CMP_EQ); 
 
-        this.image.getImage().copyTo(this.finalUlcerSegmentation, aux1);
-        this.image.getImage().copyTo(this.finalUlcerSegmentation, aux2);
+        this.image.getImageWithoutReflection().copyTo(this.finalUlcerSegmentation, aux1);
+        this.image.getImageWithoutReflection().copyTo(this.finalUlcerSegmentation, aux2);
     }
 
     private void createMaskRegionsForGrabcut() {

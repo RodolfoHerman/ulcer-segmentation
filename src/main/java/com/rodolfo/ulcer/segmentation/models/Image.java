@@ -14,6 +14,17 @@ public class Image {
     private Mat image;
     private Mat labeledImage;
     private Mat imageWithoutReflection;
+
+    private Mat grabCutHumanMask;
+    private Mat finalUlcerSegmentation;
+    private Mat finalBinarySegmentation;
+    private Mat skeletonWithBranchs;
+    private Mat skeletonWithoutBranchs;
+    private Mat mlCLassifiedImage;
+
+    private Mat superpixelsContourImage;
+    private Mat superpixelsColorInformativeImage;
+
     private int resampleWidth;
     private int resampleHeight;
     private Directory directory;

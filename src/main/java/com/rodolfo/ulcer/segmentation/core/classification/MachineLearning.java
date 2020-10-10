@@ -41,12 +41,20 @@ public abstract class MachineLearning {
         this.instance.setDataset(instances);
     }
 
+    public abstract void classify() throws Exception;
+
     public Mat getOutlineFilled() {
 
         return OpenCV.findLargerOutlineAndFill(this.classified);
     }
 
-    public abstract void classify() throws Exception;
+    protected void setValues(Descriptor descriptor) {
+        
+        List<Double> values = descriptor.getDescriptors();
 
-    protected abstract void setValues(Descriptor descriptor);
+        for(int index = 0; index < values.size(); index++) {
+
+            this.instance.setValue(index, values.get(index));
+        }
+    }
 }
