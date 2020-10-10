@@ -119,10 +119,10 @@ public class Grabcut implements Process {
         Mat comparator1 = new Mat(1, 1, opencv_core.CV_8U, Scalar.WHITE);
 
         opencv_core.compare(this.finalUlcerSegmentation, comparator1, aux1, opencv_core.CMP_EQ);
+        aux1.convertTo(aux1, opencv_core.CV_8UC1);
 
-        aux1 = OpenCV.erodeByCross(aux1, 3);
-        aux1 = OpenCV.dilateByCross(aux1, 3);
+        Mat channel = OpenCV.getMatChannel(aux1, 0);
 
-        aux1.convertTo(this.finalBinarySegmentation, opencv_core.CV_8UC1);
+        opencv_core.bitwise_not(OpenCV.findLargerOutlineAndFill(channel), this.finalBinarySegmentation);
     }
 }
