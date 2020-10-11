@@ -125,4 +125,15 @@ public class Grabcut implements Process {
 
         opencv_core.bitwise_not(OpenCV.findLargerOutlineAndFill(channel), this.finalBinarySegmentation);
     }
+
+    public void createHumanMaskWithLabeledContour() {
+
+        if(this.image.getDirectory().hasLabeledImagePath()) {
+
+            Mat gray = OpenCV.matImage2GRAY(this.image.getLabeledImage());
+            Mat contour = OpenCV.dilateByCross(OpenCV.findLargerOutline(OpenCV.findLargerOutlineAndFill(gray)), 3);
+
+            opencv_core.add(contour, this.grabCutHumanMask, this.grabCutHumanMask);
+        }
+    }
 }

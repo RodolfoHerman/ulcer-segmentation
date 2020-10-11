@@ -555,7 +555,7 @@ public class OpenCV {
         return dst;
     }
 
-    public static Mat findLargerContour(Mat src) {
+    private static Mat findLargerContour(Mat src) {
 
         MatVector contours = new MatVector();
         Mat largerOutline = null;

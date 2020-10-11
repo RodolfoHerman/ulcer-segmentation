@@ -213,6 +213,8 @@ public class Worker extends Task<Void> {
         grabcut.createGrabCutHumanMask();
         updateProgress(process[index++], maxProcess);
 
+        grabcut.createHumanMaskWithLabeledContour();
+
         this.image.setGrabCutHumanMask(grabcut.getGrabCutHumanMask());
         this.image.setFinalUlcerSegmentation(grabcut.getFinalUlcerSegmentation());
         this.image.setFinalBinarySegmentation(grabcut.getFinalBinarySegmentation());
