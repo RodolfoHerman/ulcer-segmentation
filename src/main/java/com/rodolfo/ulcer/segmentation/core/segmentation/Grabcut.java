@@ -113,9 +113,10 @@ public class Grabcut implements Process {
 
     public void createFinalBinarySegmentation() {
 
-        this.finalBinarySegmentation = new Mat();
+        this.finalBinarySegmentation = Mat.zeros(this.finalUlcerSegmentation.size(), opencv_core.CV_8UC1).asMat();
 
-        Mat aux1 = Mat.zeros(this.finalUlcerSegmentation.size(), opencv_core.CV_8U).asMat(); //new Mat(this.finalUlcerSegmentation.size(), opencv_core.CV_8UC1);
+        Mat segmentationAux = new Mat(this.finalUlcerSegmentation.rows() + 2, this.finalUlcerSegmentation.cols() + 2, opencv_core.CV_8UC1, new Scalar(255.0));
+        Mat aux1 = Mat.zeros(this.finalUlcerSegmentation.size(), opencv_core.CV_8U).asMat();
         Mat comparator1 = new Mat(1, 1, opencv_core.CV_8U, Scalar.WHITE);
 
         opencv_core.compare(this.finalUlcerSegmentation, comparator1, aux1, opencv_core.CMP_EQ);
@@ -123,7 +124,11 @@ public class Grabcut implements Process {
 
         Mat channel = OpenCV.getMatChannel(aux1, 0);
 
-        opencv_core.bitwise_not(OpenCV.findLargerOutlineAndFill(channel), this.finalBinarySegmentation);
+        OpenCV.pasteImageOnBackground(segmentationAux, channel, 1, segmentationAux.rows() - 1, 1, segmentationAux.cols() - 1);
+
+        Mat largeContour = OpenCV.findLargerOutlineAndFill(segmentationAux);
+
+        opencv_core.bitwise_not(OpenCV.croppMat(largeContour, 1, 1, segmentationAux.rows() - 2, segmentationAux.cols() - 2), this.finalBinarySegmentation);
     }
 
     public void createHumanMaskWithLabeledContour() {
