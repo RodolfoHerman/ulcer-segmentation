@@ -8,6 +8,8 @@ import java.util.Map;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.core.classification.MachineLearning;
 import com.rodolfo.ulcer.segmentation.core.classification.SVM;
+import com.rodolfo.ulcer.segmentation.core.data.preparation.Normalization;
+import com.rodolfo.ulcer.segmentation.core.data.preparation.Preparation;
 import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.core.descriptors.DescriptorFactory;
 import com.rodolfo.ulcer.segmentation.core.preprocessing.light_removal.LightMaskDetection;
@@ -20,8 +22,6 @@ import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.Superpixels
 import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.SuperpixelsSLIC;
 import com.rodolfo.ulcer.segmentation.core.segmentation.Grabcut;
 import com.rodolfo.ulcer.segmentation.core.segmentation.Skeletonization;
-import com.rodolfo.ulcer.segmentation.core.data.preparation.Normalization;
-import com.rodolfo.ulcer.segmentation.core.data.preparation.Preparation;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
@@ -204,12 +204,11 @@ public class Worker extends Task<Void> {
         Skeletonization skeletonization = new Skeletonization(this.conf, ml.getOutlineFilled());
         skeletonization.process();
         updateProgress(process[index++], maxProcess);
-        
-        Grabcut grabcut = new Grabcut(this.image, this.conf, ml.getOutlineFilled(), skeletonization);
+
+        Grabcut grabcut = new Grabcut(this.image, this.conf, ml.getOutlineFilled(), skeletonization.getSkeletonWithoutBranchs());
         grabcut.process();
         updateProgress(process[index++], maxProcess);
 
-        skeletonization.createSkeletonImageView();
         grabcut.createFinalBinarySegmentation();
         grabcut.createGrabCutHumanMask();
         updateProgress(process[index++], maxProcess);
@@ -218,7 +217,7 @@ public class Worker extends Task<Void> {
         this.image.setFinalUlcerSegmentation(grabcut.getFinalUlcerSegmentation());
         this.image.setFinalBinarySegmentation(grabcut.getFinalBinarySegmentation());
         this.image.setMlCLassifiedImage(ml.getClassified());
-        this.image.setSkeletonWithBranchs(skeletonization.getSkeletonWithBranchs());
+        this.image.setSkeletonWithBranchs(skeletonization.getSkeletonView());
         this.image.setSkeletonWithoutBranchs(skeletonization.getSkeletonWithoutBranchsNot());
 
         IMAGE_SERVICE.save(this.image);

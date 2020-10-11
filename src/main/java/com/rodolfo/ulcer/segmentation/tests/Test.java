@@ -24,6 +24,7 @@ import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.Superpixels
 import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.SuperpixelsLSC;
 import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.SuperpixelsSEEDS;
 import com.rodolfo.ulcer.segmentation.core.preprocessing.superpixels.SuperpixelsSLIC;
+import com.rodolfo.ulcer.segmentation.core.segmentation.Skeletonization;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.models.Directory;
 import com.rodolfo.ulcer.segmentation.models.Image;
@@ -36,6 +37,7 @@ import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
+import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -58,6 +60,7 @@ public class Test {
     private static final int DESCRIPTORS_EXTRACTION = 11;
     private static final int MIN_MAX_CONTENT = 12;
     private static final int DATA_SOURCE_CONTENT = 13;
+    private static final int SKELETON = 14;
 
     public Test(int testnumber, Configuration configuration) {
 
@@ -157,6 +160,12 @@ public class Test {
             case DATA_SOURCE_CONTENT:
 
                 Test.readDataSourceContent();
+
+            break;
+
+            case SKELETON:
+
+                Test.testSkeletonMethods();
 
             break;
 
@@ -411,6 +420,28 @@ public class Test {
         }
     }
 
+    private static void testSkeletonMethods() {
+
+        Directory directory = new Directory();
+        ImageService imageService = new ImageServiceImpl();
+
+        File imagePath = new File(Test.class.getClassLoader().getResource("tests/skeleton.jpg").getFile());
+
+        directory.setImagePath(imagePath);
+
+        image = new Image(directory, conf.getResampleWidth(), conf.getResampleHeight());
+        imageService.open(image);
+
+        image.setImage(OpenCV.getMatChannel(image.getImage(), 1));
+
+        skeletonNormalizer(image.getImage());
+
+        Skeletonization skeletonization = new Skeletonization(conf, image.getImage());
+        skeletonization.process();
+
+        OpenCV.showImageGUI(skeletonization.getSkeletonView());
+    }
+
     private static Superpixels createSuperpixel() {
 
         LightMaskDetection lDetection = new SpecularReflectionDetection(conf.getSpecularReflectionElemntSize(), conf.getSpecularReflectionThreshold());
@@ -425,5 +456,26 @@ public class Test {
         slic.createSuperpixels();
 
         return slic;
+    }
+
+    private static void skeletonNormalizer(Mat img) {
+
+        UByteRawIndexer index = img.createIndexer();
+
+        int total = img.rows() * img.cols();
+
+        for(int pointer = 0; pointer < total; pointer++) {
+
+            if(index.get(pointer) < 200) {
+
+                index.put(pointer, 0);
+
+            } else {
+
+                index.put(pointer, 255);
+            }
+        }
+
+        index.release();
     }
 }

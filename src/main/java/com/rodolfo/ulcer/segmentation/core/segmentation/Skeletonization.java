@@ -8,58 +8,63 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Article implementation:
  * A Fast Parallel Algorithm for Thinning Digital Patterns (Skeleton Zhang-Suen)
  * Adapted from:
  * https://github.com/krishraghuram/Zhang-Suen-Skeletonization/blob/master/skeletonization.hpp
  */
-@Getter
-@Setter
 public class Skeletonization implements Process {
 
     private Configuration conf;
-    private Mat skeletonWithBranchs;
-    private Mat skeletonWithoutBranchs;
+    private Mat skeleton;
 
     public Skeletonization(Configuration conf, Mat outlineFilled) {
 
         this.conf = conf;
-        this.skeletonWithBranchs = outlineFilled.clone();
+        this.skeleton = outlineFilled.clone();
     }
 
     @Override
     public void process() {
 
-        Mat value = new Mat(this.skeletonWithBranchs.size(), opencv_core.CV_8UC1, Scalar.WHITE);
-        Double area = this.calculateArea(this.skeletonWithBranchs) * this.conf.getSkeletonAreaErode();
+        Mat value = new Mat(this.skeleton.size(), opencv_core.CV_8UC1, Scalar.WHITE);
+        Double area = this.calculateArea(this.skeleton) * this.conf.getSkeletonAreaErode();
 
-        opencv_core.divide(this.skeletonWithBranchs, value, this.skeletonWithBranchs);
+        opencv_core.divide(this.skeleton, value, this.skeleton);
 
         do {
             
-            erode(this.skeletonWithBranchs, 0);
-            erode(this.skeletonWithBranchs, 1);
+            erode(this.skeleton, 0);
+            erode(this.skeleton, 1);
 
-        } while (this.calculateArea(this.skeletonWithBranchs) > area);
+        } while (this.calculateArea(this.skeleton) > area);
 
-        opencv_core.multiply(this.skeletonWithBranchs, value, this.skeletonWithBranchs);
-        this.skeletonWithoutBranchs = OpenCV.erodeByCross(this.skeletonWithBranchs, this.conf.getSkeletonKernelErodeSize());
+        opencv_core.multiply(this.skeleton, value, this.skeleton);
     }
 
-    public void createSkeletonImageView() {
+    public Mat getSkeleton() {
 
-        opencv_core.bitwise_not(this.skeletonWithBranchs, this.skeletonWithBranchs);
-        this.skeletonWithBranchs = OpenCV.erodeByCross(this.skeletonWithBranchs, 3);
+        return this.skeleton;
+    }
+
+    public Mat getSkeletonView() {
+
+        Mat resp = new Mat();
+        opencv_core.bitwise_not(this.skeleton, resp);
+
+        return OpenCV.erodeByCross(resp, 3);
+    }
+
+    public Mat getSkeletonWithoutBranchs() {
+
+        return OpenCV.erodeByCross(this.skeleton, this.conf.getSkeletonKernelErodeSize());
     }
 
     public Mat getSkeletonWithoutBranchsNot() {
 
         Mat resp = new Mat();
-        opencv_core.bitwise_not(this.skeletonWithoutBranchs, resp);
+        opencv_core.bitwise_not(this.getSkeletonWithoutBranchs(), resp);
 
         return resp;
     }

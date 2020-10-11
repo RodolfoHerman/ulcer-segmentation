@@ -22,19 +22,19 @@ public class Grabcut implements Process {
     private Configuration conf;
 
     private Mat outlineFilled;
-    private Skeletonization skeletonization;
+    private Mat skeleton;
     
     private Mat finalBinarySegmentation;
     private Mat finalUlcerSegmentation;
     private Mat grabCutMask;
     private Mat grabCutHumanMask;
 
-    public Grabcut(Image image, Configuration conf, Mat outlineFilled, Skeletonization skeletonization) {
+    public Grabcut(Image image, Configuration conf, Mat outlineFilled, Mat skeleton) {
 
         this.image = image;
         this.conf = conf;
         this.outlineFilled = outlineFilled.clone();
-        this.skeletonization = skeletonization;
+        this.skeleton = skeleton;
         this.finalUlcerSegmentation = new Mat(this.image.getSize(), this.image.getType(), Scalar.WHITE);
     }
 
@@ -73,7 +73,7 @@ public class Grabcut implements Process {
     private void createMaskRegionsForGrabcut() {
 
         Mat firstMask = OpenCV.findLargerOutlineAndFill(this.outlineFilled, opencv_imgproc.GC_PR_FGD, opencv_imgproc.GC_BGD);
-        this.grabCutMask = OpenCV.findLargerOutlineAndFill(this.skeletonization.getSkeletonWithoutBranchs(), firstMask, opencv_imgproc.GC_FGD);
+        this.grabCutMask = OpenCV.findLargerOutlineAndFill(this.skeleton, firstMask, opencv_imgproc.GC_FGD);
     }
 
     public void createGrabCutHumanMask() {

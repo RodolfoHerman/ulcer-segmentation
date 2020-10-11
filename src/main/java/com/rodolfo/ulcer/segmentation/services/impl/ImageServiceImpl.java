@@ -95,7 +95,11 @@ public class ImageServiceImpl implements ImageService {
 
 		if (image.getDirectory().getLabeledImagePath() == null || !image.getDirectory().getLabeledImagePath().exists()) {
 
-			log.warn("Caminho informado não possui a imagem rotulada, '{}'", image.getDirectory().getDirPath().getAbsolutePath());
+			log.warn("Caminho informado não possui a imagem rotulada, '{}'", 
+				image.getDirectory().getDirPath() != null 
+				? image.getDirectory().getDirPath().getAbsolutePath()
+				: "Caminho absoluto não encontrado"
+			);
 
 			image.getDirectory().setLabeledImagePath(image.getDirectory().getImagePath());
 		}
