@@ -34,13 +34,17 @@ public class Configuration {
     private String superpixelsLabelImageName;
     private String superpixelsInformationalImageName;
     private String svmClassificationImageName;
+    private String svmOverlappingName;
     private String grabcutSegmentationBinaryImageName;
     private String grabcutSegmentationImageName;
     private String grabcutMaskImageName;
+    private String grabcutOverlappingName;
     private String skeletonWithBranchsName;
     private String skeletonWithoutBranchsName;
     private String chooseDirectory;
-    private String executionTimeFile;
+    private String imageStatisticsSvmCsv;
+    private String imageStatisticsGrabCsv;
+    private String imageStatisticsVisualization;
     private String featuresExtractedFile;
 
     // Superpixels algorithm

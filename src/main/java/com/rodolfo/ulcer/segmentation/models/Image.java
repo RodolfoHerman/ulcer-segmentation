@@ -13,14 +13,17 @@ public class Image {
     
     private Mat image;
     private Mat labeledImage;
+    private Mat labeledFilledContourImage;
     private Mat imageWithoutReflection;
 
     private Mat grabCutHumanMask;
+    private Mat grabCutOverlappingImage;
     private Mat finalUlcerSegmentation;
     private Mat finalBinarySegmentation;
     private Mat skeletonWithBranchs;
     private Mat skeletonWithoutBranchs;
     private Mat mlCLassifiedImage;
+    private Mat mlOverlappingImage;
 
     private Mat superpixelsContourImage;
     private Mat superpixelsColorInformativeImage;
@@ -28,6 +31,8 @@ public class Image {
     private int resampleWidth;
     private int resampleHeight;
     private Directory directory;
+    private ImageStatistic svmImageStatistic;
+    private ImageStatistic grabImageStatistic;
 
     public Image() {}
 
@@ -76,5 +81,16 @@ public class Image {
     public Integer getType() {
 
         return this.image.type();
+    }
+
+    public Mat getLabeledFilledContourImage() {
+
+        if(this.labeledFilledContourImage == null) {
+
+            Mat gray = OpenCV.matImage2GRAY(this.labeledImage);
+            this.labeledFilledContourImage = OpenCV.findLargerOutlineAndFill(gray);
+        }
+        
+        return this.labeledFilledContourImage;
     }
 }

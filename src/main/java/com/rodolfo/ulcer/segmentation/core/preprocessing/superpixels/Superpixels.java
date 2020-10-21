@@ -116,8 +116,7 @@ public abstract class Superpixels {
 
         log.info("Criação dos superpixels para os conjuntos de treinamento");
 
-        Mat gray = OpenCV.matImage2GRAY(this.image.getLabeledImage());
-        Mat outlineFilled = OpenCV.findLargerOutlineAndFill(gray);
+        Mat outlineFilled = this.image.getLabeledFilledContourImage();
         // Mat largerOutline = OpenCV.dilateByCross(OpenCV.findLargerOutline(outlineFilled), 3);
         Mat largerOutline = OpenCV.findLargerOutline(outlineFilled);
 

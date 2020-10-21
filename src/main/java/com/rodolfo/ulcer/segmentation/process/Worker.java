@@ -25,10 +25,12 @@ import com.rodolfo.ulcer.segmentation.core.segmentation.Skeletonization;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
+import com.rodolfo.ulcer.segmentation.models.ImageStatistic;
 import com.rodolfo.ulcer.segmentation.services.FileService;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 import com.rodolfo.ulcer.segmentation.services.impl.FileServiceImpl;
 import com.rodolfo.ulcer.segmentation.services.impl.ImageServiceImpl;
+import com.rodolfo.ulcer.segmentation.utils.ImageStatisticUtil;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
@@ -130,9 +132,11 @@ public class Worker extends Task<Void> {
 
     private void segmentation() throws Exception {
 
-        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
         int maxProcess = process.length;
         int index = 0;
+        ImageStatistic svmImageStatistic;
+        ImageStatistic grabImageStatistic;
 
         DataSource dataSource = FILE_SERVICE.openDataSoruce(this.conf.getDatasource());
         Object model = FILE_SERVICE.openMlModel(this.conf.getMlModel());
@@ -159,6 +163,8 @@ public class Worker extends Task<Void> {
             this.image.setImageWithoutReflection(this.image.getImage());
         }
         updateProgress(process[index++], maxProcess);
+
+        Long startTime = System.currentTimeMillis();
         
         Superpixels superpixels = this.createSuperpixelsMethod();
         updateProgress(process[index++], maxProcess);
@@ -201,6 +207,8 @@ public class Worker extends Task<Void> {
         ml.classify();
         updateProgress(process[index++], maxProcess);
 
+        Long svmTime = System.currentTimeMillis();
+
         Skeletonization skeletonization = new Skeletonization(this.conf, ml.getOutlineFilled());
         skeletonization.process();
         updateProgress(process[index++], maxProcess);
@@ -210,10 +218,65 @@ public class Worker extends Task<Void> {
         updateProgress(process[index++], maxProcess);
 
         grabcut.createFinalBinarySegmentation();
+
+        Long grabTime = System.currentTimeMillis();
+
         grabcut.createGrabCutHumanMask();
         updateProgress(process[index++], maxProcess);
 
         grabcut.createHumanMaskWithLabeledContour();
+        updateProgress(process[index++], maxProcess);
+
+        Double execSvmTime = this.calculateExecutionTime(startTime, svmTime);
+        Double execGrabTime = this.calculateExecutionTime(startTime, grabTime);
+
+        if(this.image.getDirectory().hasLabeledImagePath()) {
+
+            svmImageStatistic = new ImageStatistic.Builder(
+                this.image,
+                MethodEnum.SVM, 
+                superpixels.getSuperpixelsAmount(), 
+                execSvmTime
+            ).overlappingImage(ml.getClassified(), this.image.getLabeledFilledContourImage())
+            .hasLabeledImage()
+            .sensitivity()
+            .specificity()
+            .precision()
+            .accuracy()
+            .iou()
+            .build();
+
+            grabImageStatistic = new ImageStatistic.Builder(
+                this.image,
+                MethodEnum.GRAB, 
+                superpixels.getSuperpixelsAmount(), 
+                execGrabTime
+            ).overlappingImage(grabcut.getFinalBinarySegmentation(), this.image.getLabeledFilledContourImage())
+            .hasLabeledImage()
+            .sensitivity()
+            .specificity()
+            .precision()
+            .accuracy()
+            .iou()
+            .build();
+        
+        } else {
+
+            svmImageStatistic = new ImageStatistic.Builder(
+                this.image,
+                MethodEnum.SVM, 
+                superpixels.getSuperpixelsAmount(), 
+                execSvmTime
+            ).build();
+
+            grabImageStatistic = new ImageStatistic.Builder(
+                this.image,
+                MethodEnum.GRAB, 
+                superpixels.getSuperpixelsAmount(), 
+                execGrabTime
+            ).build();
+        }
+        updateProgress(process[index++], maxProcess);
 
         this.image.setGrabCutHumanMask(grabcut.getGrabCutHumanMask());
         this.image.setFinalUlcerSegmentation(grabcut.getFinalUlcerSegmentation());
@@ -221,11 +284,42 @@ public class Worker extends Task<Void> {
         this.image.setMlCLassifiedImage(ml.getClassified());
         this.image.setSkeletonWithBranchs(skeletonization.getSkeletonView());
         this.image.setSkeletonWithoutBranchs(skeletonization.getSkeletonWithoutBranchsNot());
+        this.image.setMlOverlappingImage(svmImageStatistic.getOverlappingImage());
+        this.image.setGrabCutOverlappingImage(grabImageStatistic.getOverlappingImage());
+        updateProgress(process[index++], maxProcess);
 
         IMAGE_SERVICE.save(this.image);
+        FILE_SERVICE.saveImageStatistics(
+            (new ImageStatisticUtil(svmImageStatistic)).csvFormatter().toString(), 
+            svmImageStatistic.getImage().getDirectory().getStatisticsSvmCsvPath()
+        );
+        FILE_SERVICE.saveImageStatistics(
+            (new ImageStatisticUtil(grabImageStatistic)).csvFormatter().toString(), 
+            grabImageStatistic.getImage().getDirectory().getStatisticsGrabCsvPath()
+        );
+        FILE_SERVICE.saveImageStatistics(
+            this.getStatisticsMerged(svmImageStatistic, grabImageStatistic),
+            grabImageStatistic.getImage().getDirectory().getStatisticsVisualizationPath()
+        );
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);
+    }
+
+    private String getStatisticsMerged(ImageStatistic svmImageStatistic, ImageStatistic grabImageStatistic) {
+
+        String svmStatistics = (new ImageStatisticUtil(svmImageStatistic)).userViewFormatter().toString();
+        String grabtatistics = (new ImageStatisticUtil(grabImageStatistic)).userViewFormatter().toString();
+
+        return svmStatistics
+            .concat(System.lineSeparator())
+            .concat(System.lineSeparator())
+            .concat(grabtatistics);
+    }
+
+    private Double calculateExecutionTime(Long startTime, long finalTime) {
+
+        return ((finalTime - startTime)/1000.0);
     }
 
     private boolean validateFiles(DataSource datasource, Object model, Map<String,List<Double>> minMax) {

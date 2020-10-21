@@ -20,4 +20,6 @@ public interface FileService {
 
     Object openMlModel(File path);
 
+    void saveImageStatistics(String statistic, File path);
+
 }

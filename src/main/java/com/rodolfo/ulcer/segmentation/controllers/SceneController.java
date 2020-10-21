@@ -13,13 +13,11 @@ import java.util.stream.Collectors;
 
 import com.rodolfo.ulcer.segmentation.MainApp;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
-import com.rodolfo.ulcer.segmentation.core.classification.MachineLearning;
 import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.process.Worker;
 import com.rodolfo.ulcer.segmentation.process.WorkerMonitor;
-import com.rodolfo.ulcer.segmentation.tests.Test;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.apache.commons.lang3.StringUtils;
@@ -125,14 +123,18 @@ public class SceneController implements Initializable {
             this.configuration.setSuperpixelsLabelImageName(properties.getProperty("image.superpixels.label.name"));
             this.configuration.setSuperpixelsInformationalImageName(properties.getProperty("image.superpixels.informational.name"));
             this.configuration.setSvmClassificationImageName(properties.getProperty("image.svm.classification.name"));
+            this.configuration.setSvmOverlappingName(properties.getProperty("image.svm.overlapping"));
             this.configuration.setGrabcutSegmentationBinaryImageName(properties.getProperty("image.grabcut.segmentation.binary.name"));
             this.configuration.setGrabcutSegmentationImageName(properties.getProperty("image.grabcut.segmentation.name"));
             this.configuration.setGrabcutMaskImageName(properties.getProperty("image.grabcut.mask.name"));
+            this.configuration.setGrabcutOverlappingName(properties.getProperty("image.grabcut.overlapping"));
             this.configuration.setSkeletonWithBranchsName(properties.getProperty("image.skeleton.with.brnachs"));
             this.configuration.setSkeletonWithoutBranchsName(properties.getProperty("image.skeleton.without.brnachs"));
-            this.configuration.setExecutionTimeFile(properties.getProperty("file.execution.time"));
             this.configuration.setPreparationNormalizationDecimalPlaces(Integer.valueOf(properties.getProperty("data.preparation.normalization.decimal.places")));
             this.configuration.setFeaturesExtractedFile(properties.getProperty("file.features.extracted"));
+            this.configuration.setImageStatisticsSvmCsv(properties.getProperty("image.statistics.svm.csv"));
+            this.configuration.setImageStatisticsGrabCsv(properties.getProperty("image.statistics.grab.csv"));
+            this.configuration.setImageStatisticsVisualization(properties.getProperty("image.statistics.visualization"));
             this.configuration.setDatasourceSEEDSName(properties.getProperty("ml.file.datasource.seeds.name"));
             this.configuration.setDatasourceLSCName(properties.getProperty("ml.file.datasource.lsc.name"));
             this.configuration.setDatasourceSLICName(properties.getProperty("ml.file.datasource.slic.name"));

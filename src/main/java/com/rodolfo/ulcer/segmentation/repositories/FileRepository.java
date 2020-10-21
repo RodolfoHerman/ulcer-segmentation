@@ -108,4 +108,17 @@ public class FileRepository {
         return null;
     }
 
+    public void saveImageStatistics(String statistics, File path) {
+
+        try(BufferedWriter bWriter = new BufferedWriter(new FileWriter(path))) {
+
+            bWriter.write(statistics);
+            bWriter.flush();
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+        }
+    }
+
 }

@@ -15,7 +15,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class FileServiceImpl implements FileService {
 
-    private static final FileRepository fileRepository = new FileRepository();
+    private static final FileRepository FILE_REPOSITORY = new FileRepository();
     private static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
 
     @Override
@@ -23,7 +23,7 @@ public class FileServiceImpl implements FileService {
 
         log.info("Salvando descritores no caminho : {}", path.getAbsolutePath());
 
-        fileRepository.saveDescriptors(descriptors, path);
+        FILE_REPOSITORY.saveDescriptors(descriptors, path);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class FileServiceImpl implements FileService {
 
         log.info("Salvando min/max descritores no caminho : {}", path.getAbsolutePath());
 
-        fileRepository.saveMinMaxDescriptors(minMaxDescriptors, path);
+        FILE_REPOSITORY.saveMinMaxDescriptors(minMaxDescriptors, path);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class FileServiceImpl implements FileService {
 
         log.info("Abrindo min/max descritores no caminho : {}", path.getAbsolutePath());
 
-        return fileRepository.openMinMaxDescriptors(path);
+        return FILE_REPOSITORY.openMinMaxDescriptors(path);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class FileServiceImpl implements FileService {
         
         log.info("Abrindo datasource no caminho : {}", path.getAbsolutePath());
 
-        return fileRepository.openDataSoruce(path);
+        return FILE_REPOSITORY.openDataSoruce(path);
     }
 
     @Override
@@ -55,7 +55,13 @@ public class FileServiceImpl implements FileService {
         
         log.info("Abrindo o modelo do classificador no caminho : {}", path.getAbsolutePath());
 
-        return fileRepository.openMlModel(path);
+        return FILE_REPOSITORY.openMlModel(path);
+    }
+
+    @Override
+    public void saveImageStatistics(String statistic, File path) {
+
+        FILE_REPOSITORY.saveImageStatistics(statistic, path);
     }
     
 }

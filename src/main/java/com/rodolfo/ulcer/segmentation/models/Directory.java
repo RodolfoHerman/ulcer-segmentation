@@ -19,15 +19,19 @@ public class Directory {
     private File superpixelsLabelsPath;
     private File superpixelsInformationalPath;
     private File svmClassificatioPath;
+    private File svmOverlappingPath;
     private File grabCutSegmentationBinaryPath;
     private File grabCutSegmentationPath;
     private File grabCutMaskPath;
+    private File grabCutOverlappingPath;
     private File skeletonWithBranchsPath;
     private File skeletonWithoutBranchsPath;
     private File labeledResampleImagePath;
 
     // Path files
-    private File executionTimePath;
+    private File statisticsSvmCsvPath;
+    private File statisticsGrabCsvPath;
+    private File statisticsVisualizationPath;
     private File featuresExtractedPath;
 
     public void updatePaths(File dirPath, String imageName, Configuration configuration) {
@@ -40,14 +44,18 @@ public class Directory {
         this.superpixelsLabelsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSuperpixelsLabelImageName()).concat(configuration.getExtension()));
         this.superpixelsInformationalPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSuperpixelsInformationalImageName()).concat(configuration.getExtension()));
         this.svmClassificatioPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSvmClassificationImageName()).concat(configuration.getExtension()));
+        this.svmOverlappingPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSvmOverlappingName()).concat(configuration.getExtension()));
         this.grabCutSegmentationBinaryPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationBinaryImageName()).concat(configuration.getExtension()));
         this.grabCutSegmentationPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutSegmentationImageName()).concat(configuration.getExtension()));
         this.grabCutMaskPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutMaskImageName()).concat(configuration.getExtension()));
+        this.grabCutOverlappingPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getGrabcutOverlappingName()).concat(configuration.getExtension()));
         this.skeletonWithBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithBranchsName()).concat(configuration.getExtension()));
         this.skeletonWithoutBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithoutBranchsName()).concat(configuration.getExtension()));
         this.labeledResampleImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getLabeledResampleImageName()).concat(configuration.getExtension()));
         
-        this.executionTimePath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getExecutionTimeFile()));
+        this.statisticsSvmCsvPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageStatisticsSvmCsv()));
+        this.statisticsGrabCsvPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageStatisticsGrabCsv()));
+        this.statisticsVisualizationPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageStatisticsVisualization()));
         this.featuresExtractedPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getFeaturesExtractedFile()));
     }
 

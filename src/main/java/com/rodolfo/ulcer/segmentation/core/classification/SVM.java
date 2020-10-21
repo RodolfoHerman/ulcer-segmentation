@@ -26,6 +26,9 @@ public class SVM extends MachineLearning {
         LibSVM svm = (LibSVM) this.model;
         this.classified = new Mat(this.imageSize, opencv_core.CV_8UC1, Scalar.WHITE);
 
+        final Integer ULCER = 0;
+        final Integer NON_ULCER = 255;
+
         UByteRawIndexer index = this.classified.createIndexer();
 
         for(Descriptor descriptor: this.descriptors) {
@@ -34,7 +37,7 @@ public class SVM extends MachineLearning {
 
             double[] classificationResult = svm.distributionForInstance(this.instance);
 
-            int assignClass = classificationResult[0] > classificationResult[1] ? 0 : 255;
+            int assignClass = classificationResult[0] > classificationResult[1] ? ULCER : NON_ULCER;
 
             descriptor.getPoints().stream().forEach(point -> {
 

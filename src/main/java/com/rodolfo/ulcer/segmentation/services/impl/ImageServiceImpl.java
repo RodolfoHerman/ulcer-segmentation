@@ -77,6 +77,15 @@ public class ImageServiceImpl implements ImageService {
 			IMAGE_REPOSITORY.save(image.getSuperpixelsColorInformativeImage(), image.getDirectory().getSuperpixelsInformationalPath());
 		}
 
+		if(image.getMlOverlappingImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getMlOverlappingImage(), image.getDirectory().getSvmOverlappingPath());
+		}
+
+		if(image.getGrabCutOverlappingImage() != null) {
+
+			IMAGE_REPOSITORY.save(image.getGrabCutOverlappingImage(), image.getDirectory().getGrabCutOverlappingPath());
+		}
 	}
 
 	private void verifyImage(Image image) {
