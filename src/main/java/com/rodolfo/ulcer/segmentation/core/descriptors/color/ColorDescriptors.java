@@ -8,14 +8,10 @@ import com.rodolfo.ulcer.segmentation.utils.statistic.HistogramStatistic;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 
 public class ColorDescriptors {
-
-    private static final Logger log = LoggerFactory.getLogger(ColorDescriptors.class);
 
     private Mat img;
     private Map<Float,Integer> histogram;
@@ -33,8 +29,6 @@ public class ColorDescriptors {
     }
 
     private void createHistogram() {
-
-        log.info("Criando o histograma para os descritores de Cor");
 
         Mat imgF = this.img.clone();
         List<Float> values = new ArrayList<>();
@@ -56,8 +50,6 @@ public class ColorDescriptors {
     }
 
     private void twoHighestPeaksHistograms() {
-
-        log.info("Criando a frequência e intensidade dos dois picos mais altos no histograma após a aplicação do filtro de média móvel");
 
         Mat hist = new Mat();
 

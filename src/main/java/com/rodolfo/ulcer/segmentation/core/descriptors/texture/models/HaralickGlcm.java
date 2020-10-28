@@ -10,15 +10,11 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.Data;
 
 @Data
 public class HaralickGlcm implements Process {
-    
-    private static final Logger log = LoggerFactory.getLogger(HaralickGlcm.class);
 
     private Mat img;
     private Mat glcm;
@@ -35,8 +31,6 @@ public class HaralickGlcm implements Process {
     }
 
     public void process() {
-
-        log.info("Criação da GLCM de grau : {}", this.gde.toString());
 
         int maxIntensity = 255; //OpenCV.getMinMaxIntensityFromSuperpixel(this.img, this.points, this.distance)[1];
 

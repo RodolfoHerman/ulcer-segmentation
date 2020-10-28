@@ -2,18 +2,11 @@ package com.rodolfo.ulcer.segmentation.utils.statistic;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class HistogramStatistic {
-
-    private static final Logger log = LoggerFactory.getLogger(HistogramStatistic.class);
     
     private HistogramStatistic() {}
 
     public static Double mean(Map<Float,Integer> histogram) {
-
-        log.info("Calculando o valor de média");
 
         Double mean = 0.0;
         Double total = 0.0;
@@ -37,8 +30,6 @@ public class HistogramStatistic {
     }
 
     public static Double variance(Map<Float,Integer> histogram, Double mean) {
-
-        log.info("Calculando o valor de variância");
         
         Double variance = 0.0;
         Double total = -1.0;
@@ -62,8 +53,6 @@ public class HistogramStatistic {
     }
     
     public static Double standardDeviation(Map<Float,Integer> histogram, Double mean) {
-
-        log.info("Calculando o valor de desvio padrão");
         
         Double standardDeviation = 0.0;
         Double total = 0.0;
@@ -86,8 +75,6 @@ public class HistogramStatistic {
     }
 
     public static Double entropy(Map<Float,Integer> histogram) {
-
-        log.info("Calculando o valor de entropia");
         
         Double entropy = 0.0;
         Double total = 0.0;
@@ -121,8 +108,6 @@ public class HistogramStatistic {
 
     public static Double energy(Map<Float,Integer> histogram, Float intensity) {
         
-        log.info("Calculando o valor de energia");
-
         Double energy = 0.0;
 
         int val;
@@ -144,8 +129,6 @@ public class HistogramStatistic {
     }
 
     public static Double asymmetry(Map<Float,Integer> histogram, Double mean, Double standarDeviation) {
-
-        log.info("Calculando o valor de assimetria");
         
         Double asymmetry = 0.0;
         standarDeviation = standarDeviation == 0.0 ? 1.0 : standarDeviation;
@@ -170,8 +153,6 @@ public class HistogramStatistic {
 
     public static Double kurtose(Map<Float,Integer> histogram, Double mean) {
 
-        log.info("Calculando o valor de curtose");
-        
         Double numerator   = 0.0;
         Double denominator = 0.0;
 

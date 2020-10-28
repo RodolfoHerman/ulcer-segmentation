@@ -6,12 +6,11 @@ import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_ximgproc;
 import org.bytedeco.javacpp.opencv_ximgproc.SuperpixelLSC;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SuperpixelsLSC extends Superpixels {
-
-    private static final Logger log = LoggerFactory.getLogger(SuperpixelsLSC.class);
 
     public SuperpixelsLSC(Image image, Integer imageEdge, Integer iterations, Integer amount, Float compactness) {
 
@@ -20,9 +19,9 @@ public class SuperpixelsLSC extends Superpixels {
 
     @Override
     public void createSuperpixels() {
-
-        log.info("Segmentação em superpixels com o método LSC");
         
+        log.info("Segmentando a imagem em superpixel com o método LSC");
+
         Mat imgLAB = OpenCV.matImage2LAB(this.image.getImageWithoutReflection());
 
         SuperpixelLSC lsc = opencv_ximgproc.createSuperpixelLSC(

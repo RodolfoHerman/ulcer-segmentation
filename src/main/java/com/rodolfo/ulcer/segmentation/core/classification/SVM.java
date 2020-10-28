@@ -8,11 +8,15 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 import weka.classifiers.functions.LibSVM;
 import weka.core.converters.ConverterUtils.DataSource;
 
+@Slf4j
 public class SVM extends MachineLearning {
 
     public SVM(Object model, DataSource dataSource, Size imageSize, List<Descriptor> descriptors) {
@@ -22,6 +26,8 @@ public class SVM extends MachineLearning {
 
     @Override
     public void classify() throws Exception {
+
+        log.info("Realizando a classificação dos superpixels em úlcera ou não úlcera com o SVM");
 
         LibSVM svm = (LibSVM) this.model;
         this.classified = new Mat(this.imageSize, opencv_core.CV_8UC1, Scalar.WHITE);

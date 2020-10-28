@@ -28,8 +28,6 @@ import com.rodolfo.ulcer.segmentation.utils.Util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -48,7 +46,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.StageStyle;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SceneController implements Initializable {
 
     @FXML
@@ -104,7 +104,6 @@ public class SceneController implements Initializable {
     private List<Image> images;
     private String principalDirectory;
 
-    private static final Logger log = LoggerFactory.getLogger(SceneController.class);
     private final String PROPERTIES = "application.properties";
     private final FileService FILE_SERVICE = new FileServiceImpl();
 
@@ -192,6 +191,8 @@ public class SceneController implements Initializable {
             .concat(System.lineSeparator())
             .concat(System.lineSeparator());
 
+        log.info("Calculando estátisticas e salvando no caminho : '{}'", statisticsPath);
+
         this.progressBar.progressProperty().unbind();
         this.progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 
@@ -257,6 +258,8 @@ public class SceneController implements Initializable {
 
     private void arffExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
 
+        log.info("Realizando criação do arquivo .arff para o método : '{}'", this.getSelectedMethod().name().toLowerCase());
+
         File dFile = Util.createDatasourceFile("full", this.getSelectedMethod(), this.configuration);
         File minMaxFile = Util.createMinMaxFile(this.getSelectedMethod(), this.configuration);
         
@@ -276,6 +279,8 @@ public class SceneController implements Initializable {
     }
 
     private void imageExecutor(WorkerMonitor wMonitor, ExecutorService executor) {
+
+        log.info("Realizando operações com as imagens utilizando o método : '{}'", this.getSelectedMethod().name().toLowerCase());
 
         this.configuration.setAmount(Integer.valueOf(this.amount.getText()));
         this.configuration.setIterations(Integer.valueOf(this.iterations.getText()));

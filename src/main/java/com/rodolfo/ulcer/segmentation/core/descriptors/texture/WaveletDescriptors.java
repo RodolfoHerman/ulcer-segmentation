@@ -8,14 +8,10 @@ import com.rodolfo.ulcer.segmentation.models.Point;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 import com.rodolfo.ulcer.segmentation.utils.statistic.HistogramStatistic;
 
-import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 
 public class WaveletDescriptors {
-    
-    private static final Logger log = LoggerFactory.getLogger(WaveletDescriptors.class);
 
     private Mat wT;
     private Mat wTNorm;
@@ -33,8 +29,6 @@ public class WaveletDescriptors {
     }
 
     private void createHistogram() {
-
-        log.info("Criando os histogramas para os descritores wavelet");
 
         List<Float> wTValues  = new ArrayList<>();
         List<Float> wTNormValues  = new ArrayList<>();

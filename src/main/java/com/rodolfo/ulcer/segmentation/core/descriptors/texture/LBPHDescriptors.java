@@ -6,12 +6,7 @@ import java.util.Map;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 import com.rodolfo.ulcer.segmentation.utils.statistic.HistogramStatistic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class LBPHDescriptors {
-    
-    private static final Logger log = LoggerFactory.getLogger(LBPHDescriptors.class);
 
     List<Float> values;
     Map<Float,Integer> histogram;
@@ -24,8 +19,6 @@ public class LBPHDescriptors {
     }
 
     private void createHistogram() {
-
-        log.info("Criando o histograma para os descritores LBPH");
 
         this.histogram = Util.createHistogram(this.values);
     }

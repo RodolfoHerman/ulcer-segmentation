@@ -24,9 +24,11 @@ import org.bytedeco.javacpp.opencv_core.Scalar;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
+@Slf4j
 public class DescriptorFactory {
     
     private Mat bgr;
@@ -89,6 +91,8 @@ public class DescriptorFactory {
 
     public void processColor() {
 
+        log.info("Realizando o processamento dos descritores de COR");
+
         List<Double> colorBGR = this.getColorProcessed(this.bgr, "color_bgr_", "b", "g");
         List<Double> colorLAB = this.getColorProcessed(this.lab, "color_lab_", "l", "a");
         List<Double> colorLUV = this.getColorProcessed(this.luv, "color_luv_", "l", "u");
@@ -101,6 +105,8 @@ public class DescriptorFactory {
     }
 
     public void processHaralick() {
+
+        log.info("Realizando o processamento dos descritores de HARALICK");
 
         List<Double> haralickBGR_B = this.getHaralickProcessed(this.bgr_b, "haralick_bgr_b_");
         List<Double> haralickBGR_G = this.getHaralickProcessed(this.bgr_g, "haralick_bgr_g_");
@@ -121,6 +127,8 @@ public class DescriptorFactory {
 
     public void processVariationHaralick() {
 
+        log.info("Realizando o processamento dos descritores da DERIVAÇÃO HARALICK");
+
         List<Double> haralickBGR_BG = this.getVariationHaralickProcessed(this.bgr_b, this.bgr_g, "haralick_bgr_bg_");
         List<Double> haralickBGR_BR = this.getVariationHaralickProcessed(this.bgr_b, this.bgr_r, "haralick_bgr_br_");
         List<Double> haralickBGR_GR = this.getVariationHaralickProcessed(this.bgr_g, this.bgr_r, "haralick_bgr_gr_");
@@ -136,6 +144,8 @@ public class DescriptorFactory {
 
     public void processLBPH() {
 
+        log.info("Realizando o processamento dos descritores de LBPH");
+
         List<Double> LBPHBGR_B = this.getLBPHProcessed(this.bgr_b, "lbph_bgr_b_");
         List<Double> LBPHBGR_G = this.getLBPHProcessed(this.bgr_g, "lbph_bgr_g_");
         List<Double> LBPHBGR_R = this.getLBPHProcessed(this.bgr_r, "lbph_bgr_r_");
@@ -146,6 +156,8 @@ public class DescriptorFactory {
     }
 
     public void processWavelet() {
+
+        log.info("Realizando o processamento dos descritores de WAVELET");
 
         List<Double> WaveletBGR_B = this.getWaveletProcessed(this.bgr_b, "wavelet_bgr_b_");
         List<Double> WaveletBGR_G = this.getWaveletProcessed(this.bgr_g, "wavelet_bgr_g_");

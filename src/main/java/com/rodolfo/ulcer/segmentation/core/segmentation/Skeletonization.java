@@ -6,6 +6,9 @@ import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 /**
@@ -14,6 +17,7 @@ import org.bytedeco.javacpp.indexer.UByteRawIndexer;
  * Adapted from:
  * https://github.com/krishraghuram/Zhang-Suen-Skeletonization/blob/master/skeletonization.hpp
  */
+@Slf4j
 public class Skeletonization implements Process {
 
     private Configuration conf;
@@ -27,6 +31,8 @@ public class Skeletonization implements Process {
 
     @Override
     public void process() {
+
+        log.info("Realizando a erosão da imagem com o método de esqueletização");
 
         Mat value = new Mat(this.skeleton.size(), opencv_core.CV_8UC1, Scalar.WHITE);
         Double area = this.calculateArea(this.skeleton) * this.conf.getSkeletonAreaErode();

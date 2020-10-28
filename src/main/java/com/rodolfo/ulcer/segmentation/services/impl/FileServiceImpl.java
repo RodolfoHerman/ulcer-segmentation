@@ -8,15 +8,13 @@ import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 import com.rodolfo.ulcer.segmentation.repositories.FileRepository;
 import com.rodolfo.ulcer.segmentation.services.FileService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import weka.core.converters.ConverterUtils.DataSource;
 
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     private static final FileRepository FILE_REPOSITORY = new FileRepository();
-    private static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
 
     @Override
     public void saveDescriptors(List<Descriptor> descriptors, File path) {

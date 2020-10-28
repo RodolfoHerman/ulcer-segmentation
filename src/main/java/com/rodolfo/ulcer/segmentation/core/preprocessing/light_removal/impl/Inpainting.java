@@ -1,21 +1,21 @@
 package com.rodolfo.ulcer.segmentation.core.preprocessing.light_removal.impl;
 
-import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.core.preprocessing.light_removal.LightRemoval;
+import com.rodolfo.ulcer.segmentation.models.Image;
+
+import org.bytedeco.javacpp.opencv_core.Mat;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_photo;
-import org.bytedeco.javacpp.opencv_core.Mat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class Inpainting implements LightRemoval {
 
     private final Mat inpaintingMask;
     private final int inpaintingMethod;
     private final int inpaintingNeighbor;
-
-    private static final Logger log = LoggerFactory.getLogger(LightRemoval.class);
 
     public Inpainting(Mat inpaintingMask, int inpaintingMethod, int inpaintingNeighbor) {
 
@@ -26,8 +26,8 @@ public class Inpainting implements LightRemoval {
 
     @Override
     public void lightRemoval(Image image, int kernelFilterSize) {
-        
-        log.info("Reconstrução das regiões de reflexo com o método Inpainting");
+
+        log.info("Remoção dos reflexos de luz com o método INPAINTING");
 
         Mat dst = new Mat();
 

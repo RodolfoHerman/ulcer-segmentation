@@ -15,8 +15,6 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.MatVector;
 import org.bytedeco.javacpp.opencv_core.Scalar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.bytedeco.javacpp.indexer.IntRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
@@ -24,8 +22,6 @@ import lombok.Data;
 
 @Data
 public abstract class Superpixels {
-
-    private static final Logger log = LoggerFactory.getLogger(Superpixels.class);
     
     private Integer imageEdge;
     protected Integer iterations;
@@ -113,8 +109,6 @@ public abstract class Superpixels {
     }
 
     public void extractRegionLabels() {
-
-        log.info("Criação dos superpixels para os conjuntos de treinamento");
 
         Mat outlineFilled = this.image.getLabeledFilledContourImage();
         // Mat largerOutline = OpenCV.dilateByCross(OpenCV.findLargerOutline(outlineFilled), 3);

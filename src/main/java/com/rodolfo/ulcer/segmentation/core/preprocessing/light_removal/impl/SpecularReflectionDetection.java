@@ -2,14 +2,15 @@ package com.rodolfo.ulcer.segmentation.core.preprocessing.light_removal.impl;
 
 import java.util.List;
 
-import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 import com.rodolfo.ulcer.segmentation.core.preprocessing.light_removal.LightMaskDetection;
+import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
@@ -17,12 +18,11 @@ import org.bytedeco.javacpp.indexer.UByteRawIndexer;
  * Article implementation: Detection of Specular Reflection and Segmentation of
  * Cervix Region in Uterine Cervix Images for Cervical Cancer Screening
  */
+@Slf4j
 public class SpecularReflectionDetection implements LightMaskDetection {
     
     private final int elementSize;
     private final float threshold;
-
-    private static final Logger log = LoggerFactory.getLogger(SpecularReflectionDetection.class);
 
     public SpecularReflectionDetection(int elementSize, float threshold) {
 
@@ -32,9 +32,9 @@ public class SpecularReflectionDetection implements LightMaskDetection {
     
     @Override
     public Mat lightMask(Mat src) {
-
-        log.info("Criação da máscara que detecta a reflexão especular");
         
+        log.info("Identificação das regiões com reflexos de luz na imagem");
+
         return this.thresholdMask(this.stdFilter(this.featureImage(src)));
     }
 

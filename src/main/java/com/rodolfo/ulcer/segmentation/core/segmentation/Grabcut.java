@@ -13,9 +13,11 @@ import org.bytedeco.javacpp.indexer.UByteRawIndexer;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
+@Slf4j
 public class Grabcut implements Process {
 
     private Image image;
@@ -40,6 +42,8 @@ public class Grabcut implements Process {
 
     @Override
     public void process() {
+
+        log.info("Realizando a segmentação da imagem com o método GrabCut");
 
         Mat bgdModel = new Mat();
         Mat fgdModel = new Mat();
@@ -78,6 +82,8 @@ public class Grabcut implements Process {
 
     public void createGrabCutHumanMask() {
 
+        log.info("Criando máscara de visualização para o GrabCut");
+
         this.grabCutHumanMask = new Mat(this.grabCutMask.size(), opencv_core.CV_8UC1, Scalar.WHITE);
 
         UByteRawIndexer indexHuman = this.grabCutHumanMask.createIndexer();
@@ -113,6 +119,8 @@ public class Grabcut implements Process {
 
     public void createFinalBinarySegmentation() {
 
+        log.info("Criando a imagem binária final a partir do método GrabCut");
+
         this.finalBinarySegmentation = Mat.zeros(this.finalUlcerSegmentation.size(), opencv_core.CV_8UC1).asMat();
 
         Mat segmentationAux = new Mat(this.finalUlcerSegmentation.rows() + 2, this.finalUlcerSegmentation.cols() + 2, opencv_core.CV_8UC1, new Scalar(255.0));
@@ -134,6 +142,8 @@ public class Grabcut implements Process {
     public void createHumanMaskWithLabeledContour() {
 
         if(this.image.getDirectory().hasLabeledImagePath()) {
+
+            log.info("Criando a imagem com contorno a partir da segmentação manual");
 
             Mat gray = OpenCV.matImage2GRAY(this.image.getLabeledImage());
             Mat contour = OpenCV.dilateByCross(OpenCV.findLargerOutline(OpenCV.findLargerOutlineAndFill(gray)), 3);

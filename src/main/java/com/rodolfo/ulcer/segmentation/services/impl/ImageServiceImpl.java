@@ -6,13 +6,12 @@ import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.repositories.ImageRepository;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ImageServiceImpl implements ImageService {
 
 	private static final ImageRepository IMAGE_REPOSITORY = new ImageRepository();
-	private static final Logger log = LoggerFactory.getLogger(ImageServiceImpl.class);
 
 	@Override
 	public void open(Image image) {

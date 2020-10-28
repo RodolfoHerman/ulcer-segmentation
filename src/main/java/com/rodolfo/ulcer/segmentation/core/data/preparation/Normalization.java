@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import com.rodolfo.ulcer.segmentation.config.Configuration;
 import com.rodolfo.ulcer.segmentation.core.descriptors.Descriptor;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Normalization extends Preparation {
 
     public Normalization(Configuration conf, List<Descriptor> descriptors, List<String> descriptorsNames) {
@@ -27,6 +30,8 @@ public class Normalization extends Preparation {
 
     @Override
     public void preparation() {
+
+        log.info("Realizando a nromalização dos descritores");
 
         this.descriptors = this.descriptors.stream().map(desc -> {
 

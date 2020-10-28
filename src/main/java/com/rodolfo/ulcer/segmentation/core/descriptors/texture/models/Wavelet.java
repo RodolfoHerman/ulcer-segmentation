@@ -4,12 +4,10 @@ import com.rodolfo.ulcer.segmentation.core.descriptors.Process;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 import org.bytedeco.javacpp.opencv_core.Size;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 
 import lombok.Data;
 
@@ -18,8 +16,6 @@ import lombok.Data;
  */
 @Data
 public class Wavelet implements Process {
-
-    private static final Logger log = LoggerFactory.getLogger(Wavelet.class);
 
     private Mat ds;
     
@@ -75,8 +71,6 @@ public class Wavelet implements Process {
     }
 
     private void applyDiscretWaveletTransform() {
-
-        log.info("Aplicação da DWT de nível : {}", this.cycles);
 
         this.ds = OpenCV.createImageWithZeroPadding(this.img);
 
@@ -155,8 +149,6 @@ public class Wavelet implements Process {
     }
 
     public void applyInverseDiscretWaveletTransform() {
-
-        log.info("Aplicação da DWT inversa de nível : {}", this.cycles);
 
         if(this.ds != null) {
 

@@ -7,17 +7,13 @@ import com.rodolfo.ulcer.segmentation.core.descriptors.Process;
 import com.rodolfo.ulcer.segmentation.models.Point;
 
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bytedeco.javacpp.indexer.FloatRawIndexer;
 
 import lombok.Data;
 
 @Data
 public class LBPH implements Process {
-
-    private static final Logger log = LoggerFactory.getLogger(LBPH.class);
 
     private Mat img;
     private List<Point> points;
@@ -31,8 +27,6 @@ public class LBPH implements Process {
     
     @Override
     public void process() {
-        
-        log.info("Criação dos valores LBPH");
 
         Mat dst = this.img.clone();
         this.values = new ArrayList<>();

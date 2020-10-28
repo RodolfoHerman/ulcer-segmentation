@@ -2,12 +2,8 @@ package com.rodolfo.ulcer.segmentation.core.descriptors.texture;
 
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.indexer.FloatRawIndexer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HaralickDescriptors {
-
-    private static final Logger log = LoggerFactory.getLogger(HaralickDescriptors.class);
     
     private Mat glcm;
 
@@ -22,8 +18,6 @@ public class HaralickDescriptors {
      * @return Float
      */
     public Float contrast() {
-
-        log.info("Cálculo da contraste");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         Double contrast = 0.0;
@@ -46,8 +40,6 @@ public class HaralickDescriptors {
      * @return Float
      */
     public Float energy() {
-
-        log.info("Cálculo da energia");
 
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         Float asm1     = 0f;
@@ -72,8 +64,6 @@ public class HaralickDescriptors {
      * @return entropia
      */
     public Float entropy() {
-
-        log.info("Cálculo da entropia");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         Double entropia = 0.0;
@@ -101,8 +91,6 @@ public class HaralickDescriptors {
      * @return homogeneidade
      */
     public Float homogeneity() {
-
-        log.info("Cálculo da homogeneidade");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         Float homogeneidade = 0f;
@@ -128,8 +116,6 @@ public class HaralickDescriptors {
      * @return diferencaInversa
      */
     public static Float inverseDifference(Mat glcm) {
-
-        log.info("Cálculo da diferença inversa");
         
         FloatRawIndexer glcmIndex = glcm.createIndexer();
         Double diferenca = 0.0;
@@ -154,8 +140,6 @@ public class HaralickDescriptors {
      * @return correlacao
      */
     public Float correlation() {
-
-        log.info("Cálculo da correlação");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         Double correlacao = 0.0;
@@ -203,8 +187,6 @@ public class HaralickDescriptors {
      * @return tendencia cluster
      */
     public Float clusterTendency() {
-
-        log.info("Cálculo da tendência de cluster");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         
@@ -260,8 +242,6 @@ public class HaralickDescriptors {
      * @return matiz cluster
      */
     public Float clusterShade() {
-
-        log.info("Cálculo do matiz de cluster");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         
@@ -317,8 +297,6 @@ public class HaralickDescriptors {
      * @return saliencia cluster
      */
     public Float clusterProminence() {
-
-        log.info("Cálculo da notaridade");
         
         FloatRawIndexer glcmIndex = this.glcm.createIndexer();
         
