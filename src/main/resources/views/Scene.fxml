@@ -46,12 +46,12 @@
                <children>
                   <Label id="texts-titulo" alignment="CENTER" contentDisplay="CENTER" text="Methods" />
                   <Separator prefWidth="200.0" />
-                  <RadioButton id="texts" fx:id="methodSEEDS" mnemonicParsing="false" selected="true" text="SEEDS">
+                  <RadioButton id="texts" fx:id="methodSEEDS" mnemonicParsing="false" onAction="#changeSelectedMethod" selected="true" text="SEEDS">
                      <toggleGroup>
                         <ToggleGroup fx:id="methods" />
                      </toggleGroup></RadioButton>
-                  <RadioButton id="texts" fx:id="methodLSC" mnemonicParsing="false" text="LSC" toggleGroup="$methods" />
-                  <RadioButton id="texts" fx:id="methodSLIC" mnemonicParsing="false" text="SLIC" toggleGroup="$methods" />
+                  <RadioButton id="texts" fx:id="methodLSC" mnemonicParsing="false" onAction="#changeSelectedMethod" text="LSC" toggleGroup="$methods" />
+                  <RadioButton id="texts" fx:id="methodSLIC" mnemonicParsing="false" onAction="#changeSelectedMethod" text="SLIC" toggleGroup="$methods" />
                   <Separator prefWidth="200.0" />
                   <CheckBox fx:id="srRemoval" mnemonicParsing="false" selected="true" text="SR Removal">
                      <tooltip>
@@ -95,7 +95,7 @@
                               <Label text="Operation" GridPane.rowIndex="3" />
                               <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                  <children>
-                                    <RadioButton fx:id="operationFeature" accessibleText="Extrair descritores" alignment="CENTER_RIGHT" mnemonicParsing="false" selected="true" text="Feature extraction">
+                                    <RadioButton fx:id="operationFeature" accessibleText="Extrair descritores" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#changeSelectedMethod" selected="true" text="Feature extraction">
                                        <HBox.margin>
                                           <Insets />
                                        </HBox.margin>
@@ -106,7 +106,7 @@
                                           <ToggleGroup fx:id="operation" />
                                        </toggleGroup>
                                     </RadioButton>
-                                    <RadioButton fx:id="operationARFF" mnemonicParsing="false" text="Create ARFF file" toggleGroup="$operation">
+                                    <RadioButton fx:id="operationARFF" mnemonicParsing="false" onAction="#changeSelectedMethod" text="Create ARFF file" toggleGroup="$operation">
                                        <HBox.margin>
                                           <Insets left="20.0" />
                                        </HBox.margin>
@@ -114,7 +114,7 @@
                                           <Tooltip text="Arquivo que contém os descritores" />
                                        </tooltip>
                                     </RadioButton>
-                                    <RadioButton fx:id="operationSegmentation" mnemonicParsing="false" text="Segmentation" toggleGroup="$operation">
+                                    <RadioButton fx:id="operationSegmentation" mnemonicParsing="false" onAction="#changeSelectedMethod" text="Segmentation" toggleGroup="$operation">
                                        <HBox.margin>
                                           <Insets left="20.0" />
                                        </HBox.margin>
@@ -160,7 +160,16 @@
             <Separator orientation="VERTICAL" prefHeight="175.0" prefWidth="0.0" />
             <HBox alignment="CENTER" prefHeight="152.0" prefWidth="179.0">
                <children>
-                  <Button fx:id="btnProcess" alignment="CENTER" mnemonicParsing="false" onAction="#actionProcess" prefWidth="120.0" stylesheets="@../styles/Styles.css" text="Process" />
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Button fx:id="btnProcess" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#actionProcess" prefWidth="120.0" stylesheets="@../styles/Styles.css" text="Process" />
+                        <Button fx:id="btnStatistics" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#actionStatistics" prefWidth="120.0" stylesheets="@../styles/Styles.css" text="Statistics">
+                           <VBox.margin>
+                              <Insets top="10.0" />
+                           </VBox.margin>
+                        </Button>
+                     </children>
+                  </VBox>
                </children>
             </HBox>
          </children>

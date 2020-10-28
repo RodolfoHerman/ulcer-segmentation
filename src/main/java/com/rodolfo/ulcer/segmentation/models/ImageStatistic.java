@@ -87,6 +87,28 @@ public class ImageStatistic {
             this.EXECUTION_TIME = executionTime;
         }
 
+        public Builder(
+            Image image, 
+            MethodEnum method, 
+            Integer amountOfSuperpixels, 
+            Double executionTime,
+            Double falseNegatives,
+            Double falsePositives,
+            Double trueNegatives,
+            Double truePositives
+        ) {
+
+            this.IMAGE = image;
+            this.METHOD = method;
+            this.AMOUNT_OF_SUPERPIXELS = amountOfSuperpixels;
+            this.EXECUTION_TIME = executionTime;
+
+            this.falseNegatives = falseNegatives;
+            this.falsePositives = falsePositives;
+            this.trueNegatives = trueNegatives;
+            this.truePositives = truePositives;
+        }
+
         public Builder overlappingImage(Mat finalSegmentation, Mat labeledFilledContourImage) {
 
             Mat labeledFilledContourImageNot = new Mat();

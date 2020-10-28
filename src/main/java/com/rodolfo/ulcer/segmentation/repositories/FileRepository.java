@@ -1,12 +1,15 @@
 package com.rodolfo.ulcer.segmentation.repositories;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,4 +124,28 @@ public class FileRepository {
         }
     }
 
+    public List<String> getFileContent(File path) {
+
+        List<String> content = new ArrayList<>();
+
+        if(path.exists()) {
+
+            try(BufferedReader bReader = new BufferedReader(new FileReader(path))) {
+    
+                String line;
+    
+                while ((line = bReader.readLine()) != null) {
+                    
+                    content.add(line);
+                }
+                
+            } catch (Exception e) {
+                
+                System.err.println(e);
+                System.exit(1);
+            }
+        }
+        
+        return content;
+    }
 }

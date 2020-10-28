@@ -61,7 +61,17 @@ public class FileServiceImpl implements FileService {
     @Override
     public void saveImageStatistics(String statistic, File path) {
 
+        log.info("Salvando estatísticas no caminho : {}", path.getAbsolutePath());
+
         FILE_REPOSITORY.saveImageStatistics(statistic, path);
+    }
+
+    @Override
+    public List<String> getFileContent(File path) {
+
+        log.info("Lendo estatísticas no caminho : {}", path.getAbsolutePath());
+
+        return FILE_REPOSITORY.getFileContent(path);
     }
     
 }

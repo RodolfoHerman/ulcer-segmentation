@@ -2,6 +2,7 @@ package com.rodolfo.ulcer.segmentation.process;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -290,31 +291,20 @@ public class Worker extends Task<Void> {
 
         IMAGE_SERVICE.save(this.image);
         FILE_SERVICE.saveImageStatistics(
-            (new ImageStatisticUtil(svmImageStatistic)).csvFormatter().toString(), 
+            (new ImageStatisticUtil(Arrays.asList(svmImageStatistic))).statisticsCsvHeader().csvFormatter().toString(), 
             svmImageStatistic.getImage().getDirectory().getStatisticsSvmCsvPath()
         );
         FILE_SERVICE.saveImageStatistics(
-            (new ImageStatisticUtil(grabImageStatistic)).csvFormatter().toString(), 
+            (new ImageStatisticUtil(Arrays.asList(grabImageStatistic))).statisticsCsvHeader().csvFormatter().toString(), 
             grabImageStatistic.getImage().getDirectory().getStatisticsGrabCsvPath()
         );
         FILE_SERVICE.saveImageStatistics(
-            this.getStatisticsMerged(svmImageStatistic, grabImageStatistic),
+            ImageStatisticUtil.getStatisticsMerged(Arrays.asList(svmImageStatistic), Arrays.asList(grabImageStatistic)),
             grabImageStatistic.getImage().getDirectory().getStatisticsVisualizationPath()
         );
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);
-    }
-
-    private String getStatisticsMerged(ImageStatistic svmImageStatistic, ImageStatistic grabImageStatistic) {
-
-        String svmStatistics = (new ImageStatisticUtil(svmImageStatistic)).userViewFormatter().toString();
-        String grabtatistics = (new ImageStatisticUtil(grabImageStatistic)).userViewFormatter().toString();
-
-        return svmStatistics
-            .concat(System.lineSeparator())
-            .concat(System.lineSeparator())
-            .concat(grabtatistics);
     }
 
     private Double calculateExecutionTime(Long startTime, long finalTime) {

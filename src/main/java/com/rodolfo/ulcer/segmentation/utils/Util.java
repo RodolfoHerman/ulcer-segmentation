@@ -158,23 +158,32 @@ public class Util {
         return aux;
     }
 
+    public static File createFile(String dirPath, MethodEnum method, String fileName) {
+
+        return (new FileUtil()).setDirPath(dirPath)
+        .setMethodNamePath(method)
+        .setFileName(fileName)
+        .toFile();
+    }
+
     public static File createDatasourceFile(String path, MethodEnum method, Configuration configuration) {
 
         File dFile = null;
+        String dirPath = "files/datasources/";
 
         if(method.name().equals("SEEDS")) {
 
-            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceSEEDSName()));
+            dFile = new File(dirPath.concat(path).concat("/").concat(configuration.getDatasourceSEEDSName()));
         }
 
         if(method.name().equals("LSC")) {
 
-            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceLSCName()));
+            dFile = new File(dirPath.concat(path).concat("/").concat(configuration.getDatasourceLSCName()));
         }
 
         if(method.name().equals("SLIC")) {
 
-            dFile = new File("files/datasources/".concat(path).concat("/").concat(configuration.getDatasourceSLICName()));
+            dFile = new File(dirPath.concat(path).concat("/").concat(configuration.getDatasourceSLICName()));
         }
 
         return dFile;
@@ -183,20 +192,21 @@ public class Util {
     public static File createMinMaxFile(MethodEnum method, Configuration configuration) {
 
         File dFile = null;
+        String dirPath = "files/datasources/";
 
         if(method.name().equals("SEEDS")) {
 
-            dFile = new File("files/datasources/".concat(configuration.getMinMaxSEEDSName()));
+            dFile = new File(dirPath.concat(configuration.getMinMaxSEEDSName()));
         }
 
         if(method.name().equals("LSC")) {
 
-            dFile = new File("files/datasources/".concat(configuration.getMinMaxLSCName()));
+            dFile = new File(dirPath.concat(configuration.getMinMaxLSCName()));
         }
 
         if(method.name().equals("SLIC")) {
 
-            dFile = new File("files/datasources/".concat(configuration.getMinMaxSLICName()));
+            dFile = new File(dirPath.concat(configuration.getMinMaxSLICName()));
         }
 
         return dFile;
@@ -205,20 +215,21 @@ public class Util {
     public static File createMlModelFile(MethodEnum method, Configuration configuration) {
 
         File dFile = null;
+        String dirPath = "files/models/";
 
         if(method.name().equals("SEEDS")) {
 
-            dFile = new File("files/models/".concat(configuration.getMlModelSEEDSName()));
+            dFile = new File(dirPath.concat(configuration.getMlModelSEEDSName()));
         }
 
         if(method.name().equals("LSC")) {
 
-            dFile = new File("files/models/".concat(configuration.getMlModelLSCName()));
+            dFile = new File(dirPath.concat(configuration.getMlModelLSCName()));
         }
 
         if(method.name().equals("SLIC")) {
 
-            dFile = new File("files/models/".concat(configuration.getMlModelSLICName()));
+            dFile = new File(dirPath.concat(configuration.getMlModelSLICName()));
         }
 
         return dFile;

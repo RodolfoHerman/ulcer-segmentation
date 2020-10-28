@@ -1,0 +1,22 @@
+******************************************
+******* Method: SVM ****************
+******************************************
+IMAGE_NAME  SUPERPIXELS  EXECUTION_TIME  TRUE_POSITIVES  TRUE_NEGATIVES  FALSE_POSITIVES  FALSE_NEGATIVES  SENSITIVITY  SPECIFICITY  PRECISION  ACCURACY  INTERSECTION_UNION  
+31          208          31.09           22035.00        51842.00        5562.00          3761.00          0.85         0.90         0.80       0.89      0.70                
+91          208          29.74           31497.00        42796.00        5501.00          3406.00          0.90         0.89         0.85       0.89      0.78                
+            
+MEAN:       208.00       30.41           26766.00        47319.00        5531.50          3583.50          0.88         0.89         0.82       0.89      0.74                
+STD:        0.00         0.68            4731.00         4523.00         30.50            177.50           0.02         0.01         0.03       0.00      0.04                
+
+
+
+******************************************
+******* Method: GRAB ****************
+******************************************
+IMAGE_NAME  SUPERPIXELS  EXECUTION_TIME  TRUE_POSITIVES  TRUE_NEGATIVES  FALSE_POSITIVES  FALSE_NEGATIVES  SENSITIVITY  SPECIFICITY  PRECISION  ACCURACY  INTERSECTION_UNION  
+31          208          31.80           21062.00        57364.00        40.00            4734.00          0.82         1.00         1.00       0.94      0.82                
+91          208          30.36           29805.00        48126.00        171.00           5098.00          0.85         1.00         0.99       0.94      0.85                
+            
+MEAN:       208.00       31.08           25433.50        52745.00        105.50           4916.00          0.84         1.00         1.00       0.94      0.83                
+STD:        0.00         0.72            4371.50         4619.00         65.50            182.00           0.02         0.00         0.00       0.00      0.02                
+

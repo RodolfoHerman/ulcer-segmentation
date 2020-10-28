@@ -34,6 +34,8 @@ public class Image {
     private ImageStatistic svmImageStatistic;
     private ImageStatistic grabImageStatistic;
 
+    private String imageNameFromString;
+
     public Image() {}
 
     public Image(Directory directory, int resampleWidth, int resampleHeight) {

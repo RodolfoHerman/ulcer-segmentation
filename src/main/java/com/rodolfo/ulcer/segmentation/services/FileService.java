@@ -22,4 +22,5 @@ public interface FileService {
 
     void saveImageStatistics(String statistic, File path);
 
+    List<String> getFileContent(File path);
 }
