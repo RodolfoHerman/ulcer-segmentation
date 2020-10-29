@@ -38,8 +38,10 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_photo;
 
 import javafx.concurrent.Task;
+import lombok.extern.slf4j.Slf4j;
 import weka.core.converters.ConverterUtils.DataSource;
 
+@Slf4j
 public class Worker extends Task<Void> {
 
     private static final FileService FILE_SERVICE = new FileServiceImpl();
@@ -179,18 +181,23 @@ public class Worker extends Task<Void> {
         });
         updateProgress(process[index++], maxProcess);
 
+        log.info("Realizando o processamento dos descritores de COR");
         dFactories.stream().forEach(factory -> factory.processColor());
         updateProgress(process[index++], maxProcess);
 
+        log.info("Realizando o processamento dos descritores de HARALICK");
         dFactories.stream().forEach(factory -> factory.processHaralick());
         updateProgress(process[index++], maxProcess);
         
+        log.info("Realizando o processamento dos descritores da DERIVAÇÃO HARALICK");
         dFactories.stream().forEach(factory -> factory.processVariationHaralick());
         updateProgress(process[index++], maxProcess);
 
+        log.info("Realizando o processamento dos descritores de LBPH");
         dFactories.stream().forEach(factory -> factory.processLBPH());
         updateProgress(process[index++], maxProcess);
 
+        log.info("Realizando o processamento dos descritores de WAVELET");
         dFactories.stream().forEach(factory -> factory.processWavelet());
         updateProgress(process[index++], maxProcess);
 
@@ -363,19 +370,23 @@ public class Worker extends Task<Void> {
             dFactoriesNonUlcers.add(new DescriptorFactory(this.image, this.conf, Util.getDescriptorsNames(), points, key, "NON_ULCER"));
         });
 
-
+        log.info("(Não úlcera) Realizando o processamento dos descritores de COR");
         dFactoriesNonUlcers.stream().forEach(factory -> factory.processColor());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Não úlcera) Realizando o processamento dos descritores de HARALICK");
         dFactoriesNonUlcers.stream().forEach(factory -> factory.processHaralick());
         updateProgress(process[index++], maxProcess);
         
+        log.info("(Não úlcera) Realizando o processamento dos descritores da DERIVAÇÃO HARALICK");
         dFactoriesNonUlcers.stream().forEach(factory -> factory.processVariationHaralick());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Não úlcera) Realizando o processamento dos descritores de LBPH");
         dFactoriesNonUlcers.stream().forEach(factory -> factory.processLBPH());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Não úlcera) Realizando o processamento dos descritores de WAVELET");
         dFactoriesNonUlcers.stream().forEach(factory -> factory.processWavelet());
         updateProgress(process[index++], maxProcess);
 
@@ -387,18 +398,23 @@ public class Worker extends Task<Void> {
             dFactoriesUlcers.add(new DescriptorFactory(this.image, this.conf, Util.getDescriptorsNames(), points, key, "ULCER"));
         });
         
+        log.info("(Úlcera) Realizando o processamento dos descritores de COR");
         dFactoriesUlcers.stream().forEach(factory -> factory.processColor());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Úlcera) Realizando o processamento dos descritores de HARALICK");
         dFactoriesUlcers.stream().forEach(factory -> factory.processHaralick());
         updateProgress(process[index++], maxProcess);
         
+        log.info("(Úlcera) Realizando o processamento dos descritores da DERIVAÇÃO HARALICK");
         dFactoriesUlcers.stream().forEach(factory -> factory.processVariationHaralick());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Úlcera) Realizando o processamento dos descritores de LBPH");
         dFactoriesUlcers.stream().forEach(factory -> factory.processLBPH());
         updateProgress(process[index++], maxProcess);
 
+        log.info("(Úlcera) Realizando o processamento dos descritores de WAVELET");
         dFactoriesUlcers.stream().forEach(factory -> factory.processWavelet());
         updateProgress(process[index++], maxProcess);
 
