@@ -1,0 +1,20 @@
+******************************************
+******* Method: SVM ****************
+******************************************
+IMAGE_NAME  SUPERPIXELS  EXECUTION_TIME  TRUE_POSITIVES  TRUE_NEGATIVES  FALSE_POSITIVES  FALSE_NEGATIVES  SENSITIVITY  SPECIFICITY  PRECISION  ACCURACY  INTERSECTION_UNION  
+81          208          17.65           20601.00        55370.00        6679.00          550.00           0.97         0.89         0.76       0.91      0.74                
+            
+MEAN:       208.00       17.65           20601.00        55370.00        6679.00          550.00           0.97         0.89         0.76       0.91      0.74                
+STD:        0.00         0.00            0.00            0.00            0.00             0.00             0.00         0.00         0.00       0.00      0.00                
+
+
+
+******************************************
+******* Method: GRAB ****************
+******************************************
+IMAGE_NAME  SUPERPIXELS  EXECUTION_TIME  TRUE_POSITIVES  TRUE_NEGATIVES  FALSE_POSITIVES  FALSE_NEGATIVES  SENSITIVITY  SPECIFICITY  PRECISION  ACCURACY  INTERSECTION_UNION  
+81          208          18.13           19612.00        61764.00        285.00           1539.00          0.93         1.00         0.99       0.98      0.91                
+            
+MEAN:       208.00       18.13           19612.00        61764.00        285.00           1539.00          0.93         1.00         0.99       0.98      0.91                
+STD:        0.00         0.00            0.00            0.00            0.00             0.00             0.00         0.00         0.00       0.00      0.00                
+

@@ -376,8 +376,9 @@ public class SceneController implements Initializable {
             this.configuration.setChooseDirectory(file.getAbsolutePath());
             this.images = Util.createImageFiles(file.list(), this.configuration);
             this.principalDirectory = file.getAbsolutePath();
+            
+            this.btnProcess.disableProperty().unbind();
             this.btnProcess.setDisable(false);
-
             this.reset();
         }
     }

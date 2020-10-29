@@ -35,6 +35,8 @@ public class SuperpixelsSLIC extends Superpixels {
         this.superpixelsAmount = slic.getNumberOfSuperpixels();
         slic.deallocate();
 
+        log.info("Quantidade de superpixels formado na image: '{}'", this.superpixelsAmount);
+
         this.makeContourImage();
         this.makeSuperpixelsSegmentation();
     }

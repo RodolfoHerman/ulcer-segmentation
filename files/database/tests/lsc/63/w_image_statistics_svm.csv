@@ -1,0 +1,2 @@
+img;method;execution_time;amount_superpixels;tp;tn;fp;fn;sensitivity;specifictity;precision;accuracy;iou
+63;SVM;16.83;208;9164.00;62654.00;6252.00;5130.00;0.64;0.91;0.59;0.86;0.45

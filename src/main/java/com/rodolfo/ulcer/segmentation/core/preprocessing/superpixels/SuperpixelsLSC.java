@@ -34,7 +34,9 @@ public class SuperpixelsLSC extends Superpixels {
         lsc.getLabelContourMask(this.contour);
         this.superpixelsAmount = lsc.getNumberOfSuperpixels();
         lsc.deallocate();
-        
+
+        log.info("Quantidade de superpixels formado na image: '{}'", this.superpixelsAmount);
+
         this.makeContourImage();
         this.makeSuperpixelsSegmentation();
     }

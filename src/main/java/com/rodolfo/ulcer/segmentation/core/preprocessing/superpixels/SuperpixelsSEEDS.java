@@ -38,6 +38,8 @@ public class SuperpixelsSEEDS extends Superpixels {
         this.superpixelsAmount = seeds.getNumberOfSuperpixels();
         seeds.deallocate();
 
+        log.info("Quantidade de superpixels formado na image: '{}'", this.superpixelsAmount);
+
         this.makeContourImage();
         this.makeSuperpixelsSegmentation();
     }
