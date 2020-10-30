@@ -316,9 +316,12 @@ public class SceneController implements Initializable {
             executor.execute(worker);
         });
 
-        this.btnStatistics.disableProperty().unbind();
-        this.btnStatistics.setDisable(false);
-        this.btnStatistics.disableProperty().bind(wMonitor.getIdle().not());
+        if(this.getSelectedOperation().equals(OperationEnum.SEGMENTATION)) {
+
+            this.btnStatistics.disableProperty().unbind();
+            this.btnStatistics.setDisable(false);
+            this.btnStatistics.disableProperty().bind(wMonitor.getIdle().not());
+        }
     }
 
     private void setWorkerProperties(WorkerMonitor wMonitor) {

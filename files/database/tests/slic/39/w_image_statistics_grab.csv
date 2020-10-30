@@ -1,0 +1,2 @@
+img;method;execution_time;amount_superpixels;tp;tn;fp;fn;sensitivity;specifictity;precision;accuracy;iou
+39;GRAB;10.35;210;31998.00;46889.00;3661.00;652.00;0.98;0.93;0.90;0.95;0.88

@@ -1,0 +1,59 @@
+=== Run information ===
+
+Scheme:       weka.classifiers.meta.GridSearch -E ACC -y-property gamma -y-min -2.0 -y-max 2.0 -y-step 1.0 -y-base 10.0 -y-expression pow(BASE,I) -x-property cost -x-min 2.0 -x-max 5.0 -x-step 1.0 -x-base 10.0 -x-expression pow(BASE,I) -sample-size 100.0 -traversal ROW-WISE -log-file "C:\\Program Files\\Weka-3-8" -num-slots 1 -S 1 -W weka.classifiers.functions.LibSVM -- -S 0 -K 2 -D 3 -G 0.0 -R 0.0 -N 0.5 -M 40.0 -C 1.0 -E 0.001 -P 0.1 -model "C:\\Program Files\\Weka-3-8" -seed 1
+Relation:     ulcer_classification-weka.filters.unsupervised.attribute.Remove-R2-37,39-55,57-72,75-76,79-85,87,89-106,108-186
+Instances:    7840
+Attributes:   11
+              color_bgr_b_mean
+              color_lab_a_intensity1
+              color_luv_u_centroid
+              color_norm_b_mean
+              color_norm_g_mean
+              color_norm_g_variance
+              color_norm_r_variance
+              color_norm_g_intensity1
+              color_norm_b_intensity2
+              haralick_bgr_r_contrast
+              classification
+Test mode:    10-fold cross-validation
+
+=== Classifier model (full training set) ===
+
+weka.classifiers.meta.GridSearch:
+Classifier: weka.classifiers.functions.LibSVM -S 0 -K 2 -D 3 -G 1.0 -R 0.0 -N 0.5 -M 40.0 -C 10000.0 -E 0.001 -P 0.1 -model "C:\\Program Files\\Weka-3-8" -seed 1
+
+X property: cost
+Y property: gamma
+
+Evaluation: Accuracy
+Coordinates: [4.0, 0.0]
+Values: 10000.0 (X coordinate), 1.0 (Y coordinate)
+
+LibSVM wrapper, original code by Yasser EL-Manzalawy (= WLSVM)
+
+Time taken to build model: 6201.62 seconds
+
+=== Stratified cross-validation ===
+=== Summary ===
+
+Correctly Classified Instances        6551               83.5587 %
+Incorrectly Classified Instances      1289               16.4413 %
+Kappa statistic                          0.6712
+Mean absolute error                      0.1644
+Root mean squared error                  0.4055
+Relative absolute error                 32.8827 %
+Root relative squared error             81.0958 %
+Total Number of Instances             7840     
+
+=== Detailed Accuracy By Class ===
+
+                 TP Rate  FP Rate  Precision  Recall   F-Measure  MCC      ROC Area  PRC Area  Class
+                 0,823    0,152    0,844      0,823    0,833      0,671    0,836     0,783     ULCER
+                 0,848    0,177    0,827      0,848    0,838      0,671    0,836     0,778     NON_ULCER
+Weighted Avg.    0,836    0,164    0,836      0,836    0,836      0,671    0,836     0,780     
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 3225  695 |    a = ULCER
+  594 3326 |    b = NON_ULCER
