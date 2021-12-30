@@ -27,6 +27,7 @@ public class Directory {
     private File skeletonWithBranchsPath;
     private File skeletonWithoutBranchsPath;
     private File labeledResampleImagePath;
+    private File labeledExtractedImagePath;
 
     // Path files
     private File statisticsSvmCsvPath;
@@ -52,6 +53,7 @@ public class Directory {
         this.skeletonWithBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithBranchsName()).concat(configuration.getExtension()));
         this.skeletonWithoutBranchsPath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getSkeletonWithoutBranchsName()).concat(configuration.getExtension()));
         this.labeledResampleImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat(configuration.getLabeledResampleImageName()).concat(configuration.getExtension()));
+        this.labeledExtractedImagePath = new File(dirPath.getAbsolutePath().concat("\\").concat(imageName).concat("_00_GROUND_THRUTH_BINARY").concat(".pgm"));
         
         this.statisticsSvmCsvPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageStatisticsSvmCsv()));
         this.statisticsGrabCsvPath = new File(dirPath.getAbsolutePath().concat("\\").concat(configuration.getImageStatisticsGrabCsv()));

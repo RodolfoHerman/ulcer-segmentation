@@ -3,6 +3,7 @@ package com.rodolfo.ulcer.segmentation.models;
 import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
 import com.rodolfo.ulcer.segmentation.utils.Util;
 
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Size;
 
@@ -91,6 +92,7 @@ public class Image {
 
             Mat gray = OpenCV.matImage2GRAY(this.labeledImage);
             this.labeledFilledContourImage = OpenCV.findLargerOutlineAndFill(gray);
+            opencv_core.bitwise_not(this.labeledFilledContourImage, this.labeledFilledContourImage);
         }
         
         return this.labeledFilledContourImage;

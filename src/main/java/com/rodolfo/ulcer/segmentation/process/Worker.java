@@ -27,6 +27,8 @@ import com.rodolfo.ulcer.segmentation.enums.MethodEnum;
 import com.rodolfo.ulcer.segmentation.enums.OperationEnum;
 import com.rodolfo.ulcer.segmentation.models.Image;
 import com.rodolfo.ulcer.segmentation.models.ImageStatistic;
+import com.rodolfo.ulcer.segmentation.opencv.OpenCV;
+import com.rodolfo.ulcer.segmentation.repositories.ImageRepository;
 import com.rodolfo.ulcer.segmentation.services.FileService;
 import com.rodolfo.ulcer.segmentation.services.ImageService;
 import com.rodolfo.ulcer.segmentation.services.impl.FileServiceImpl;
@@ -46,6 +48,7 @@ public class Worker extends Task<Void> {
 
     private static final FileService FILE_SERVICE = new FileServiceImpl();
     private static final ImageService IMAGE_SERVICE = new ImageServiceImpl();
+    private static final ImageRepository IMAGE_REPOSITORY = new ImageRepository();
 
     private Configuration conf;
     private boolean isWithSRRemoval;
@@ -135,180 +138,15 @@ public class Worker extends Task<Void> {
 
     private void segmentation() throws Exception {
 
-        int [] process = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
+        int [] process = {0, 1};
         int maxProcess = process.length;
         int index = 0;
-        ImageStatistic svmImageStatistic;
-        ImageStatistic grabImageStatistic;
-
-        DataSource dataSource = FILE_SERVICE.openDataSoruce(this.conf.getDatasource());
-        Object model = FILE_SERVICE.openMlModel(this.conf.getMlModel());
-        Map<String,List<Double>> minMax = FILE_SERVICE.openMinMaxDescriptors(this.conf.getMinMax());
-
-        List<DescriptorFactory> dFactories = new ArrayList<>();
-        List<Descriptor> descriptors = new ArrayList<>();
-
-        if(!this.validateFiles(dataSource, model, minMax)) {
-
-            System.err.println("Erro ao encontrar arquivos (datasource ou model ou minMax)");
-            System.exit(1);
-        }
 
         IMAGE_SERVICE.open(this.image);
+
         updateProgress(process[index++], maxProcess);
 
-        if(isWithSRRemoval) {
-
-            this.executeLightRemoval();
-
-        } else {
-
-            this.image.setImageWithoutReflection(this.image.getImage());
-        }
-        updateProgress(process[index++], maxProcess);
-
-        Long startTime = System.currentTimeMillis();
-        
-        Superpixels superpixels = this.createSuperpixelsMethod();
-        updateProgress(process[index++], maxProcess);
-
-        superpixels.createSuperpixels();
-        updateProgress(process[index++], maxProcess);
-
-        superpixels.getSuperpixelsSegmentation().forEach((key, points) -> {
-
-            dFactories.add(new DescriptorFactory(this.image, this.conf, Util.getListOfDescriptorsNamesFromDataSource(dataSource), points, key, null));
-        });
-        updateProgress(process[index++], maxProcess);
-
-        log.info("Realizando o processamento dos descritores de COR");
-        dFactories.stream().forEach(factory -> factory.processColor());
-        updateProgress(process[index++], maxProcess);
-
-        log.info("Realizando o processamento dos descritores de HARALICK");
-        dFactories.stream().forEach(factory -> factory.processHaralick());
-        updateProgress(process[index++], maxProcess);
-        
-        log.info("Realizando o processamento dos descritores da DERIVAÇÃO HARALICK");
-        dFactories.stream().forEach(factory -> factory.processVariationHaralick());
-        updateProgress(process[index++], maxProcess);
-
-        log.info("Realizando o processamento dos descritores de LBPH");
-        dFactories.stream().forEach(factory -> factory.processLBPH());
-        updateProgress(process[index++], maxProcess);
-
-        log.info("Realizando o processamento dos descritores de WAVELET");
-        dFactories.stream().forEach(factory -> factory.processWavelet());
-        updateProgress(process[index++], maxProcess);
-
-        dFactories.stream().forEach(factory -> descriptors.add(new Descriptor(null, factory.getDescriptors(), factory.getPoints())));
-        updateProgress(process[index++], maxProcess);
-
-        Preparation normalization = new Normalization(this.conf, minMax, descriptors, Util.getListOfDescriptorsNamesFromDataSource(dataSource));
-        normalization.preparation();
-        updateProgress(process[index++], maxProcess);
-
-        MachineLearning ml = new SVM(model, dataSource, this.image.getSize(), normalization.getDescriptors());
-        ml.createInstances();
-        updateProgress(process[index++], maxProcess);
-
-        ml.classify();
-        updateProgress(process[index++], maxProcess);
-
-        Long svmTime = System.currentTimeMillis();
-
-        Skeletonization skeletonization = new Skeletonization(this.conf, ml.getOutlineFilled());
-        skeletonization.process();
-        updateProgress(process[index++], maxProcess);
-
-        Grabcut grabcut = new Grabcut(this.image, this.conf, ml.getOutlineFilled(), skeletonization.getSkeletonWithoutBranchs());
-        grabcut.process();
-        updateProgress(process[index++], maxProcess);
-
-        grabcut.createFinalBinarySegmentation();
-
-        Long grabTime = System.currentTimeMillis();
-
-        grabcut.createGrabCutHumanMask();
-        updateProgress(process[index++], maxProcess);
-
-        grabcut.createHumanMaskWithLabeledContour();
-        updateProgress(process[index++], maxProcess);
-
-        Double execSvmTime = this.calculateExecutionTime(startTime, svmTime);
-        Double execGrabTime = this.calculateExecutionTime(startTime, grabTime);
-
-        if(this.image.getDirectory().hasLabeledImagePath()) {
-
-            svmImageStatistic = new ImageStatistic.Builder(
-                this.image,
-                MethodEnum.SVM, 
-                superpixels.getSuperpixelsAmount(), 
-                execSvmTime
-            ).overlappingImage(ml.getClassified(), this.image.getLabeledFilledContourImage())
-            .hasLabeledImage()
-            .sensitivity()
-            .specificity()
-            .precision()
-            .accuracy()
-            .iou()
-            .build();
-
-            grabImageStatistic = new ImageStatistic.Builder(
-                this.image,
-                MethodEnum.GRAB, 
-                superpixels.getSuperpixelsAmount(), 
-                execGrabTime
-            ).overlappingImage(grabcut.getFinalBinarySegmentation(), this.image.getLabeledFilledContourImage())
-            .hasLabeledImage()
-            .sensitivity()
-            .specificity()
-            .precision()
-            .accuracy()
-            .iou()
-            .build();
-        
-        } else {
-
-            svmImageStatistic = new ImageStatistic.Builder(
-                this.image,
-                MethodEnum.SVM, 
-                superpixels.getSuperpixelsAmount(), 
-                execSvmTime
-            ).build();
-
-            grabImageStatistic = new ImageStatistic.Builder(
-                this.image,
-                MethodEnum.GRAB, 
-                superpixels.getSuperpixelsAmount(), 
-                execGrabTime
-            ).build();
-        }
-        updateProgress(process[index++], maxProcess);
-
-        this.image.setGrabCutHumanMask(grabcut.getGrabCutHumanMask());
-        this.image.setFinalUlcerSegmentation(grabcut.getFinalUlcerSegmentation());
-        this.image.setFinalBinarySegmentation(grabcut.getFinalBinarySegmentation());
-        this.image.setMlCLassifiedImage(ml.getClassified());
-        this.image.setSkeletonWithBranchs(skeletonization.getSkeletonView());
-        this.image.setSkeletonWithoutBranchs(skeletonization.getSkeletonWithoutBranchsNot());
-        this.image.setMlOverlappingImage(svmImageStatistic.getOverlappingImage());
-        this.image.setGrabCutOverlappingImage(grabImageStatistic.getOverlappingImage());
-        updateProgress(process[index++], maxProcess);
-
-        IMAGE_SERVICE.save(this.image);
-        FILE_SERVICE.saveImageStatistics(
-            (new ImageStatisticUtil(Arrays.asList(svmImageStatistic))).statisticsCsvHeader().csvFormatter().toString(), 
-            svmImageStatistic.getImage().getDirectory().getStatisticsSvmCsvPath()
-        );
-        FILE_SERVICE.saveImageStatistics(
-            (new ImageStatisticUtil(Arrays.asList(grabImageStatistic))).statisticsCsvHeader().csvFormatter().toString(), 
-            grabImageStatistic.getImage().getDirectory().getStatisticsGrabCsvPath()
-        );
-        FILE_SERVICE.saveImageStatistics(
-            ImageStatisticUtil.getStatisticsMerged(Arrays.asList(svmImageStatistic), Arrays.asList(grabImageStatistic)),
-            grabImageStatistic.getImage().getDirectory().getStatisticsVisualizationPath()
-        );
+        IMAGE_REPOSITORY.save(this.image.getLabeledFilledContourImage(), this.image.getDirectory().getLabeledExtractedImagePath());
         updateProgress(maxProcess, maxProcess);
 
         Thread.sleep(500l);
